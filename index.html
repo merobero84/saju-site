@@ -3255,20 +3255,22 @@ function buildClosingPages(data, year, pages) {
       <h1 class="pg-title">AI 사주 해설</h1>
       <div class="pg-body">
         <div class="mood-card cream">
-          <p>원하시면 아래 버튼으로 AI에게 위 사주 내용을 보내어 추가 해석을 받을 수 있어요. API 키는 저장되지 않고 브라우저 안에서만 사용돼요.</p>
+          <p>Claude(클로드) AI에게 위 사주 내용을 보내어 추가 해석을 받을 수 있어요. API 키는 저장되지 않고 브라우저 안에서만 사용돼요.</p>
+          <p style="margin-top:8px;font-size:13px;color:var(--ink-soft);">
+            💡 <a href="https://console.anthropic.com" target="_blank" rel="noopener" style="color:var(--moss);">console.anthropic.com</a>에서 키 발급 → 크레딧 충전 → 아래 입력
+          </p>
           <button id="btn-toggle-ai" class="btn btn-ghost" style="margin-top:10px;width:100%;">🤖 AI 해석 열기</button>
         </div>
         <div class="ai-section" id="ai-section" style="display:none;">
-          <label style="font-size:13px;color:var(--moss);">OpenAI API Key (sk-...)</label>
-          <input id="ai-key" type="password" placeholder="sk-..." />
+          <label style="font-size:13px;color:var(--moss);">Claude API Key (sk-ant-...)</label>
+          <input id="ai-key" type="password" placeholder="sk-ant-..." />
           <label style="font-size:13px;color:var(--moss);">모델</label>
-          <select id="ai-model">
-            <option value="gpt-4o-mini">gpt-4o-mini (권장)</option>
-            <option value="gpt-4o">gpt-4o</option>
-          </select>
+          <div style="padding:10px 12px;background:var(--ivory-2);border-radius:10px;font-size:13px;color:var(--ink-soft);">
+            🍃 Claude Sonnet 4.6 <span style="opacity:0.7;">(균형잡힌 고품질 · 1회 ~30원)</span>
+          </div>
           <label style="font-size:13px;color:var(--moss);">구체적으로 묻고 싶은 것</label>
           <textarea id="ai-ask" placeholder="예: 올해 결혼이 정말 가능할까요? 재물 흐름이 어떤가요? 이직은 어떨까요?" style="min-height:80px;"></textarea>
-          <button id="btn-ai-run">🔮 AI에게 해석 받기</button>
+          <button id="btn-ai-run">🔮 Claude에게 해석 받기</button>
           <div class="ai-result" id="ai-result"></div>
         </div>
       </div>
@@ -4298,40 +4300,86 @@ function bindAISection(data, year) {
   if (btnRun) {
     btnRun.addEventListener('click', async () => {
       const key = document.getElementById('ai-key').value.trim();
-      const model = document.getElementById('ai-model').value;
       const ask = document.getElementById('ai-ask').value.trim();
       const resultEl = document.getElementById('ai-result');
-      if (!key.startsWith('sk-')) { alert('OpenAI API 키를 입력해주세요.'); return; }
+      if (!key.startsWith('sk-ant-')) {
+        alert('Claude API 키(sk-ant-...)를 입력해주세요.\nconsole.anthropic.com 에서 발급받을 수 있어요.');
+        return;
+      }
 
       const cw = data.yeonwoon.find(y=>y.year===year) || data.yeonwoon.find(y=>y.current) || data.yeonwoon[0];
       const gender = data.gender==='male'?'남성':'여성';
-      const prompt = `당신은 20년 경력의 명리학 전문가입니다. 다음 사주 데이터를 바탕으로 ${year}년(${gender}, ${data.birthYear?year-data.birthYear:''}세)의 해석을 친근한 말투로 풀어주세요.
+      const age = data.birthYear ? year - data.birthYear : '';
+      const honoric = data.name ? `${data.name}님` : '이분';
 
-[기본 정보]
-- 생년월일: ${data.birth} ${data.calendar}
-- 성별: ${gender}
+      const systemPrompt = `당신은 20년 경력의 한국 명리학 전문가입니다.
+- 따뜻하고 친근한 말투로 답하되, 명리학적 근거를 꼭 포함해요
+- 무조건적 긍정이나 공포 조장 없이 균형 잡힌 해석을 해요
+- 일간·오행·십신·용신·대운·세운을 종합적으로 엮어서 답해요
+- 구체적인 시기(월)가 있으면 명시하고, 없으면 무리하게 지어내지 말아요
+- 오락·참고용임을 명심하고, 중요한 인생 결정은 본인이 한다고 마무리해요`;
+
+      const userPrompt = `아래는 ${honoric}(${gender}, ${age}세)의 사주 정보입니다.
+
+[사주 원국]
+- 생년월일: ${data.birth || '미상'}
 - 일간: ${data.ilgan}
-- 사주팔자: ${data.pillars.year?.gan}${data.pillars.year?.ji} / ${data.pillars.month?.gan}${data.pillars.month?.ji} / ${data.pillars.day?.gan}${data.pillars.day?.ji} / ${data.pillars.hour?.gan}${data.pillars.hour?.ji}
-- 오행: 목${data.oheng.목} 화${data.oheng.화} 토${data.oheng.토} 금${data.oheng.금} 수${data.oheng.수}
-- 신강/신약: ${data.singang}
-- 용신/희신/기신: ${data.yongsin}/${data.heesin}/${data.kisin}
-- 신살: ${data.sinsal.join(', ')}
-- ${year}년 세운: ${cw?.gan}${cw?.ji} (${cw?.sipsin}, ${cw?.unseong})
+- 사주팔자: ${data.pillars.year?.gan||''}${data.pillars.year?.ji||''} / ${data.pillars.month?.gan||''}${data.pillars.month?.ji||''} / ${data.pillars.day?.gan||''}${data.pillars.day?.ji||''} / ${data.pillars.hour?.gan||''}${data.pillars.hour?.ji||''}
+- 오행 분포: 목${data.oheng.목||0} 화${data.oheng.화||0} 토${data.oheng.토||0} 금${data.oheng.금||0} 수${data.oheng.수||0}
+- 신강/신약: ${data.singang||'?'}
+- 용신/희신/기신: ${data.yongsin||'?'}/${data.heesin||'?'}/${data.kisin||'?'}
+- 주요 신살: ${(data.sinsal||[]).join(', ')||'없음'}
+
+[${year}년 세운]
+- 연간지: ${cw?.gan||''}${cw?.ji||''}
+- 십신: ${cw?.sipsin||''}
+- 12운성: ${cw?.unseong||''}
 
 [질문]
-${ask || `${year}년 종합 운세를 정성껏 풀어주세요.`}`;
+${ask || `${year}년 한 해를 어떻게 보내면 좋을지, 어느 영역을 주목하고 어느 부분을 조심해야 할지 정성껏 풀어주세요.`}`;
 
       resultEl.classList.add('is-visible');
-      resultEl.textContent = '🔮 요정이 풀이하는 중...';
+      resultEl.textContent = '🔮 요정이 풀이하는 중... (10~20초 걸려요)';
+
       try {
-        const res = await fetch('https://api.openai.com/v1/chat/completions', {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${key}` },
-          body: JSON.stringify({ model, messages:[{role:'user',content:prompt}], temperature:0.7 })
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': key,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-5',
+            max_tokens: 2000,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: userPrompt }]
+          })
         });
         const json = await res.json();
-        resultEl.textContent = json.choices?.[0]?.message?.content || JSON.stringify(json);
-      } catch(e) { resultEl.textContent = '에러: ' + e.message; }
+
+        if (json.error) {
+          const msg = json.error.message || json.error.type || '알 수 없는 에러';
+          if (json.error.type === 'authentication_error') {
+            resultEl.textContent = '❌ API 키가 올바르지 않아요. console.anthropic.com에서 키를 확인해주세요.';
+          } else if (json.error.type === 'permission_error' || json.error.type === 'rate_limit_error') {
+            resultEl.textContent = '❌ 크레딧이 부족하거나 요청 한도를 초과했어요. console.anthropic.com → Billing에서 크레딧을 충전해주세요.';
+          } else {
+            resultEl.textContent = '❌ 에러: ' + msg;
+          }
+          return;
+        }
+
+        const text = json.content?.[0]?.text;
+        if (text) {
+          resultEl.textContent = text;
+        } else {
+          resultEl.textContent = '응답을 받았지만 내용이 비었어요. 다시 시도해주세요.\n\n' + JSON.stringify(json).slice(0, 300);
+        }
+      } catch(e) {
+        resultEl.textContent = '❌ 네트워크 에러: ' + e.message + '\n\n인터넷 연결을 확인하거나, 잠시 후 다시 시도해주세요.';
+      }
     });
   }
 }

@@ -5160,23 +5160,37 @@ function init() {
       win.document.close();
     } else {
       if (!ALL_PAGES||ALL_PAGES.length===0){alert('카드가 없어요.');return;}
-      function extractCardContent(html){
+      function extractCardContent(html, title){
         const tmp=document.createElement('div');
         tmp.innerHTML=html||'';
         // 불필요한 요소 제거
         tmp.querySelectorAll('.pg-chapter-no,script,style,.story-tap-zone,.pg-eyebrow,h1.pg-title').forEach(el=>el.remove());
-        // 긴 텍스트 블록은 3줄로 제한
-        tmp.querySelectorAll('p').forEach(p=>{
-          if(p.textContent.length>80) p.textContent=p.textContent.slice(0,80)+'…';
+        // score-ball은 작게 표시 (숫자만 남기기)
+        tmp.querySelectorAll('.score-ball').forEach(ball=>{
+          const num=ball.querySelector('.num');
+          if(num){
+            const span=document.createElement('strong');
+            span.style.cssText='font-size:18px;color:#9e4f3f;';
+            span.textContent=num.textContent+'점';
+            ball.parentNode.replaceChild(span,ball);
+          }
         });
-        // 리스트 항목도 축소
+        // center-stack 해제 (격자에서 중앙정렬이 공간 낭비)
+        tmp.querySelectorAll('.center-stack').forEach(el=>{
+          el.style.textAlign='left';
+          el.style.display='block';
+        });
+        // 긴 텍스트 블록은 60자로 제한
+        tmp.querySelectorAll('p').forEach(p=>{
+          if(p.textContent.trim().length>60) p.textContent=p.textContent.trim().slice(0,60)+'…';
+        });
         tmp.querySelectorAll('li').forEach(li=>{
-          if(li.textContent.length>50) li.textContent=li.textContent.slice(0,50)+'…';
+          if(li.textContent.length>40) li.textContent=li.textContent.slice(0,40)+'…';
         });
         return tmp.innerHTML;
       }
       const chunks=[];for(let i=0;i<ALL_PAGES.length;i+=4)chunks.push(ALL_PAGES.slice(i,i+4));
-      const gridPagesHtml=chunks.map((chunk,ci)=>`<div class="grid-page">${chunk.map((p,j)=>`<div class="grid-card"><div class="grid-card-header"><span class="grid-chapter">${p.emoji||'🦫'} ${p.chapter}</span><span class="grid-num">${ci*4+j+1}</span></div><div class="grid-card-body"><div class="grid-title">${p.title}</div><div class="grid-content">${extractCardContent(p.html)}</div></div></div>`).join('')}${chunk.length<4?Array(4-chunk.length).fill('<div class="grid-card grid-card-empty"></div>').join(''):''}</div>`).join('');
+      const gridPagesHtml=chunks.map((chunk,ci)=>`<div class="grid-page">${chunk.map((p,j)=>`<div class="grid-card"><div class="grid-card-header"><span class="grid-chapter">${p.emoji||'🦫'} ${p.chapter}</span><span class="grid-num">${ci*4+j+1}</span></div><div class="grid-card-body"><div class="grid-title">${p.title}</div><div class="grid-content">${extractCardContent(p.html, p.title)}</div></div></div>`).join('')}${chunk.length<4?Array(4-chunk.length).fill('<div class="grid-card grid-card-empty"></div>').join(''):''}</div>`).join('');
       const win=window.open('','_blank');
       win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name} ${year}년 전체</title><style>
 @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap');
@@ -5207,6 +5221,10 @@ body{font-family:'Gowun Dodum',sans-serif;background:#fff8f5;color:#4a2e28;font-
 .grid-content .plant{padding:2px!important;text-align:center!important;border-radius:4px!important;}
 .grid-content .plant .pic{font-size:12px!important;}.grid-content .plant .nm,.grid-content .plant .ct{font-size:7px!important;}
 .grid-content svg{max-width:100%!important;height:auto!important;}
+.grid-content .score-ball{width:52px!important;height:52px!important;font-size:8px!important;box-shadow:none!important;}
+.grid-content .score-ball .num{font-size:16px!important;line-height:1!important;}
+.grid-content .score-ball .lbl{font-size:7px!important;margin-top:1px!important;}
+.grid-content .center-stack{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;text-align:left!important;}
 .btn-p{display:block;margin:20px auto;padding:12px 36px;background:#e8917e;color:#fff;border:none;border-radius:12px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:700;}
 @media print{body{background:#fff;}.no-print{display:none!important;}.grid-page{height:100vh;padding:10px;}}
 </style></head><body>

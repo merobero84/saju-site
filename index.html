@@ -4561,61 +4561,175 @@ function init() {
       win.document.close();
 
     } else {
-      // 전체 카드 PDF
+      // 전체 카드 PDF - 2×2 격자 레이아웃
       if (!ALL_PAGES || ALL_PAGES.length === 0) { alert('카드가 없어요.'); return; }
-      const pagesHtml = ALL_PAGES.map((p, i) => `
-        <div class="card-page">
-          <div class="card-header">
-            <span class="chapter-label">${p.chapter}</span>
-            <span class="page-num">${i+1} / ${ALL_PAGES.length}</span>
-          </div>
-          <div class="card-body">${p.html || ''}</div>
+
+      // 카드 HTML에서 텍스트/핵심 내용만 뽑기 (이미지 제외, 너무 긴 내용 압축)
+      function extractCardContent(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html || '';
+        // pg-chapter-no, 스크립트 제거
+        tmp.querySelectorAll('.pg-chapter-no, script, style, .story-tap-zone').forEach(el => el.remove());
+        // pg-eyebrow, pg-title, pg-body 구조 유지
+        return tmp.innerHTML;
+      }
+
+      // 4개씩 묶어서 페이지 단위로
+      const chunks = [];
+      for (let i = 0; i < ALL_PAGES.length; i += 4) {
+        chunks.push(ALL_PAGES.slice(i, i + 4));
+      }
+
+      const gridPagesHtml = chunks.map((chunk, ci) => `
+        <div class="grid-page">
+          ${chunk.map((p, j) => `
+            <div class="grid-card">
+              <div class="grid-card-header">
+                <span class="grid-chapter">${p.emoji || '🦫'} ${p.chapter}</span>
+                <span class="grid-num">${ci*4+j+1}</span>
+              </div>
+              <div class="grid-card-body">
+                <div class="grid-title">${p.title}</div>
+                <div class="grid-content">${extractCardContent(p.html)}</div>
+              </div>
+            </div>
+          `).join('')}
+          ${chunk.length < 4 ? Array(4-chunk.length).fill('<div class="grid-card grid-card-empty"></div>').join('') : ''}
         </div>
       `).join('');
 
       const win = window.open('', '_blank');
       win.document.write(`<!DOCTYPE html><html><head>
         <meta charset="utf-8"><title>${name} ${year}년 사주카드 전체</title>
-        <style>${commonStyle}
-          body{padding:0;}
-          .top-bar{text-align:center;padding:24px;border-bottom:3px solid #ffb8a8;margin-bottom:0;background:#fff8f5;}
-          .top-bar h1{font-size:26px;margin:8px 0 4px;}
-          .top-bar p{margin:0;color:#c4705e;}
-          .card-page{
-            max-width:500px; margin:0 auto;
-            padding:28px 24px 32px;
-            border-bottom:2px dashed #ffb8a8;
-            min-height:60vh;
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap');
+          *{box-sizing:border-box;margin:0;padding:0;}
+          body{font-family:'Gowun Dodum',sans-serif;background:#fff8f5;color:#4a2e28;font-size:11px;line-height:1.5;}
+
+          /* 표지 */
+          .cover{
+            width:100vw;height:100vh;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            background:linear-gradient(160deg,#fff5f0 0%,#fde8df 100%);
+            border-bottom:3px solid #ffb8a8;
+            page-break-after:always;
           }
-          .card-header{
+          .cover-emoji{font-size:80px;margin-bottom:16px;}
+          .cover-title{font-family:'Gowun Batang',serif;font-size:36px;color:#9e4f3f;margin-bottom:8px;}
+          .cover-sub{font-family:'Nanum Pen Script',cursive;font-size:24px;color:#c4705e;margin-bottom:24px;}
+          .cover-info{font-size:15px;color:#8a6058;border:1.5px dashed #ffb8a8;padding:12px 28px;border-radius:99px;}
+
+          /* 격자 페이지 */
+          .grid-page{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            grid-template-rows:1fr 1fr;
+            gap:12px;
+            padding:16px;
+            width:100%;
+            height:100vh;
+            page-break-after:always;
+            page-break-inside:avoid;
+          }
+          .grid-page:last-of-type{page-break-after:auto;}
+
+          /* 개별 카드 */
+          .grid-card{
+            background:#fff;
+            border:1.5px solid #ffb8a8;
+            border-radius:16px;
+            overflow:hidden;
+            display:flex;
+            flex-direction:column;
+            position:relative;
+          }
+          .grid-card-empty{
+            background:rgba(255,245,240,0.4);
+            border:1.5px dashed #ffd4c2;
+            border-radius:16px;
+          }
+          .grid-card-header{
+            background:linear-gradient(135deg,#fff5f0,#fde8df);
+            padding:8px 12px;
             display:flex;justify-content:space-between;align-items:center;
-            margin-bottom:14px;padding-bottom:8px;
-            border-bottom:1px solid #fde8df;
-            font-size:12px;color:#c4705e;
+            border-bottom:1px solid #ffd4c2;
+            flex-shrink:0;
           }
-          .chapter-label{font-weight:700;}
-          .page-num{opacity:0.7;}
-          .card-body{padding:0;}
-          .btn-p{display:block;margin:30px auto;padding:14px 40px;background:#e8917e;color:#fff;border:none;border-radius:14px;font-size:16px;cursor:pointer;font-family:inherit;font-weight:700;}
+          .grid-chapter{font-size:10px;color:#c4705e;font-weight:700;}
+          .grid-num{
+            font-family:'Nanum Pen Script',cursive;
+            font-size:16px;color:#e8917e;
+          }
+          .grid-card-body{
+            padding:10px 12px;
+            overflow:hidden;
+            flex:1;
+            position:relative;
+          }
+          .grid-card-body::after{
+            content:'';position:absolute;bottom:0;left:0;right:0;height:32px;
+            background:linear-gradient(transparent,#fff);
+          }
+          .grid-title{
+            font-family:'Gowun Batang',serif;
+            font-size:13px;font-weight:700;
+            color:#9e4f3f;margin-bottom:6px;
+          }
+          .grid-content{font-size:10px;line-height:1.55;color:#4a2e28;}
+
+          /* 내부 요소 스타일 압축 */
+          .grid-content h1{font-size:13px;font-family:'Gowun Batang',serif;margin:4px 0;}
+          .grid-content h2,.grid-content h3,.grid-content h4{font-size:11px;font-family:'Gowun Batang',serif;margin:3px 0;}
+          .grid-content .pg-eyebrow{font-size:9px;color:#c4705e;letter-spacing:0.5px;}
+          .grid-content .pg-title{font-size:13px;font-family:'Gowun Batang',serif;margin:3px 0 6px;}
+          .grid-content .pg-sub{font-size:9px;color:#8a6058;margin-bottom:4px;}
+          .grid-content .mood-card{border:1px solid #ffb8a8;border-radius:8px;padding:6px 8px;margin:4px 0;background:#fff5f2;font-size:10px;}
+          .grid-content .mood-card.leaf{border-color:#ffb8a8;background:#fff5f0;}
+          .grid-content .mood-card.peach{border-color:#ffd4c2;background:#fff0ee;}
+          .grid-content .mood-card.cream{border-color:#d4a090;background:#fde8df;}
+          .grid-content .tags{display:flex;flex-wrap:wrap;gap:2px;margin:3px 0;}
+          .grid-content .tag{padding:1px 6px;border-radius:99px;background:#fde8df;border:1px solid #ffb8a8;font-size:9px;}
+          .grid-content .hand{font-family:'Nanum Pen Script',cursive;font-size:12px;}
+          .grid-content .center-stack{text-align:center;}
+          .grid-content .sticky{background:#fff8c8;border-radius:4px;padding:4px 8px;display:inline-block;font-size:10px;}
+          .grid-content .score-ball{border-radius:50%;background:#fff5f0;border:2px solid #ffb8a8;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:60px;height:60px;}
+          .grid-content .pg-chapter-no{display:none;}
+          .grid-content table{width:100%;border-collapse:collapse;font-size:9px;}
+          .grid-content td,.grid-content th{border:1px solid #ffd4c2;padding:2px 4px;}
+          .grid-content strong{font-weight:700;}
+          .grid-content p{margin:2px 0;}
+          .grid-content ul,.grid-content ol{padding-left:14px;margin:2px 0;}
+          .grid-content li{margin:1px 0;font-size:9px;}
+
+          /* 버튼 */
+          .btn-p{
+            display:block;margin:20px auto;padding:14px 40px;
+            background:#e8917e;color:#fff;border:none;border-radius:14px;
+            font-size:16px;cursor:pointer;font-family:inherit;font-weight:700;
+          }
+
           @media print{
-            .top-bar{border-bottom:2px solid #ccc;}
-            .card-page{
-              page-break-after:always;
-              page-break-inside:avoid;
-              min-height:auto;
-              border-bottom:none;
-            }
-            .card-page:last-of-type{page-break-after:auto;}
+            body{background:#fff;}
+            .no-print{display:none!important;}
+            .grid-page{height:100vh;padding:12px;}
           }
         </style>
       </head><body>
-        <div class="top-bar">
-          <p style="font-size:32px;margin:0;">🦫</p>
-          <h1>카피바라 사주카드</h1>
-          <p>${name} · ${year}년 · 총 ${ALL_PAGES.length}장</p>
+
+        <div class="cover">
+          <div class="cover-emoji">🦫</div>
+          <div class="cover-title">카피바라 사주카드</div>
+          <div class="cover-sub">"느긋하게, 그러나 깊이"</div>
+          <div class="cover-info">${name} · ${year}년 · 총 ${ALL_PAGES.length}장</div>
         </div>
-        ${pagesHtml}
-        <button class="btn-p no-print" onclick="window.print()">🖨️ 전체 PDF로 저장하기</button>
+
+        ${gridPagesHtml}
+
+        <div style="text-align:center;padding:30px;">
+          <button class="btn-p no-print" onclick="window.print()">🖨️ PDF로 저장하기</button>
+          <p style="margin-top:10px;font-size:12px;color:#c4705e;">인쇄 설정에서 "여백 없음" 선택 시 더 예쁘게 출력돼요</p>
+        </div>
+
       </body></html>`);
       win.document.close();
     }

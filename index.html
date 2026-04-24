@@ -478,16 +478,16 @@
   .pillar-han { font-size: 10px; margin-top: 4px; color: var(--ink-soft); }
   .pillar.is-day .pillar-han { color: rgba(255,255,255,0.75); }
 
-  .garden { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 14px 0; }
+  .garden { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 6px; margin: 14px 0; }
   .plant {
-    text-align: center; padding: 12px 4px; border-radius: 16px;
-    background: #fff; border: 1.5px solid var(--mint);
+    text-align: center; padding: 10px 2px; border-radius: 14px;
+    background: #fff; border: 1.5px solid var(--mint); min-width: 0;
   }
   .plant.strong { background: var(--leaf-1); border-color: var(--leaf-3); }
   .plant.zero   { background: var(--ivory-2); opacity: 0.55; }
-  .plant .pic { font-size: 28px; line-height: 1; }
-  .plant .nm { font-family: 'Gowun Batang', serif; font-size: 13px; margin-top: 4px; }
-  .plant .ct { font-weight: 700; font-size: 18px; color: var(--moss-deep); }
+  .plant .pic { font-size: 24px; line-height: 1; }
+  .plant .nm { font-family: 'Gowun Batang', serif; font-size: 12px; margin-top: 4px; }
+  .plant .ct { font-weight: 700; font-size: 16px; color: var(--moss-deep); }
   .plant.zero .ct { color: var(--ink-soft); }
 
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -4418,12 +4418,7 @@ function multiRenderInputTabs() {
 
   contents.innerHTML = multiPersons.map((p, i) => `
     <div class="multi-person-panel" id="mpanel-${p.id}">
-      <div class="field-row-3" style="margin-bottom:10px;">
-        <div class="field">
-          <label>이름</label>
-          <input id="mname-${p.id}" value="${esc(p.name)}" placeholder="예: 짱구"
-            oninput="multiPersons.find(x=>x.id===${p.id}).name=this.value; document.querySelector('[data-id=&quot;${p.id}&quot;]').childNodes[0].textContent=' ${CAPI_COLORS[i]} '; multiUpdateTabLabel(${p.id})" />
-        </div>
+      <div class="field-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
         <div class="field">
           <label>성별</label>
           <select id="mgender-${p.id}">
@@ -4435,6 +4430,14 @@ function multiRenderInputTabs() {
           <label>연도</label>
           <input id="myear-${p.id}" type="number" value="2026" min="1950" max="2100" />
         </div>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label>연애 상황</label>
+        <select id="mlovestatus-${p.id}">
+          <option value="single">💝 싱글</option>
+          <option value="dating">💑 연애 중</option>
+          <option value="married">💍 기혼 / 동거</option>
+        </select>
       </div>
       <div class="field">
         <label>만세력 텍스트</label>
@@ -4467,15 +4470,19 @@ function multiRun() {
   const results = [];
   for (const p of multiPersons) {
     const raw = (document.getElementById(`mraw-${p.id}`)?.value || '').trim();
-    const name = (document.getElementById(`mname-${p.id}`)?.value || p.name).trim();
     const gender = document.getElementById(`mgender-${p.id}`)?.value || 'female';
+    const loveStatus = document.getElementById(`mlovestatus-${p.id}`)?.value || 'single';
     const year = parseInt(document.getElementById(`myear-${p.id}`)?.value, 10) || 2026;
+    const placeholderName = p.name;
     if (!raw) {
-      errorEl.className = 'error'; errorEl.textContent = `${name}의 만세력을 입력해주세요.`; errorEl.style.display = 'block'; return;
+      errorEl.className = 'error'; errorEl.textContent = `${placeholderName}의 만세력을 입력해주세요.`; errorEl.style.display = 'block'; return;
     }
     try {
       const data = parseManseryeok(raw);
-      data.name = name; data.gender = gender;
+      // 이름은 만세력에서 자동 파싱, 없으면 카피1/카피2 등
+      if (!data.name) data.name = placeholderName;
+      data.gender = gender;
+      data.loveStatus = loveStatus;
       if (!data.ilgan) throw new Error('일간을 찾지 못했어요');
       const pages = buildPages(data, year);
       results.push({ id: p.id, name, data, year, pages });
@@ -5091,6 +5098,22 @@ function init() {
   });
   document.getElementById('btn-multi-run').addEventListener('click', multiRun);
 
+  // 네비게이션 버튼
+  document.getElementById('btn-prev').addEventListener('click', () => goToPage(CURRENT-1));
+  document.getElementById('btn-next').addEventListener('click', () => goToPage(CURRENT+1));
+  document.getElementById('btn-home').addEventListener('click', () => {
+    document.getElementById('screen-story').classList.remove('is-open');
+    document.getElementById('person-tab-bar').style.display = 'none';
+    multiPersons = [];
+    showScreen('screen-main');
+  });
+  document.getElementById('btn-close-story').addEventListener('click', () => {
+    document.getElementById('screen-story').classList.remove('is-open');
+    document.getElementById('person-tab-bar').style.display = 'none';
+    showScreen(multiPersons.length > 0 ? 'screen-multi' : 'screen-input');
+    multiPersons = [];
+  });
+
   // TOC
   document.getElementById('btn-toc').addEventListener('click', () => {
     document.getElementById('toc-overlay').classList.add('is-open');
@@ -5137,11 +5160,60 @@ function init() {
       win.document.close();
     } else {
       if (!ALL_PAGES||ALL_PAGES.length===0){alert('카드가 없어요.');return;}
-      function extractCardContent(html){const tmp=document.createElement('div');tmp.innerHTML=html||'';tmp.querySelectorAll('.pg-chapter-no,script,style').forEach(el=>el.remove());return tmp.innerHTML;}
+      function extractCardContent(html){
+        const tmp=document.createElement('div');
+        tmp.innerHTML=html||'';
+        // 불필요한 요소 제거
+        tmp.querySelectorAll('.pg-chapter-no,script,style,.story-tap-zone,.pg-eyebrow,h1.pg-title').forEach(el=>el.remove());
+        // 긴 텍스트 블록은 3줄로 제한
+        tmp.querySelectorAll('p').forEach(p=>{
+          if(p.textContent.length>80) p.textContent=p.textContent.slice(0,80)+'…';
+        });
+        // 리스트 항목도 축소
+        tmp.querySelectorAll('li').forEach(li=>{
+          if(li.textContent.length>50) li.textContent=li.textContent.slice(0,50)+'…';
+        });
+        return tmp.innerHTML;
+      }
       const chunks=[];for(let i=0;i<ALL_PAGES.length;i+=4)chunks.push(ALL_PAGES.slice(i,i+4));
       const gridPagesHtml=chunks.map((chunk,ci)=>`<div class="grid-page">${chunk.map((p,j)=>`<div class="grid-card"><div class="grid-card-header"><span class="grid-chapter">${p.emoji||'🦫'} ${p.chapter}</span><span class="grid-num">${ci*4+j+1}</span></div><div class="grid-card-body"><div class="grid-title">${p.title}</div><div class="grid-content">${extractCardContent(p.html)}</div></div></div>`).join('')}${chunk.length<4?Array(4-chunk.length).fill('<div class="grid-card grid-card-empty"></div>').join(''):''}</div>`).join('');
       const win=window.open('','_blank');
-      win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name} ${year}년 전체</title><style>@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap');*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Gowun Dodum',sans-serif;background:#fff8f5;color:#4a2e28;font-size:11px;line-height:1.5;}.cover{width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#fff5f0,#fde8df);page-break-after:always;}.cover-emoji{font-size:80px;margin-bottom:16px;}.cover-title{font-family:'Gowun Batang',serif;font-size:36px;color:#9e4f3f;margin-bottom:8px;}.cover-sub{font-family:'Nanum Pen Script',cursive;font-size:24px;color:#c4705e;margin-bottom:24px;}.cover-info{font-size:15px;color:#8a6058;border:1.5px dashed #ffb8a8;padding:12px 28px;border-radius:99px;}.grid-page{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px;padding:16px;width:100%;height:100vh;page-break-after:always;page-break-inside:avoid;}.grid-page:last-of-type{page-break-after:auto;}.grid-card{background:#fff;border:1.5px solid #ffb8a8;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}.grid-card-empty{background:rgba(255,245,240,0.4);border:1.5px dashed #ffd4c2;border-radius:16px;}.grid-card-header{background:linear-gradient(135deg,#fff5f0,#fde8df);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ffd4c2;flex-shrink:0;}.grid-chapter{font-size:10px;color:#c4705e;font-weight:700;}.grid-num{font-family:'Nanum Pen Script',cursive;font-size:16px;color:#e8917e;}.grid-card-body{padding:10px 12px;overflow:hidden;flex:1;position:relative;}.grid-card-body::after{content:'';position:absolute;bottom:0;left:0;right:0;height:32px;background:linear-gradient(transparent,#fff);}.grid-title{font-family:'Gowun Batang',serif;font-size:13px;font-weight:700;color:#9e4f3f;margin-bottom:6px;}.grid-content{font-size:10px;line-height:1.55;}.grid-content h1{font-size:13px;font-family:'Gowun Batang',serif;margin:4px 0;}.grid-content .mood-card{border:1px solid #ffb8a8;border-radius:8px;padding:6px 8px;margin:4px 0;background:#fff5f2;}.grid-content p{margin:2px 0;}.grid-content .pg-chapter-no{display:none;}.btn-p{display:block;margin:20px auto;padding:14px 40px;background:#e8917e;color:#fff;border:none;border-radius:14px;font-size:16px;cursor:pointer;font-family:inherit;font-weight:700;}@media print{body{background:#fff;}.no-print{display:none!important;}.grid-page{height:100vh;padding:12px;}}</style></head><body><div class="cover"><div class="cover-emoji">🦫</div><div class="cover-title">카피바라 사주카드</div><div class="cover-sub">"느긋하게, 그러나 깊이"</div><div class="cover-info">${name} · ${year}년 · 총 ${ALL_PAGES.length}장</div></div>${gridPagesHtml}<div style="text-align:center;padding:30px;"><button class="btn-p no-print" onclick="window.print()">🖨️ PDF로 저장하기</button></div></body></html>`);
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name} ${year}년 전체</title><style>
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Gowun Dodum',sans-serif;background:#fff8f5;color:#4a2e28;font-size:9px;line-height:1.45;}
+.cover{width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#fff5f0,#fde8df);page-break-after:always;}
+.cover-emoji{font-size:60px;margin-bottom:12px;}.cover-title{font-family:'Gowun Batang',serif;font-size:28px;color:#9e4f3f;margin-bottom:6px;}
+.cover-sub{font-family:'Nanum Pen Script',cursive;font-size:20px;color:#c4705e;margin-bottom:18px;}
+.cover-info{font-size:13px;color:#8a6058;border:1.5px dashed #ffb8a8;padding:10px 24px;border-radius:99px;}
+.grid-page{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;padding:12px;width:100%;height:100vh;page-break-after:always;page-break-inside:avoid;}
+.grid-page:last-of-type{page-break-after:auto;}
+.grid-card{background:#fff;border:1px solid #ffb8a8;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;}
+.grid-card-empty{background:rgba(255,245,240,0.4);border:1px dashed #ffd4c2;border-radius:12px;}
+.grid-card-header{background:linear-gradient(135deg,#fff5f0,#fde8df);padding:5px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ffd4c2;flex-shrink:0;}
+.grid-chapter{font-size:8px;color:#c4705e;font-weight:700;}
+.grid-num{font-family:'Nanum Pen Script',cursive;font-size:13px;color:#e8917e;}
+.grid-card-body{padding:6px 8px;overflow:hidden;flex:1;position:relative;}
+.grid-card-body::after{content:'';position:absolute;bottom:0;left:0;right:0;height:20px;background:linear-gradient(transparent,#fff);}
+.grid-title{font-family:'Gowun Batang',serif;font-size:10px;font-weight:700;color:#9e4f3f;margin-bottom:4px;border-bottom:1px dashed #ffd4c2;padding-bottom:3px;}
+.grid-content{font-size:8.5px;line-height:1.45;overflow:hidden;max-height:calc(100% - 20px);}
+.grid-content *{max-width:100%!important;font-size:8.5px!important;line-height:1.45!important;margin:1px 0!important;padding:2px 4px!important;}
+.grid-content h1,.grid-content h2,.grid-content h3,.grid-content h4{font-family:'Gowun Batang',serif!important;font-size:9.5px!important;font-weight:700!important;}
+.grid-content .mood-card{border:1px solid #ffb8a8!important;border-radius:5px!important;background:#fff5f2!important;}
+.grid-content .pg-chapter-no,.grid-content .pg-eyebrow,.grid-content h1.pg-title{display:none!important;}
+.grid-content .tags{display:flex!important;flex-wrap:wrap!important;gap:2px!important;}
+.grid-content .tag{font-size:7px!important;padding:1px 4px!important;border-radius:99px!important;background:#fde8df!important;border:1px solid #ffb8a8!important;}
+.grid-content .garden{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:2px!important;}
+.grid-content .plant{padding:2px!important;text-align:center!important;border-radius:4px!important;}
+.grid-content .plant .pic{font-size:12px!important;}.grid-content .plant .nm,.grid-content .plant .ct{font-size:7px!important;}
+.grid-content svg{max-width:100%!important;height:auto!important;}
+.btn-p{display:block;margin:20px auto;padding:12px 36px;background:#e8917e;color:#fff;border:none;border-radius:12px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:700;}
+@media print{body{background:#fff;}.no-print{display:none!important;}.grid-page{height:100vh;padding:10px;}}
+</style></head><body>
+<div class="cover"><div class="cover-emoji">🦫</div><div class="cover-title">카피바라 사주카드</div><div class="cover-sub">"느긋하게, 그러나 깊이"</div><div class="cover-info">${name} · ${year}년 · 총 ${ALL_PAGES.length}장</div></div>
+${gridPagesHtml}
+<div style="text-align:center;padding:24px;"><button class="btn-p no-print" onclick="window.print()">🖨️ PDF로 저장하기</button><p style="margin-top:8px;font-size:11px;color:#c4705e;">인쇄 설정에서 "여백 없음" 선택 시 더 예뻐요</p></div>
+</body></html>`);
       win.document.close();
     }
   });

@@ -49,7 +49,7 @@
 
   /* ====== MAIN SCREEN ====== */
   #screen-main {
-    display: block; position: relative; z-index: 1;
+    position: relative; z-index: 1;
     max-width: 520px; margin: 0 auto; padding: 0 22px 80px;
   }
   .main-mode-btn {
@@ -68,10 +68,9 @@
 
   /* ====== MULTI SCREEN ====== */
   #screen-multi {
-    display: none; position: relative; z-index: 1;
+    position: relative; z-index: 1;
     max-width: 520px; margin: 0 auto; padding: 0 22px 80px;
   }
-  #screen-multi.is-open { display: block; }
 
   .multi-person-tab-btn {
     padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 700;
@@ -660,7 +659,7 @@
 </div>
 
 <!-- ============================================= INPUT SCREEN (개인) ============================================= -->
-<div id="screen-input" style="display:none;">
+<div id="screen-input">
 
   <div class="paper-card guide-card" style="margin-bottom:14px;">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
@@ -705,7 +704,7 @@
 </div>
 
 <!-- ============================================= MULTI SCREEN (다인) ============================================= -->
-<div id="screen-multi" style="display:none;">
+<div id="screen-multi">
   <div id="multi-input-wrap">
 
     <div class="paper-card guide-card" style="margin-bottom:14px;">
@@ -4401,9 +4400,13 @@ function init() {
   // 화면 전환 헬퍼
   function showScreen(id) {
     ['screen-main','screen-input','screen-multi'].forEach(s => {
-      document.getElementById(s).style.display = s === id ? '' : 'none';
+      const el = document.getElementById(s);
+      el.style.display = s === id ? 'block' : 'none';
     });
+    window.scrollTo(0, 0);
   }
+  // 초기 상태 설정
+  showScreen('screen-main');
 
   // 홈 버튼 → 메인으로
   document.getElementById('btn-home').addEventListener('click', () => {
@@ -4415,10 +4418,11 @@ function init() {
 
   // 닫기 버튼
   document.getElementById('btn-close-story').addEventListener('click', () => {
+    const wasMulti = multiPersons.length > 0;
     document.getElementById('screen-story').classList.remove('is-open');
     document.getElementById('person-tab-bar').style.display = 'none';
-    showScreen(multiPersons.length > 0 ? 'screen-multi' : 'screen-input');
     multiPersons = [];
+    showScreen(wasMulti ? 'screen-multi' : 'screen-input');
   });
 
   // TOC
@@ -4482,7 +4486,7 @@ function init() {
     if (e.key==='Escape')     document.getElementById('screen-story').classList.remove('is-open');
   });
 
-  // 🔗 링크 공유
+  // 🔗 링크 공유 (localStorage + 짧은 키)
   document.getElementById('btn-share').addEventListener('click', () => {
     try {
       const raw = document.getElementById('in-raw').value.trim();
@@ -4490,13 +4494,17 @@ function init() {
       const gender = document.getElementById('in-gender').value;
       const year = document.getElementById('in-year').value;
       if (!raw) { alert('공유할 데이터가 없어요.'); return; }
-      const payload = { raw, name, gender, year };
-      const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
-      const url = location.origin + location.pathname + '?d=' + encoded;
+      // 짧은 랜덤 키 생성
+      const key = 'saju_' + Math.random().toString(36).slice(2, 9);
+      const payload = JSON.stringify({ raw, name, gender, year });
+      localStorage.setItem(key, payload);
+      const url = location.origin + location.pathname + '?k=' + key;
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(() => alert('🔗 링크가 복사됐어요!\n친구에게 보내면 똑같은 결과를 볼 수 있어요 🦫'));
+        navigator.clipboard.writeText(url)
+          .then(() => alert('🔗 링크가 복사됐어요!\n같은 기기에서 열어야 데이터가 유지돼요 🦫\n\n(다른 기기 공유는 직접 텍스트를 복붙해주세요)'))
+          .catch(() => prompt('링크를 복사해 공유하세요:', url));
       } else {
-        prompt('아래 링크를 복사해 공유하세요:', url);
+        prompt('링크를 복사해 공유하세요:', url);
       }
     } catch(e) { alert('링크 생성 실패: ' + e.message); }
   });
@@ -4505,41 +4513,112 @@ function init() {
   document.getElementById('btn-pdf').addEventListener('click', () => {
     const name = document.getElementById('in-name').value.trim() || '사주';
     const year = document.getElementById('in-year').value || new Date().getFullYear();
-    // 현재 카드 페이지만 print
-    const page = document.querySelector('.story-page.is-active');
-    if (!page) { alert('표시된 카드가 없어요.'); return; }
-    const win = window.open('', '_blank');
-    win.document.write(`<!DOCTYPE html><html><head>
-      <meta charset="utf-8">
-      <title>${name} ${year}년 사주카드</title>
-      <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
-      <style>
-        body { margin: 0; padding: 20px; font-family: 'Gowun Dodum', sans-serif; background: #fff8f5; color: #4a2e28; }
-        @media print {
-          body { padding: 0; }
-          button { display: none !important; }
-        }
-        .print-wrap { max-width: 400px; margin: 0 auto; }
-        .print-header { text-align:center; padding:16px 0; border-bottom:2px dashed #ffb8a8; margin-bottom:20px; }
-        .print-header h2 { margin:0; font-size:18px; }
-        .print-header p { margin:4px 0 0; font-size:13px; color:#c4705e; }
-        .print-body { padding: 0 10px; }
-        h1 { font-family: 'Gowun Batang', serif; font-size:22px; }
-        .mood-card { border:1.5px solid #ffb8a8; border-radius:14px; padding:14px; margin-bottom:12px; background:#fff5f2; }
-        .hand { font-family: 'Nanum Pen Script', cursive; }
-        .btn-print { display:block; margin:20px auto; padding:12px 30px; background:#e8917e; color:#fff; border:none; border-radius:14px; font-size:15px; cursor:pointer; font-family:inherit; }
-      </style>
-    </head><body>
-      <div class="print-wrap">
-        <div class="print-header">
-          <h2>🦫 카피바라 사주카드</h2>
-          <p>${name} · ${year}년</p>
+    const choice = confirm('📄 저장 방식을 선택해주세요\n\n확인 → 현재 카드 한 장만\n취소 → 전체 카드 PDF (인쇄)');
+
+    const commonStyle = `
+      @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap');
+      *{box-sizing:border-box;}
+      body{margin:0;padding:0;font-family:'Gowun Dodum',sans-serif;background:#fff8f5;color:#4a2e28;font-size:15px;line-height:1.65;}
+      h1{font-family:'Gowun Batang',serif;font-size:20px;margin:8px 0;}
+      h2,h3,h4{font-family:'Gowun Batang',serif;margin:8px 0;}
+      .hand{font-family:'Nanum Pen Script',cursive;}
+      .mood-card{border:1.5px solid #ffb8a8;border-radius:12px;padding:12px 14px;margin:8px 0;background:#fff5f2;}
+      .mood-card.leaf{border-color:#ffb8a8;background:#fff5f0;}
+      .mood-card.peach{border-color:#ffd4c2;background:#fff0ee;}
+      .mood-card.cream{border-color:#d4a090;background:#fde8df;}
+      .mood-card.dew{border-color:#ffb8c8;background:#fff0f5;}
+      .tag{display:inline-block;padding:3px 10px;border-radius:99px;background:#fde8df;border:1px solid #ffb8a8;font-size:12px;margin:2px;}
+      .score-ball{border-radius:50%;background:#fff5f0;border:3px solid #ffb8a8;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;}
+      .center-stack{text-align:center;}
+      .pg-eyebrow{font-size:12px;color:#c4705e;margin-bottom:4px;letter-spacing:1px;}
+      .pg-title{font-family:'Gowun Batang',serif;font-size:22px;margin:6px 0 12px;}
+      .pg-sub{font-size:13px;color:#8a6058;margin-bottom:8px;}
+      .pg-body{margin-top:12px;}
+      .tags{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;}
+      .sticky{background:#fff8c8;border-radius:6px;padding:10px 14px;display:inline-block;}
+      @media print{
+        .no-print{display:none!important;}
+        body{background:#fff;}
+      }`;
+
+    if (choice) {
+      // 현재 카드 한 장
+      const page = document.querySelector('.story-page.is-active');
+      if (!page) { alert('표시된 카드가 없어요.'); return; }
+      const win = window.open('', '_blank');
+      win.document.write(`<!DOCTYPE html><html><head>
+        <meta charset="utf-8"><title>${name} ${year}년 사주카드</title>
+        <style>${commonStyle}
+          .wrap{max-width:420px;margin:0 auto;padding:20px;}
+          .hd{text-align:center;padding:16px 0;border-bottom:2px dashed #ffb8a8;margin-bottom:20px;}
+          .btn-p{display:block;margin:24px auto 0;padding:12px 30px;background:#e8917e;color:#fff;border:none;border-radius:14px;font-size:15px;cursor:pointer;font-family:inherit;}
+        </style>
+      </head><body><div class="wrap">
+        <div class="hd"><p style="margin:0;font-size:22px;">🦫</p><h2 style="margin:4px 0;">카피바라 사주카드</h2><p style="margin:4px 0;color:#c4705e;">${name} · ${year}년</p></div>
+        ${page.innerHTML}
+        <button class="btn-p no-print" onclick="window.print()">🖨️ PDF로 저장하기</button>
+      </div></body></html>`);
+      win.document.close();
+
+    } else {
+      // 전체 카드 PDF
+      if (!ALL_PAGES || ALL_PAGES.length === 0) { alert('카드가 없어요.'); return; }
+      const pagesHtml = ALL_PAGES.map((p, i) => `
+        <div class="card-page">
+          <div class="card-header">
+            <span class="chapter-label">${p.chapter}</span>
+            <span class="page-num">${i+1} / ${ALL_PAGES.length}</span>
+          </div>
+          <div class="card-body">${p.html || ''}</div>
         </div>
-        <div class="print-body">${page.innerHTML}</div>
-        <button class="btn-print" onclick="window.print()">🖨️ PDF로 저장하기</button>
-      </div>
-    </body></html>`);
-    win.document.close();
+      `).join('');
+
+      const win = window.open('', '_blank');
+      win.document.write(`<!DOCTYPE html><html><head>
+        <meta charset="utf-8"><title>${name} ${year}년 사주카드 전체</title>
+        <style>${commonStyle}
+          body{padding:0;}
+          .top-bar{text-align:center;padding:24px;border-bottom:3px solid #ffb8a8;margin-bottom:0;background:#fff8f5;}
+          .top-bar h1{font-size:26px;margin:8px 0 4px;}
+          .top-bar p{margin:0;color:#c4705e;}
+          .card-page{
+            max-width:500px; margin:0 auto;
+            padding:28px 24px 32px;
+            border-bottom:2px dashed #ffb8a8;
+            min-height:60vh;
+          }
+          .card-header{
+            display:flex;justify-content:space-between;align-items:center;
+            margin-bottom:14px;padding-bottom:8px;
+            border-bottom:1px solid #fde8df;
+            font-size:12px;color:#c4705e;
+          }
+          .chapter-label{font-weight:700;}
+          .page-num{opacity:0.7;}
+          .card-body{padding:0;}
+          .btn-p{display:block;margin:30px auto;padding:14px 40px;background:#e8917e;color:#fff;border:none;border-radius:14px;font-size:16px;cursor:pointer;font-family:inherit;font-weight:700;}
+          @media print{
+            .top-bar{border-bottom:2px solid #ccc;}
+            .card-page{
+              page-break-after:always;
+              page-break-inside:avoid;
+              min-height:auto;
+              border-bottom:none;
+            }
+            .card-page:last-of-type{page-break-after:auto;}
+          }
+        </style>
+      </head><body>
+        <div class="top-bar">
+          <p style="font-size:32px;margin:0;">🦫</p>
+          <h1>카피바라 사주카드</h1>
+          <p>${name} · ${year}년 · 총 ${ALL_PAGES.length}장</p>
+        </div>
+        ${pagesHtml}
+        <button class="btn-p no-print" onclick="window.print()">🖨️ 전체 PDF로 저장하기</button>
+      </body></html>`);
+      win.document.close();
+    }
   });
 }
 
@@ -5034,19 +5113,20 @@ if (document.readyState === 'loading') {
 (function checkSharedLink() {
   try {
     const params = new URLSearchParams(location.search);
-    const encoded = params.get('d');
-    if (!encoded) return;
-    const payload = JSON.parse(decodeURIComponent(atob(encoded)));
+    const key = params.get('k');
+    if (!key) return;
+    const stored = localStorage.getItem(key);
+    if (!stored) { alert('링크가 만료됐거나 이 기기에서 생성된 링크가 아니에요 🦫'); return; }
+    const payload = JSON.parse(stored);
     if (!payload.raw) return;
-    // 개인 사주 화면으로 이동 후 데이터 채우기
     document.getElementById('screen-main').style.display = 'none';
-    document.getElementById('screen-input').style.display = '';
+    document.getElementById('screen-input').style.display = 'block';
     document.getElementById('in-raw').value = payload.raw;
     if (payload.name) document.getElementById('in-name').value = payload.name;
     if (payload.gender) document.getElementById('in-gender').value = payload.gender;
     if (payload.year) document.getElementById('in-year').value = payload.year;
     setTimeout(() => { document.getElementById('btn-analyze').click(); }, 300);
-  } catch(e) { /* 링크 오류는 무시 */ }
+  } catch(e) { /* 링크 오류 무시 */ }
 })();
 
 </script>

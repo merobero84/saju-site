@@ -3394,7 +3394,7 @@ function buildClosingPages(data, year, pages) {
         </div>
         <div class="center-stack" style="margin-top:20px;">
           <div style="font-size:40px;">🦫💕🍀</div>
-          <div class="hand" style="font-size:22px;color:var(--moss);">숲속 요정 드림</div>
+          <div class="hand" style="font-size:22px;color:var(--moss);">카피바라 드림 🦫</div>
         </div>
       </div>
     `
@@ -4605,14 +4605,14 @@ function buildComparePages(persons) {
             <p style="margin:0 0 8px;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)}</p>
             <div style="display:flex;flex-wrap:wrap;gap:4px;">
               ${dws.map(dw => {
-                const isCurrent = dw.age && p.data.birthYear &&
-                  now >= p.data.birthYear + dw.age && now < p.data.birthYear + dw.age + 10;
+                const isCurrent = dw.age_from != null && p.data.birthYear &&
+                  now >= p.data.birthYear + dw.age_from && now < p.data.birthYear + dw.age_from + 10;
                 return `<div style="padding:4px 7px;border-radius:8px;font-size:10px;text-align:center;
                   background:${isCurrent?'var(--leaf-3)':'rgba(255,255,255,0.7)'};
                   color:${isCurrent?'#fff':'var(--ink)'};
                   border:1px solid ${isCurrent?'var(--moss)':'var(--petal)'};
                   font-weight:${isCurrent?'700':'400'};">
-                  ${isCurrent?'🦫 ':''}${dw.age}세~<br>${dw.gan||''}${dw.ji||''}<br><span style="opacity:0.75;">${dw.sipsin||''}</span>
+                  ${isCurrent?'🦫 ':''}${dw.age_from}세~<br>${dw.gan||''}${dw.ji||''}<br><span style="opacity:0.75;">${dw.sipsin||''}</span>
                 </div>`;
               }).join('')}
             </div>

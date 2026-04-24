@@ -119,11 +119,24 @@
   }
   .btn-primary:hover { background: var(--moss); }
   .btn-primary:active { box-shadow: 0 1px 0 var(--moss-deep); }
+  .btn-secondary {
+    background: linear-gradient(135deg, #f9d6b8 0%, #f4c2ae 100%); color: #6b4423;
+    box-shadow: 0 3px 0 #c49670, 0 6px 14px rgba(184,138,90,0.2);
+    text-decoration: none;
+  }
+  .btn-secondary:hover { background: linear-gradient(135deg, #f9cfa8 0%, #edb39a 100%); }
+  .btn-secondary:active { box-shadow: 0 1px 0 #c49670; }
   .btn-ghost {
     background: #fff; color: var(--moss-deep); border: 1.5px solid var(--mint);
   }
   .btn-ghost:hover { background: var(--mint); }
   .btn-full { width: 100%; }
+
+  .guide-card {
+    background: linear-gradient(135deg, rgba(249,214,184,0.25) 0%, rgba(254,245,220,0.5) 100%);
+    border: 1.5px dashed var(--mushroom);
+  }
+  .guide-card .card-title { color: var(--acorn); }
 
   .example-btn {
     display: inline-block; margin-top: 10px; padding: 7px 14px;
@@ -276,6 +289,47 @@
   .toc-list button:hover { background: var(--mint); }
   .toc-list button.is-current { background: var(--leaf-3); color: #fff; border-color: var(--moss-deep); }
   .toc-list button .page-no { font-family: 'Nanum Pen Script', cursive; font-size: 16px; opacity: 0.7; margin-left: auto; }
+
+  /* 계층 목차 — 대카테고리 헤더 */
+  .toc-chapter-head {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 12px 6px 6px; margin-top: 8px;
+    border-bottom: 1.5px dashed var(--leaf-2);
+  }
+  .toc-chapter-head:first-child { margin-top: 0; }
+  .toc-chapter-no {
+    font-family: 'Gowun Batang', serif; font-weight: 700;
+    font-size: 18px; color: var(--moss-deep);
+    min-width: 26px;
+  }
+  .toc-chapter-name {
+    font-family: 'Gowun Batang', serif; font-weight: 700;
+    font-size: 15px; color: var(--moss-deep);
+  }
+  /* 계층 목차 — 하위 항목 */
+  .toc-list button.toc-sub-item {
+    padding-left: 18px;
+    background: var(--ivory);
+    border-color: var(--ivory-2);
+  }
+  .toc-sub-no {
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 15px; color: var(--moss);
+    min-width: 34px; opacity: 0.85;
+  }
+  .toc-sub-title { flex: 1; font-size: 13.5px; }
+  .toc-list button.toc-sub-item.is-current .toc-sub-no { color: #fff; opacity: 1; }
+
+  /* 페이지 상단 챕터 번호 뱃지 */
+  .pg-chapter-no {
+    position: absolute; top: 16px; left: 16px;
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 17px; color: var(--moss);
+    background: rgba(253,250,240,0.85);
+    padding: 3px 10px; border-radius: 999px;
+    border: 1.5px dashed var(--leaf-2);
+    z-index: 2;
+  }
 
   /* ====== PAGES ====== */
   .story-page { display: none; animation: fadeSlide .3s; }
@@ -541,6 +595,21 @@
     <h1>숲속 요정이 풀어주는<br><span class="highlight">올해의 사주</span></h1>
     <p>만세력 앱에서 복사한 내용을 붙여넣으면<br>요정이 카드로 한 장 한 장 풀어줘요 🌿</p>
   </header>
+
+  <div class="paper-card guide-card">
+    <h2 class="card-title"><span class="emoji">📅</span>만세력이 없어요?</h2>
+    <p style="margin:0 0 12px;color:var(--ink-soft);font-size:14px;line-height:1.6;">
+      아래 버튼을 누르면 <strong>무료 만세력 사이트</strong>로 이동해요.<br>
+      생년월일을 입력해서 사주 정보를 뽑은 뒤,<br>
+      텍스트를 복사해서 아래에 붙여넣어 주세요 🌱
+    </p>
+    <a href="https://daysaju.com/manseryeok/input" target="_blank" rel="noopener" class="btn btn-secondary btn-full">
+      🔗 만세력 뽑으러 가기
+    </a>
+    <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft);text-align:center;opacity:0.8;">
+      ※ 새 창으로 열려요
+    </p>
+  </div>
 
   <div class="paper-card">
     <h2 class="card-title"><span class="emoji">📝</span>만세력 입력</h2>
@@ -1469,31 +1538,69 @@ const UNSEONG_DEEP = {
 };
 
 const SINSAL_DEEP = {
-  '역마살':{ emoji:'🐎', note:'이동·출장·이사·해외 이슈가 많아지는 별', long:'한 곳에 오래 머물지 못하는 기운. 올해 이동·출장·해외·이사 등 움직임이 활발해요. 무역·여행·운송업에 유리. 장거리 이동 시 사고수 조심.' },
-  '지살': { emoji:'🗺️', note:'새 터전·환경 변화의 씨앗', long:'역마보다 더 구조적인 변화의 별. 집·고향·나라를 떠나는 기운이 담겨 있어요. 해외 이주·이민·장기 주재에도 관련.' },
-  '재살': { emoji:'🔒', note:'구속·억눌림의 별', long:'자유를 제한당하는 기운. 구설·시비·관재·사고로 발목 잡힐 수 있어요. 몸가짐 단정히, 불필요한 논쟁 피하기.' },
-  '장성살':{ emoji:'🎖️', note:'권력·주도권의 별', long:'리더·장군 자리에 오르는 기운. 책임과 권한이 커지지만 강압적으로 보이기 쉽고, 아랫사람과 마찰 가능. 공직·군·경 등에 유리.' },
-  '현침살':{ emoji:'📌', note:'날카로움의 별', long:'칼·바늘처럼 뾰족한 기운. 의료·수술·기술·언론에 유리. 말이 날카로워 대인관계 상처 주의. 수술수·사고수 경계.' },
-  '관귀학관':{ emoji:'📚', note:'학문·관직의 별', long:'공부·시험·자격·관직에 귀인의 도움이 오는 별. 학업·고시·자격증 준비자에겐 최고의 별.' },
-  '월덕귀인':{ emoji:'🌙', note:'부드러운 귀인의 별', long:'어려울 때 뜻밖의 도움이 찾아오는 따뜻한 귀인성. 여성에게 특히 좋고, 결혼·출산에 길함.' },
-  '태극귀인':{ emoji:'☯️', note:'근본을 지켜주는 별', long:'위기·혼란에도 중심을 잃지 않게 해주는 별. 평생 따라다니는 귀인성 중 하나.' },
-  '복성귀인':{ emoji:'🍀', note:'복과 지혜의 별', long:'뜻하지 않은 복이 찾아오는 별. 한 발 물러서 있어도 기회가 알아서 찾아와요.' },
-  '건록': { emoji:'🍚', note:'의식주의 복', long:'평생 먹고사는 걱정 덜한 별. 자기 자리에서 안정적 수입.' },
-  '월공': { emoji:'🌕', note:'달빛의 공허', long:'빛나는 만큼 허전함이 따라요. 명예·인기는 있어도 외로움이 동반. 정서적 허기 주의.' },
-  '고신살':{ emoji:'🕯️', note:'남자에게 고독의 별', long:'남성에게 가족·배우자와 거리감, 고독의 기운. 결혼 늦거나 이별 가능. 종교·예술로 승화시키면 좋아요.' },
-  '과숙살':{ emoji:'🕯️', note:'여자에게 고독의 별', long:'여성에게 배우자·인연에서 외로움. 결혼 늦거나 별거·이혼 위험. 독립적 삶 긍정적으로 해석하기도.' },
-  '상문': { emoji:'⚰️', note:'문상·장례 관련', long:'장례·문상·병문안 이슈가 생길 수 있는 해. 가족·주변 애사 준비.' },
-  '조객': { emoji:'🥀', note:'이별의 기운', long:'상문과 유사. 슬픔·이별의 기운이 따라요.' },
-  '급각살':{ emoji:'🦴', note:'관절·뼈 부상', long:'관절·뼈·발·다리 부상 위험. 운동·스포츠·이동 시 낙상·골절 주의.' },
-  '낙정관살':{ emoji:'🕳️', note:'함정·구덩이', long:'물·구덩이·함정 사고 주의. 경거망동 금물. 여행 중 특히 조심.' },
-  '도화살':{ emoji:'🌸', note:'이성·매력의 별', long:'매력·인기의 별. 이성·예술 기운이 강해져요. 다만 인기 뒤엔 구설·스캔들. 연예인·예술가에겐 필수 별.' },
-  '홍염살':{ emoji:'🌺', note:'끌림·매혹의 별', long:'도화와 비슷한 매혹의 별. 로맨스 기회 늘지만 유혹·외도 위험도 같이 커져요.' },
-  '괴강살':{ emoji:'⚡', note:'극단의 별', long:'크게 성공하거나 크게 꺾이는 양극단의 별. 여성에게 특히 강하게 작용. 고집·추진력은 커지지만 결혼·가정 안정 어려움.' },
-  '백호살':{ emoji:'🐯', note:'혈광·사고의 별', long:'피·혈광의 별. 수술·부상·사고 위험. 과격한 활동 주의. 직업으로 의료·군·경 등에 쓰이면 오히려 좋음.' },
-  '양인살':{ emoji:'🗡️', note:'칼·힘의 별', long:'강한 추진력의 별. 경쟁·운동·수술에 유리. 다만 사고·부상·부부 갈등 위험.' },
-  '천을귀인':{ emoji:'✨', note:'최고의 귀인성', long:'명리학 최고의 귀인성. 어려울 때 귀한 분의 도움이 있고, 흉살도 풀어주는 별. 한 개만 있어도 큰 복.' },
-  '원진살':{ emoji:'😾', note:'미움·증오의 별', long:'원망·미움·증오의 기운. 가까운 사람과 이유 없이 부딪힘. 부부·가족 관계에서 특히 위험.' },
-  '귀문관살':{ emoji:'👁️', note:'신비·영감의 별', long:'직관·영감·예민함의 별. 무속·종교 기질. 예술·상담에 적성. 신경 예민·강박 주의.' }
+  /* ===== 🌟 길신·귀인 (복을 주는 별) ===== */
+  '천을귀인':{ emoji:'✨', note:'최고의 귀인성', long:'명리학에서 가장 강력한 귀인성. 어려울 때 귀한 분의 도움이 있고, 다른 흉살까지 풀어주는 별. 한 개만 있어도 큰 복이에요.', cat:'fortune' },
+  '월덕귀인':{ emoji:'🌙', note:'부드러운 귀인의 별', long:'어려울 때 뜻밖의 도움이 오는 따뜻한 귀인성. 여성에게 특히 좋고, 결혼·출산에 길함.', cat:'fortune' },
+  '천덕귀인':{ emoji:'🌟', note:'하늘이 내린 복', long:'월덕과 짝을 이루는 귀인. 평생 덕과 복이 따르고, 위기에서도 살길이 열려요.', cat:'fortune' },
+  '태극귀인':{ emoji:'☯️', note:'근본을 지켜주는 별', long:'위기·혼란에도 중심을 잃지 않게 해주는 별. 평생 따라다니는 귀인성 중 하나.', cat:'fortune' },
+  '복성귀인':{ emoji:'🍀', note:'복과 지혜의 별', long:'뜻하지 않은 복이 찾아오는 별. 한 발 물러서 있어도 기회가 알아서 찾아와요.', cat:'fortune' },
+  '관귀학관':{ emoji:'📚', note:'학문·관직의 별', long:'공부·시험·자격·관직에 귀인이 오는 별. 학업·고시·자격증 준비자에게 최고.', cat:'fortune' },
+  '문창귀인':{ emoji:'✒️', note:'글·문장·학문의 별', long:'글솜씨·표현력·학문적 재능을 주는 별. 작가·학자·교사·강사에 유리. 시험·논문에 좋아요.', cat:'fortune' },
+  '학당귀인':{ emoji:'🎓', note:'학문 전념의 별', long:'공부에 집중할 수 있는 기운. 학생·연구자에게 특히 좋고, 평생 배움이 끊이지 않아요.', cat:'fortune' },
+  '천주귀인':{ emoji:'🍚', note:'의식주의 복', long:'평생 먹을 것·입을 것 걱정 적은 별. 요식업·식품 관련 업종에 잘 맞아요.', cat:'fortune' },
+  '천의성': { emoji:'🏥', note:'치유·의료의 별', long:'아픔을 낫게 하는 기운. 의사·간호사·한의사·상담가 등 치유 직업에 최적.', cat:'fortune' },
+  '암록':   { emoji:'💎', note:'숨은 복의 별', long:'드러나지 않게 따라오는 복록. 남이 보지 않는 곳에서 이익이 생기고, 어려울 때 조용히 도움의 손길이 와요.', cat:'fortune' },
+  '금여':   { emoji:'🎠', note:'부드러운 복록', long:'수레에 태워져 모셔지듯 편안한 복. 배우자복·인물복이 있고, 풍요로운 생활에 유리해요.', cat:'fortune' },
+  '건록':   { emoji:'🌾', note:'의식주의 복', long:'평생 먹고사는 걱정 덜한 별. 자기 자리에서 안정적 수입이 들어와요.', cat:'fortune' },
+  '월공':   { emoji:'🌕', note:'달빛의 공허', long:'빛나는 만큼 허전함이 따라요. 명예·인기는 있어도 외로움이 동반. 정서적 허기 주의.', cat:'fortune' },
+
+  /* ===== 🌊 이동·변화·성취 (움직임의 별) ===== */
+  '역마살':{ emoji:'🐎', note:'이동·출장·해외의 별', long:'한 곳에 오래 머물지 못하는 기운. 이동·출장·해외·이사가 많아요. 무역·여행·운송업에 유리. 장거리 이동 시 사고수 조심.', cat:'move' },
+  '지살':  { emoji:'🗺️', note:'새 터전·환경 변화', long:'역마보다 더 구조적인 변화의 별. 집·고향·나라를 떠나는 기운. 해외 이주·이민·장기 주재와 관련.', cat:'move' },
+  '장성살':{ emoji:'🎖️', note:'권력·주도권의 별', long:'리더·장군 자리에 오르는 기운. 책임과 권한이 커지지만 강압적으로 보이기 쉽고, 아랫사람과 마찰 가능. 공직·군·경에 유리.', cat:'move' },
+  '반안살':{ emoji:'🏇', note:'승진·명예의 별', long:'말에 안장을 얹고 올라타는 기운. 승진·명예·출세에 좋아요. 공직·대기업에서 인정받기 쉬움.', cat:'move' },
+  '화개살':{ emoji:'🎨', note:'고독·예술·종교의 별', long:'세속을 벗어난 고고한 기운. 예술·종교·학문에 뛰어나지만 외로움이 따름. 결혼·인간관계에서 거리감.', cat:'move' },
+  '망신살':{ emoji:'🎭', note:'체면·명예 이슈', long:'체면이 깎이거나 비밀이 드러나는 기운. 숨겨온 일이 노출될 수 있어요. 금전·이성 문제로 구설수 주의.', cat:'move' },
+  '겁살':  { emoji:'💨', note:'외부 압력·탈취의 별', long:'외부에서 가해지는 강제적 힘. 사기·도난·강탈 위험. 갑작스러운 변화를 감수해야 할 수도 있어요.', cat:'move' },
+  '재살':  { emoji:'🔒', note:'구속·억눌림의 별', long:'자유를 제한당하는 기운. 구설·시비·관재·사고로 발목 잡힐 수 있어요. 몸가짐 단정히, 불필요한 논쟁 피하기.', cat:'move' },
+  '연살':  { emoji:'🌷', note:'복숭아꽃 기운', long:'도화살의 다른 이름. 이성에게 매력 발산되고 인기가 오르는 별. 연애·예술적 끼에 유리.', cat:'move' },
+  '월살':  { emoji:'🌑', note:'재물·고독의 그림자', long:'보름달이 져서 어두워지는 기운. 재물 소모·고독·일 지체. 중요한 일 무리해서 강행하지 말기.', cat:'move' },
+  '육해살':{ emoji:'🌀', note:'장애·방해의 별', long:'길이 여섯 번 막힌다는 뜻. 질병·사고·지연 같은 장애물이 잦아요. 건강 관리와 인내가 필요.', cat:'move' },
+  '천살':  { emoji:'⛈️', note:'불가항력의 별', long:'하늘이 내리는 재난. 천재지변·부모 병환 같은 사람 힘으로 안 되는 일. 겸손하게 받아들이고 대비.', cat:'move' },
+
+  /* ===== 🌸 매력·인연·고독 (사랑과 외로움의 별) ===== */
+  '도화살':{ emoji:'🌸', note:'이성·매력의 별', long:'매력·인기의 별. 이성·예술 기운이 강해져요. 다만 인기 뒤엔 구설·스캔들. 연예인·예술가에겐 필수 별.', cat:'love' },
+  '홍염살':{ emoji:'🌺', note:'끌림·매혹의 별', long:'도화와 비슷한 매혹의 별. 로맨스 기회 늘지만 유혹·외도 위험도 같이 커져요.', cat:'love' },
+  '귀문관살':{ emoji:'👁️', note:'신비·영감의 별', long:'직관·영감·예민함의 별. 무속·종교 기질. 예술·상담에 적성. 신경 예민·강박 주의.', cat:'love' },
+  '고신살':{ emoji:'🕯️', note:'남자에게 고독의 별', long:'남성에게 가족·배우자와 거리감, 고독의 기운. 결혼 늦거나 이별 가능. 종교·예술로 승화시키면 좋아요.', cat:'love' },
+  '과숙살':{ emoji:'🌙', note:'여자에게 고독의 별', long:'여성에게 배우자·인연에서 외로움. 결혼 늦거나 별거·이혼 위험. 독립적 삶으로 긍정 해석 가능.', cat:'love' },
+  '고란살':{ emoji:'🪷', note:'홀로 피는 꽃', long:'여성 일간에 많은 고독의 별. 강한 자립심과 외로움을 동시에 가져요. 결혼보다 독립적 커리어에 어울림.', cat:'love' },
+  '음양차착살':{ emoji:'🔀', note:'부부 어긋남의 별', long:'부부간 성향이 어긋나 다투기 쉬운 기운. 일지에 있으면 특히 배우자와 갈등. 대화와 양보가 열쇠.', cat:'love' },
+  '상문':  { emoji:'⚰️', note:'문상·장례 관련', long:'장례·문상·병문안 이슈가 생길 수 있는 해. 가족·주변의 애사를 마음으로 준비.', cat:'love' },
+  '조객':  { emoji:'🥀', note:'이별의 기운', long:'상문과 짝을 이루는 별. 슬픔·이별·문상 기운이 따라요.', cat:'love' },
+
+  /* ===== ⚠️ 주의·사고·손재 (조심해야 하는 별) ===== */
+  '괴강살':{ emoji:'⚡', note:'극단의 별', long:'크게 성공하거나 크게 꺾이는 양극단의 별. 여성에게 특히 강하게 작용. 고집·추진력은 커지지만 결혼·가정 안정 어려움.', cat:'danger' },
+  '백호살':{ emoji:'🐯', note:'혈광·사고의 별', long:'피·혈광의 별. 수술·부상·사고 위험. 과격한 활동 주의. 의료·군·경 등 직업으로 쓰이면 오히려 좋음.', cat:'danger' },
+  '양인살':{ emoji:'🗡️', note:'칼·힘의 별', long:'강한 추진력의 별. 경쟁·운동·수술에 유리. 다만 사고·부상·부부 갈등 위험.', cat:'danger' },
+  '비인살':{ emoji:'🔪', note:'양인의 보조', long:'양인살의 짝. 날카로운 기운이 밖으로 향하는 별. 수술·기술·의료에 잘 쓰이지만 사고수 있음.', cat:'danger' },
+  '현침살':{ emoji:'📌', note:'날카로움의 별', long:'칼·바늘처럼 뾰족한 기운. 의료·수술·기술·언론에 유리. 말이 날카로워 대인관계 상처 주의. 수술수·사고수 경계.', cat:'danger' },
+  '급각살':{ emoji:'🦴', note:'관절·뼈 부상', long:'관절·뼈·발·다리 부상 위험. 운동·스포츠·이동 시 낙상·골절 주의.', cat:'danger' },
+  '낙정관살':{ emoji:'🕳️', note:'함정·구덩이', long:'물·구덩이·함정 사고 주의. 경거망동 금물. 여행 중 특히 조심.', cat:'danger' },
+  '탕화살':{ emoji:'🔥', note:'불·화상의 별', long:'뜨거운 것에 의한 화상·사고 위험. 불·기름·뜨거운 물 조심. 성격도 불같아지기 쉬움.', cat:'danger' },
+  '원진살':{ emoji:'😾', note:'미움·증오의 별', long:'원망·미움·증오의 기운. 가까운 사람과 이유 없이 부딪힘. 부부·가족 관계에서 특히 위험.', cat:'danger' },
+  '천라지망':{ emoji:'🕸️', note:'구속·답답함의 별', long:'하늘 그물, 땅 그물. 어디에도 빠져나갈 곳 없는 답답한 기운. 관재·질병·속박. 종교·수행으로 풀어냄.', cat:'danger' },
+  '효신살':{ emoji:'🦉', note:'편모·계모의 별', long:'일지에 편인이 있을 때. 어머니·계모·편모와의 인연 복잡. 밥 먹기 어려운 상황이 반복될 수 있음.', cat:'danger' },
+  '십악대패':{ emoji:'💸', note:'재물 소모의 별', long:'재물이 모이지 않고 빠져나가는 기운. 큰 사업·투자 실패 가능. 검소한 운영이 살길.', cat:'danger' },
+  '공망':  { emoji:'⚪', note:'빈 자리의 별', long:'비어있음·허무함. 해당 자리(년/월/일/시)에 기대한 것이 잘 이뤄지지 않아요. 다만 종교·예술로 승화 가능.', cat:'danger' }
+};
+
+/* 신살 카테고리 (카드 묶음용) */
+const SINSAL_CATEGORIES = {
+  fortune: { emoji:'🌟', name:'길신·귀인', title:'복을 주는 별들', intro:'흉을 풀어주고 복을 끌어오는 귀한 별. 하나만 있어도 평생 큰 도움이 돼요.' },
+  move:    { emoji:'🌊', name:'이동·성취', title:'움직임과 성취의 별들', intro:'이동·변화·승진·외부 활동을 주관하는 별. 역동적인 해를 만들어요.' },
+  love:    { emoji:'🌸', name:'매력·인연·고독', title:'사랑과 외로움의 별들', intro:'이성·매력·인기와 함께 고독·이별의 기운이 공존하는 별.' },
+  danger:  { emoji:'⚠️', name:'주의·사고', title:'조심해야 하는 별들', intro:'사고·부상·손재를 조심하라는 경고의 별. 미리 알면 피할 수 있어요.' }
 };
 
 const JIJI_REL_DEEP = {
@@ -1863,8 +1970,8 @@ function buildPages(data, year) {
         <div class="hand" style="font-size:26px;color:var(--moss);">"${il?.one || '당신의 이야기'}"</div>
       </div>
       <div class="mood-card leaf">
-        <p style="margin:0">🌱 좌우로 탭하거나 <strong>다음 →</strong>을 눌러<br>
-        한 장씩 넘겨보세요.<br>
+        <p style="margin:0">🌱 이 카드는 총 <strong>100장 이상</strong>이에요.<br>
+        좌우로 탭하거나 <strong>다음 →</strong>을 눌러 한 장씩 넘겨보세요.<br>
         오른쪽 아래 <strong>☰</strong>를 누르면 목차로 점프할 수 있어요.</p>
       </div>
       <p class="hand" style="text-align:center;font-size:22px;color:var(--moss);margin-top:24px;">차분히 즐겨주세요 🍃</p>
@@ -2085,7 +2192,7 @@ function buildPages(data, year) {
 
   /* ============ 오행 정원 ============ */
   pages.push({
-    chapter:'🌿 오행과 용신',
+    chapter:'🌳 타고난 사주',
     title:'오행 정원',
     emoji:'🌈',
     html:`
@@ -2111,7 +2218,7 @@ function buildPages(data, year) {
 
   /* ============ 신강/신약 + 용희기신 ============ */
   pages.push({
-    chapter:'🌿 오행과 용신',
+    chapter:'🌳 타고난 사주',
     title:'신강/신약',
     emoji:'⚖️',
     html:`
@@ -2128,7 +2235,7 @@ function buildPages(data, year) {
 
   if (data.yongsin) {
     pages.push({
-      chapter:'🌿 오행과 용신',
+      chapter:'🌳 타고난 사주',
       title:'용신·희신·기신',
       emoji:'🗝️',
       html:`
@@ -2153,7 +2260,7 @@ function buildPages(data, year) {
 
     /* 일상 활용 팁 */
     pages.push({
-      chapter:'🌿 오행과 용신',
+      chapter:'🌳 타고난 사주',
       title:'용신 일상 활용',
       emoji:'💡',
       html:`
@@ -2196,7 +2303,7 @@ function buildPages(data, year) {
   if (data.unseong.year || data.unseong.day) {
     const unMap = {year:'년주',month:'월주',day:'일주',hour:'시주'};
     pages.push({
-      chapter:'🌙 12운성·신살',
+      chapter:'🌙 12운성',
       title:'타고난 12운성',
       emoji:'🌙',
       html:`
@@ -2223,10 +2330,11 @@ function buildPages(data, year) {
     });
   }
 
-  /* ============ 타고난 신살 — 각각 1카드 ============ */
+  /* ============ 타고난 신살 — 카테고리별 묶음 카드 ============ */
   if (data.sinsal && data.sinsal.length > 0) {
+    // 개요 카드
     pages.push({
-      chapter:'🌙 12운성·신살',
+      chapter:'🌙 타고난 신살',
       title:'타고난 신살 개요',
       emoji:'⭐',
       html:`
@@ -2234,8 +2342,8 @@ function buildPages(data, year) {
         <h1 class="pg-title">타고난 신살</h1>
         <div class="pg-body">
           <div class="mood-card leaf">
-            <p>신살(神殺)은 ${honoric}의 사주에 깃든 특별한 별자리들이에요. 좋은 것도 있고 조심할 것도 있어요.</p>
-            <p style="margin-top:8px;">총 <strong>${data.sinsal.length}개</strong>의 별이 있어요. 다음 카드들에서 하나씩 살펴봐요.</p>
+            <p>신살(神殺)은 ${honoric}의 사주에 깃든 특별한 별자리들이에요. 복을 주는 별과 조심할 별이 함께 있어요.</p>
+            <p style="margin-top:8px;">총 <strong>${data.sinsal.length}개</strong>의 별이 4개 카테고리로 나뉘어요. 다음 카드들에서 묶어서 살펴봐요.</p>
           </div>
           <div class="tags" style="margin-top:14px;">
             ${data.sinsal.map(s => `<span class="tag">${SINSAL_DEEP[s]?.emoji || '⭐'} ${esc(s)}</span>`).join('')}
@@ -2244,28 +2352,68 @@ function buildPages(data, year) {
       `
     });
 
+    // 카테고리별 그룹핑
+    const grouped = { fortune:[], move:[], love:[], danger:[], unknown:[] };
     data.sinsal.forEach(s => {
       const d = SINSAL_DEEP[s];
+      const cat = d?.cat || 'unknown';
+      grouped[cat].push(s);
+    });
+
+    // 카테고리별 카드 생성 (해당 카테고리에 신살 있을 때만)
+    ['fortune', 'move', 'love', 'danger'].forEach(catKey => {
+      const sinsalInCat = grouped[catKey];
+      if (sinsalInCat.length === 0) return;
+
+      const catInfo = SINSAL_CATEGORIES[catKey];
+      const sinsalHtml = sinsalInCat.map(s => {
+        const d = SINSAL_DEEP[s];
+        if (!d) return '';
+        return `
+          <div class="mood-card ${catKey==='fortune'?'leaf':catKey==='danger'?'peach':catKey==='love'?'petal':'cream'}" style="margin-bottom:10px;">
+            <p style="margin:0 0 4px;"><strong style="font-size:17px;">${d.emoji} ${esc(s)}</strong> <span style="font-size:13px;opacity:0.75;">— ${esc(d.note)}</span></p>
+            <p style="margin:4px 0 0;font-size:14px;line-height:1.6;">${esc(d.long)}</p>
+          </div>
+        `;
+      }).join('');
+
       pages.push({
-        chapter:'🌙 12운성·신살',
-        title:`신살: ${s}`,
-        emoji: d?.emoji || '⭐',
+        chapter:'🌙 타고난 신살',
+        title:`${catInfo.name} (${sinsalInCat.length})`,
+        emoji: catInfo.emoji,
         html:`
-          <div class="pg-eyebrow">타고난 별</div>
-          <h1 class="pg-title">${d?.emoji || '⭐'} ${esc(s)}</h1>
+          <div class="pg-eyebrow">${catInfo.title}</div>
+          <h1 class="pg-title">${catInfo.emoji} ${catInfo.name}</h1>
           <div class="pg-body">
-            ${d ? `
-              <div class="mood-card leaf">
-                <p class="hand" style="font-size:21px;margin:0 0 6px;color:var(--moss-deep);">${esc(d.note)}</p>
-              </div>
-              <div class="mood-card cream">
-                <p>${esc(d.long)}</p>
-              </div>
-            ` : `<div class="mood-card cream"><p>이 별에 대한 자세한 해설은 준비 중이에요.</p></div>`}
+            <p class="hand" style="text-align:center;font-size:19px;color:var(--moss);margin:0 0 16px;">
+              ${catInfo.intro}
+            </p>
+            ${sinsalHtml}
           </div>
         `
       });
     });
+
+    // 알 수 없는 신살 있으면 별도 카드
+    if (grouped.unknown.length > 0) {
+      pages.push({
+        chapter:'🌙 타고난 신살',
+        title:`기타 신살 (${grouped.unknown.length})`,
+        emoji:'🔮',
+        html:`
+          <div class="pg-eyebrow">추가 신살</div>
+          <h1 class="pg-title">🔮 기타 신살</h1>
+          <div class="pg-body">
+            <div class="mood-card cream">
+              <p>아래 신살들은 분류 데이터가 준비되지 않은 별이에요. 참고만 해주세요.</p>
+              <div class="tags" style="margin-top:10px;">
+                ${grouped.unknown.map(s => `<span class="tag">⭐ ${esc(s)}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `
+      });
+    }
   }
 
   /* ============ 타고난 사주 - 심화 추가 카드 (06c) ============ */
@@ -3011,7 +3159,7 @@ function buildMonthPages(data, year, pages) {
   const honoric = data.name ? `${esc(data.name)}님` : '그대';
 
   pages.push({
-    chapter:'🌸 월별 12장',
+    chapter:'🌸 월별 흐름',
     title:'1~12월 카드 (탭!)',
     emoji:'🌸',
     html:`
@@ -3046,7 +3194,7 @@ function buildMonthPages(data, year, pages) {
     const scores = h.months.map(m => ({ m, info: monthScore(data, m), w: data.wolun[m] })).filter(x => x.w);
     const avg = Math.round(scores.reduce((s,x)=>s+x.info.score,0) / scores.length);
     pages.push({
-      chapter:'🌸 월별 12장',
+      chapter:'🌸 월별 흐름',
       title:`${h.title} 흐름`,
       emoji:'📈',
       html:`
@@ -3219,7 +3367,7 @@ function buildExtraBirthPages(data, year, pages) {
 
   /* 사주 속 오행 불균형 */
   pages.push({
-    chapter:'🌿 오행과 용신',
+    chapter:'🌳 타고난 사주',
     title:'오행의 균형',
     emoji:'⚖️',
     html:`
@@ -3471,7 +3619,7 @@ function buildEachMonthPages(data, year, pages) {
     const monthName = `${m}월 (${JI_INFO[w.ji]?.season || ''})`;
 
     pages.push({
-      chapter:`🌸 ${year}년 월별 (상세)`,
+      chapter:'🌸 월별 흐름',
       title:`${m}월 ${w.gan}${w.ji}`,
       emoji: monthEmojis[m] || '🌿',
       html:`
@@ -3912,7 +4060,7 @@ function buildSalpuli(data, year, pages) {
   if (mySinsal.length === 0) return pages;
 
   pages.push({
-    chapter:'🌙 12운성·신살',
+    chapter:'🌙 타고난 신살',
     title:'살풀이 조언',
     emoji:'🙏',
     html:`
@@ -3959,9 +4107,62 @@ function buildSalpuli(data, year, pages) {
 let ALL_PAGES = [];
 let CURRENT = 0;
 
+/* 챕터 표시 순서 (대카테고리 번호) */
+const CHAPTER_ORDER = [
+  '🌿 시작',
+  '🌳 타고난 사주',
+  '🌙 12운성',
+  '🌙 타고난 신살',
+  '🌄 대운 (10년 흐름)',
+  '🌅 2026년 세운',  // 연도 동적 처리는 정렬 함수에서
+  '💕 애정·결혼운',
+  '💰 재물운',
+  '🎓 학업·자격운',
+  '💼 업무·커리어운',
+  '🤝 대인관계운',
+  '🧘 건강운',
+  '🌀 삼재 체크',
+  '🌸 월별 흐름',
+  '⭐ 올해의 별',
+  '✨ 마무리'
+];
+
+function chapterOrderIdx(chapter) {
+  // 세운은 연도가 바뀌니까 패턴 매칭
+  if (/^🌅.*세운/.test(chapter)) return 5;
+  const idx = CHAPTER_ORDER.findIndex(c => c === chapter);
+  return idx === -1 ? 99 : idx;
+}
+
 function renderStory(data, year) {
-  // 전체 페이지 조립 (buildPages 내부에서 모든 헬퍼 자동 호출)
-  const pages = buildPages(data, year);
+  // 전체 페이지 조립
+  let pages = buildPages(data, year);
+
+  // 챕터 순서대로 stable sort (같은 챕터 내에선 원래 순서 유지)
+  pages = pages
+    .map((p, i) => ({ ...p, _origIdx: i }))
+    .sort((a, b) => {
+      const oa = chapterOrderIdx(a.chapter);
+      const ob = chapterOrderIdx(b.chapter);
+      if (oa !== ob) return oa - ob;
+      return a._origIdx - b._origIdx;
+    });
+
+  // 대카테고리 번호 + 하위 번호 매기기
+  const chapterNums = {};  // 챕터 → 번호
+  const chapterCounters = {};  // 챕터 → 현재까지 카운트
+  let nextChapterNo = 1;
+  pages.forEach(p => {
+    if (!(p.chapter in chapterNums)) {
+      chapterNums[p.chapter] = nextChapterNo++;
+      chapterCounters[p.chapter] = 0;
+    }
+    chapterCounters[p.chapter]++;
+    p._chapterNo = chapterNums[p.chapter];
+    p._subNo = chapterCounters[p.chapter];
+    p._label = `${p._chapterNo}-${p._subNo}`;
+  });
+
   ALL_PAGES = pages;
   CURRENT = 0;
 
@@ -3971,15 +4172,32 @@ function renderStory(data, year) {
 
   // content pages
   const content = document.getElementById('story-content');
-  content.innerHTML = pages.map((p,i) => `<div class="story-page" data-idx="${i}">${p.html}</div>`).join('');
+  content.innerHTML = pages.map((p,i) =>
+    `<div class="story-page" data-idx="${i}">
+      <div class="pg-chapter-no">${p._label}</div>
+      ${p.html}
+    </div>`
+  ).join('');
 
-  // toc
+  // 계층 목차 (대카테고리 헤더 + 하위 카드)
   const tocList = document.getElementById('toc-list');
-  tocList.innerHTML = pages.map((p,i) => `<button data-go="${i}">
-    <span>${p.emoji || '🌿'}</span>
-    <span>${esc(p.title)}</span>
-    <span class="page-no">${i+1}</span>
-  </button>`).join('');
+  let tocHtml = '';
+  let lastChapter = null;
+  pages.forEach((p, i) => {
+    if (p.chapter !== lastChapter) {
+      tocHtml += `<div class="toc-chapter-head">
+        <span class="toc-chapter-no">${p._chapterNo}.</span>
+        <span class="toc-chapter-name">${esc(p.chapter)}</span>
+      </div>`;
+      lastChapter = p.chapter;
+    }
+    tocHtml += `<button data-go="${i}" class="toc-sub-item">
+      <span class="toc-sub-no">${p._chapterNo}-${p._subNo}</span>
+      <span class="toc-sub-title">${p.emoji || '🌿'} ${esc(p.title)}</span>
+      <span class="page-no">${i+1}</span>
+    </button>`;
+  });
+  tocList.innerHTML = tocHtml;
 
   goToPage(0);
   bindMonthCards(data, year);
@@ -4125,7 +4343,6 @@ ${ask || `${year}년 종합 운세를 정성껏 풀어주세요.`}`;
     });
   }
 }
-
 
 /* ============ 메인 ============ */
 function init() {

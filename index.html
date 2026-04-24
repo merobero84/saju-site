@@ -47,6 +47,25 @@
   .hand { font-family: 'Nanum Pen Script', cursive; }
   .doodle { font-family: 'Gaegu', cursive; }
 
+  /* ====== MAIN SCREEN ====== */
+  #screen-main {
+    display: block; position: relative; z-index: 1;
+    max-width: 520px; margin: 0 auto; padding: 0 22px 80px;
+  }
+  .main-mode-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; padding: 24px 12px;
+    background: linear-gradient(160deg, #fff 0%, var(--ivory-2) 100%);
+    border: 2px solid var(--petal); border-radius: 20px;
+    cursor: pointer; font-family: inherit; color: var(--ink);
+    box-shadow: 0 4px 16px rgba(232,145,126,0.15);
+    transition: all .15s;
+  }
+  .main-mode-btn:hover { border-color: var(--leaf-3); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,145,126,0.25); }
+  .main-mode-btn:active { transform: translateY(0); }
+  .main-mode-btn strong { font-family: 'Gowun Batang', serif; font-size: 18px; color: var(--moss-deep); }
+  .main-mode-btn span:last-child { font-size: 12px; color: var(--ink-soft); line-height: 1.5; text-align: center; }
+
   /* ====== MULTI SCREEN ====== */
   #screen-multi {
     display: none; position: relative; z-index: 1;
@@ -613,34 +632,52 @@
 </head>
 <body>
 
-<!-- ============================================= INPUT SCREEN ============================================= -->
-<div id="screen-input">
+<!-- ============================================= MAIN SCREEN ============================================= -->
+<div id="screen-main">
   <header class="hero">
     <span class="sparkle">🌸</span>
     <span class="sparkle">💕</span>
     <span class="sparkle">🌿</span>
     <span class="hero-emoji">🦫</span>
-    <h1>카피바라가 풀어주는<br><span class="highlight">올해의 사주</span></h1>
-    <p>만세력 앱에서 복사한 내용을 붙여넣으면<br>카피바라가 카드로 한 장 한 장 풀어줘요 🦫</p>
+    <h1>카피바라 사주카드</h1>
+    <p class="hand" style="font-size:20px;color:var(--moss);">"느긋하게, 그러나 깊이"</p>
   </header>
 
-  <div class="paper-card guide-card">
-    <h2 class="card-title"><span class="emoji">📅</span>만세력이 없어요?</h2>
-    <p style="margin:0 0 12px;color:var(--ink-soft);font-size:14px;line-height:1.6;">
-      아래 버튼을 누르면 <strong>무료 만세력 사이트</strong>로 이동해요.<br>
-      생년월일을 입력해서 사주 정보를 뽑은 뒤,<br>
-      텍스트를 복사해서 아래에 붙여넣어 주세요 🌱
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+    <button class="main-mode-btn" id="btn-go-single">
+      <span style="font-size:40px;">🦫</span>
+      <strong>개인 사주</strong>
+      <span>나의 올해 운세<br>카드로 풀어보기</span>
+    </button>
+    <button class="main-mode-btn" id="btn-go-multi-main">
+      <span style="font-size:40px;">🦫🦫</span>
+      <strong>다인 사주</strong>
+      <span>최대 10명 비교<br>궁합·운세 함께 보기</span>
+    </button>
+  </div>
+
+  <p class="note">※ 오락·참고용 해석이에요 🌷<br>명리학 통념을 바탕으로 한 템플릿 기반 풀이입니다.</p>
+</div>
+
+<!-- ============================================= INPUT SCREEN (개인) ============================================= -->
+<div id="screen-input" style="display:none;">
+
+  <div class="paper-card guide-card" style="margin-bottom:14px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <button id="btn-back-main" style="background:none;border:none;font-size:20px;cursor:pointer;padding:0;">←</button>
+      <h2 class="card-title" style="margin:0;"><span class="emoji">📅</span>만세력이 없어요?</h2>
+    </div>
+    <p style="margin:0 0 10px;color:var(--ink-soft);font-size:14px;line-height:1.6;">
+      아래 버튼으로 무료 만세력 사이트에서 뽑아오세요.<br>
+      <strong>만세력 저장</strong> 버튼을 클릭하여 복사해 주세요 🦫
     </p>
     <a href="https://daysaju.com/manseryeok/input" target="_blank" rel="noopener" class="btn btn-secondary btn-full">
-      🔗 만세력 뽑으러 가기
+      🔗 만세력 뽑으러 가기 <span style="font-size:11px;opacity:0.7;">(새 창)</span>
     </a>
-    <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft);text-align:center;opacity:0.8;">
-      ※ 새 창으로 열려요
-    </p>
   </div>
 
   <div class="paper-card">
-    <h2 class="card-title"><span class="emoji">📝</span>만세력 입력</h2>
+    <h2 class="card-title"><span class="emoji">🦫</span>개인 사주 입력</h2>
     <div class="field-row-3">
       <div class="field">
         <label for="in-name">이름 (선택)</label>
@@ -665,27 +702,29 @@
     <button class="btn btn-primary btn-full" id="btn-analyze">사주 카드 열기 🔮</button>
     <div id="input-error" style="display:none"></div>
   </div>
-
-  <div class="paper-card" style="text-align:center;">
-    <p style="margin:0 0 10px;font-size:14px;color:var(--ink-soft);">여러 명의 사주를 함께 보고 싶다면?</p>
-    <button class="btn btn-secondary btn-full" id="btn-go-multi">🦫 비교하기 (최대 10명)</button>
-  </div>
-
-  <p class="note">※ 오락·참고용 해석이에요 🌷<br>명리학 통념을 바탕으로 한 템플릿 기반 풀이입니다.</p>
 </div>
 
-<!-- ============================================= MULTI SCREEN ============================================= -->
-<div id="screen-multi">
+<!-- ============================================= MULTI SCREEN (다인) ============================================= -->
+<div id="screen-multi" style="display:none;">
   <div id="multi-input-wrap">
-    <header class="hero" style="padding:16px 0 12px;">
-      <span class="hero-emoji" style="font-size:48px;">🦫</span>
-      <h1 style="font-size:26px;">비교 사주카드</h1>
-      <p style="font-size:14px;">최대 10명의 사주를 함께 볼 수 있어요</p>
-    </header>
+
+    <div class="paper-card guide-card" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <button id="btn-back-main-multi" style="background:none;border:none;font-size:20px;cursor:pointer;padding:0;">←</button>
+        <h2 class="card-title" style="margin:0;"><span class="emoji">📅</span>만세력이 없어요?</h2>
+      </div>
+      <p style="margin:0 0 10px;color:var(--ink-soft);font-size:14px;line-height:1.6;">
+        아래 버튼으로 무료 만세력 사이트에서 뽑아오세요.<br>
+        <strong>만세력 저장</strong> 버튼을 클릭하여 복사해 주세요 🦫
+      </p>
+      <a href="https://daysaju.com/manseryeok/input" target="_blank" rel="noopener" class="btn btn-secondary btn-full">
+        🔗 만세력 뽑으러 가기 <span style="font-size:11px;opacity:0.7;">(새 창)</span>
+      </a>
+    </div>
 
     <div class="paper-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <h2 class="card-title" style="margin:0;"><span class="emoji">👥</span>인원 입력</h2>
+        <h2 class="card-title" style="margin:0;"><span class="emoji">🦫🦫</span>다인 사주 입력</h2>
         <button id="btn-multi-add" class="btn btn-secondary" style="padding:8px 16px;font-size:13px;">+ 추가</button>
       </div>
       <div id="multi-tabs-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
@@ -696,7 +735,7 @@
 
     <div style="text-align:center;padding:10px 0 40px;">
       <button id="btn-back-single" style="background:none;border:none;color:var(--ink-soft);font-size:14px;cursor:pointer;font-family:inherit;">
-        ← 개인 사주로 돌아가기
+        ← 처음으로 돌아가기
       </button>
     </div>
   </div>
@@ -714,7 +753,11 @@
       <div class="story-topbar">
         <button class="icon-btn" id="btn-home" title="처음으로">🏠</button>
         <div class="page-indicator" id="indicator">1 / 1</div>
-        <button class="icon-btn" id="btn-close-story" title="닫기">✕</button>
+        <div style="display:flex;gap:6px;">
+          <button class="icon-btn" id="btn-share" title="링크 공유">🔗</button>
+          <button class="icon-btn" id="btn-pdf" title="PDF 저장">💾</button>
+          <button class="icon-btn" id="btn-close-story" title="닫기">✕</button>
+        </div>
       </div>
       <div class="story-content" id="story-content"></div>
       <div class="story-nav">
@@ -3157,7 +3200,7 @@ function buildYearlyPages(data, year, pages) {
         </div>
         <div class="mood-card cream" style="margin-top:12px;">
           <p class="hand" style="font-size:20px;margin:0 0 6px;color:var(--moss-deep);">🌿 읽는 법</p>
-          <p>진한색 줄이 <strong>${honoric}의 현재 대운</strong>이에요. 각 줄은 10년을 담은 한 시절.</p>
+          <p>진한 초록색 줄이 <strong>${honoric}의 현재 대운</strong>이에요. 각 줄은 10년을 담은 한 시절.</p>
         </div>
       `
     });
@@ -4342,6 +4385,9 @@ function init() {
         errorEl.className='error'; errorEl.textContent='일간 또는 사주 원국을 찾지 못했어요. 예시 형식을 참고해주세요.'; errorEl.style.display='block'; return;
       }
       renderStory(data, year);
+      ['screen-main','screen-input','screen-multi'].forEach(s =>
+        document.getElementById(s).style.display = 'none'
+      );
       document.getElementById('screen-story').classList.add('is-open');
     } catch(e) {
       errorEl.className='error'; errorEl.textContent='파싱 중 문제가 발생했어요: '+e.message; errorEl.style.display='block';
@@ -4351,23 +4397,28 @@ function init() {
   // 네비게이션
   document.getElementById('btn-prev').addEventListener('click', () => goToPage(CURRENT-1));
   document.getElementById('btn-next').addEventListener('click', () => goToPage(CURRENT+1));
+
+  // 화면 전환 헬퍼
+  function showScreen(id) {
+    ['screen-main','screen-input','screen-multi'].forEach(s => {
+      document.getElementById(s).style.display = s === id ? '' : 'none';
+    });
+  }
+
+  // 홈 버튼 → 메인으로
   document.getElementById('btn-home').addEventListener('click', () => {
     document.getElementById('screen-story').classList.remove('is-open');
     document.getElementById('person-tab-bar').style.display = 'none';
-    document.getElementById('screen-multi').classList.remove('is-open');
-    document.getElementById('screen-input').style.display = '';
     multiPersons = [];
+    showScreen('screen-main');
   });
+
+  // 닫기 버튼
   document.getElementById('btn-close-story').addEventListener('click', () => {
     document.getElementById('screen-story').classList.remove('is-open');
     document.getElementById('person-tab-bar').style.display = 'none';
-    // 비교 모드였으면 비교 화면으로, 아니면 메인으로
-    if (multiPersons.length > 0 && document.getElementById('screen-multi').dataset.wasOpen) {
-      document.getElementById('screen-multi').classList.add('is-open');
-    } else {
-      document.getElementById('screen-input').style.display = '';
-    }
-    multiPersons = []; // 비교 모드 초기화
+    showScreen(multiPersons.length > 0 ? 'screen-multi' : 'screen-input');
+    multiPersons = [];
   });
 
   // TOC
@@ -4380,8 +4431,7 @@ function init() {
   document.getElementById('toc-list').addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-go]');
     if (!btn) return;
-    const idx = parseInt(btn.dataset.go, 10);
-    goToPage(idx);
+    goToPage(parseInt(btn.dataset.go, 10));
     document.getElementById('toc-overlay').classList.remove('is-open');
   });
 
@@ -4391,16 +4441,28 @@ function init() {
     if (e.target === document.getElementById('modal-backdrop')) closeModal();
   });
 
-  // 비교하기 버튼
-  document.getElementById('btn-go-multi').addEventListener('click', () => {
-    document.getElementById('screen-input').style.display = 'none';
-    document.getElementById('screen-multi').classList.add('is-open');
+  // 메인 → 개인 사주
+  document.getElementById('btn-go-single').addEventListener('click', () => showScreen('screen-input'));
+
+  // 메인 → 다인 사주
+  document.getElementById('btn-go-multi-main').addEventListener('click', () => {
+    showScreen('screen-multi');
     if (multiPersons.length === 0) multiAddPerson();
   });
 
+  // 개인 사주 ← 메인
+  document.getElementById('btn-back-main').addEventListener('click', () => showScreen('screen-main'));
+
+  // 다인 사주 ← 메인
+  document.getElementById('btn-back-main-multi').addEventListener('click', () => {
+    multiPersons = [];
+    showScreen('screen-main');
+  });
+
+  // 다인 처음으로
   document.getElementById('btn-back-single').addEventListener('click', () => {
-    document.getElementById('screen-multi').classList.remove('is-open');
-    document.getElementById('screen-input').style.display = '';
+    multiPersons = [];
+    showScreen('screen-main');
   });
 
   document.getElementById('btn-multi-add').addEventListener('click', () => {
@@ -4418,6 +4480,66 @@ function init() {
     if (e.key==='ArrowRight') goToPage(CURRENT+1);
     if (e.key==='ArrowLeft')  goToPage(CURRENT-1);
     if (e.key==='Escape')     document.getElementById('screen-story').classList.remove('is-open');
+  });
+
+  // 🔗 링크 공유
+  document.getElementById('btn-share').addEventListener('click', () => {
+    try {
+      const raw = document.getElementById('in-raw').value.trim();
+      const name = document.getElementById('in-name').value.trim();
+      const gender = document.getElementById('in-gender').value;
+      const year = document.getElementById('in-year').value;
+      if (!raw) { alert('공유할 데이터가 없어요.'); return; }
+      const payload = { raw, name, gender, year };
+      const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
+      const url = location.origin + location.pathname + '?d=' + encoded;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => alert('🔗 링크가 복사됐어요!\n친구에게 보내면 똑같은 결과를 볼 수 있어요 🦫'));
+      } else {
+        prompt('아래 링크를 복사해 공유하세요:', url);
+      }
+    } catch(e) { alert('링크 생성 실패: ' + e.message); }
+  });
+
+  // 💾 PDF 저장
+  document.getElementById('btn-pdf').addEventListener('click', () => {
+    const name = document.getElementById('in-name').value.trim() || '사주';
+    const year = document.getElementById('in-year').value || new Date().getFullYear();
+    // 현재 카드 페이지만 print
+    const page = document.querySelector('.story-page.is-active');
+    if (!page) { alert('표시된 카드가 없어요.'); return; }
+    const win = window.open('', '_blank');
+    win.document.write(`<!DOCTYPE html><html><head>
+      <meta charset="utf-8">
+      <title>${name} ${year}년 사주카드</title>
+      <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+      <style>
+        body { margin: 0; padding: 20px; font-family: 'Gowun Dodum', sans-serif; background: #fff8f5; color: #4a2e28; }
+        @media print {
+          body { padding: 0; }
+          button { display: none !important; }
+        }
+        .print-wrap { max-width: 400px; margin: 0 auto; }
+        .print-header { text-align:center; padding:16px 0; border-bottom:2px dashed #ffb8a8; margin-bottom:20px; }
+        .print-header h2 { margin:0; font-size:18px; }
+        .print-header p { margin:4px 0 0; font-size:13px; color:#c4705e; }
+        .print-body { padding: 0 10px; }
+        h1 { font-family: 'Gowun Batang', serif; font-size:22px; }
+        .mood-card { border:1.5px solid #ffb8a8; border-radius:14px; padding:14px; margin-bottom:12px; background:#fff5f2; }
+        .hand { font-family: 'Nanum Pen Script', cursive; }
+        .btn-print { display:block; margin:20px auto; padding:12px 30px; background:#e8917e; color:#fff; border:none; border-radius:14px; font-size:15px; cursor:pointer; font-family:inherit; }
+      </style>
+    </head><body>
+      <div class="print-wrap">
+        <div class="print-header">
+          <h2>🦫 카피바라 사주카드</h2>
+          <p>${name} · ${year}년</p>
+        </div>
+        <div class="print-body">${page.innerHTML}</div>
+        <button class="btn-print" onclick="window.print()">🖨️ PDF로 저장하기</button>
+      </div>
+    </body></html>`);
+    win.document.close();
   });
 }
 
@@ -4529,8 +4651,9 @@ function multiRun() {
   const comparePages = buildComparePages(results);
 
   // 스토리 화면 열기
-  document.getElementById('screen-multi').classList.remove('is-open');
-  document.getElementById('screen-input').style.display = 'none';
+  ['screen-main','screen-input','screen-multi'].forEach(s =>
+    document.getElementById(s).style.display = 'none'
+  );
   multiShowStory(results, comparePages);
 }
 
@@ -4584,48 +4707,79 @@ function buildComparePages(persons) {
     `
   });
 
-  // 3. 궁합 (2명 이상일 때 페어별 합충 체크)
+  // 3. 상황별 궁합 점수 (페어별 카드, 2명 이상)
   if (persons.length >= 2) {
     const pairs = [];
-    for (let a = 0; a < persons.length; a++) {
-      for (let b = a+1; b < persons.length; b++) {
+    for (let a = 0; a < persons.length; a++)
+      for (let b = a+1; b < persons.length; b++)
         pairs.push([persons[a], persons[b]]);
-      }
-    }
-    const rel = pairs.map(([a, b]) => {
-      const ganA = a.data.ilgan, ganB = b.data.ilgan;
-      const jiA = a.data.pillars?.day?.ji, jiB = b.data.pillars?.day?.ji;
-      const hapGan = GAN_HAP ? Object.entries(GAN_HAP).find(([k]) => k.includes(ganA) && k.includes(ganB)) : null;
-      const chungGan = GAN_CHUNG ? GAN_CHUNG[ganA]===ganB || GAN_CHUNG[ganB]===ganA : false;
-      const hapKey = jiA && jiB ? ([jiA,jiB].sort().join('-')) : null;
-      const jiHap = hapKey && JIJI_REL_DEEP?.hap_meaning?.[hapKey];
-      const jiChung = jiA && jiB && JIJI_REL_DEEP?.chung_meaning?.[hapKey||[jiA,jiB].sort().join('-')];
-      let rel = '중립';
-      let relEmoji = '🤝';
-      if (hapGan) { rel = `천간합 (${hapGan[1]?.name||''})` ; relEmoji = '💕'; }
-      else if (chungGan) { rel = '천간충'; relEmoji = '⚡'; }
-      if (jiHap) { rel += ` + 일지합 (${jiHap.name})`; relEmoji = relEmoji === '⚡' ? '😅' : '💕'; }
-      else if (jiChung) { rel += ` + 일지충`; relEmoji = relEmoji === '💕' ? '😅' : '⚡'; }
-      return { a, b, rel, relEmoji };
-    });
 
-    pages.push({
-      chapter:'🔍 비교', title:'일간·일지 궁합', emoji:'💕',
-      html:`
-        <div class="pg-eyebrow">합·충 분석</div>
-        <h1 class="pg-title">궁합 분석</h1>
-        <div class="pg-body">
-          <div class="mood-card cream" style="margin-bottom:12px;">
-            <p style="margin:0;font-size:13px;">일간합은 끌림, 일간충은 자극, 일지합은 배우자 궁 연결을 봐요.</p>
-          </div>
-          ${rel.map(r => `
-            <div class="mood-card ${r.relEmoji==='💕'?'leaf':r.relEmoji==='⚡'?'berry':'peach'}" style="margin-bottom:8px;">
-              <p style="margin:0;font-weight:700;">${CAPI_COLORS[persons.indexOf(r.a)]} ${esc(r.a.name)} ↔ ${CAPI_COLORS[persons.indexOf(r.b)]} ${esc(r.b.name)}</p>
-              <p style="margin:4px 0 0;font-size:14px;">${r.relEmoji} ${r.rel}</p>
+    function calcGunghap(a, b) {
+      let love=50, biz=50, travel=50, live=50;
+      const ganA=a.data.ilgan, ganB=b.data.ilgan;
+      const jiA=a.data.pillars?.day?.ji, jiB=b.data.pillars?.day?.ji;
+      const moA=a.data.pillars?.month?.ji, moB=b.data.pillars?.month?.ji;
+      const ohA=a.data.oheng||{}, ohB=b.data.oheng||{};
+      const jiKey=[jiA,jiB].filter(Boolean).sort().join('-');
+      const moKey=[moA,moB].filter(Boolean).sort().join('-');
+      const ganHapKeys=Object.keys(GAN_HAP||{});
+      const hasGanHap=ganHapKeys.some(k=>k.includes(ganA)&&k.includes(ganB));
+      if(hasGanHap){love+=20;live+=15;biz+=5;}
+      if(GAN_CHUNG?.[ganA]===ganB||GAN_CHUNG?.[ganB]===ganA){love-=10;biz+=5;travel-=5;}
+      if(jiKey&&JIJI_REL_DEEP?.hap_meaning?.[jiKey]){love+=15;live+=15;}
+      if(jiKey&&JIJI_REL_DEEP?.chung_meaning?.[jiKey]){love-=15;travel-=10;live-=15;}
+      const SAM=[['亥','卯','未'],['寅','午','戌'],['巳','酉','丑'],['申','子','辰']];
+      SAM.forEach(g=>{if(g.includes(jiA)&&g.includes(jiB)){biz+=15;travel+=10;}});
+      const hasSin=(p,s)=>(p.data.sinsal||[]).includes(s);
+      if(hasSin(a,'역마살')&&hasSin(b,'역마살'))travel+=20;
+      else if(hasSin(a,'역마살')||hasSin(b,'역마살'))travel+=8;
+      if((hasSin(a,'도화살')||hasSin(a,'연살'))&&(hasSin(b,'도화살')||hasSin(b,'연살')))love+=10;
+      const SHENG={목:'화',화:'토',토:'금',금:'수',수:'목'};
+      const domA=Object.entries(ohA).sort((x,y)=>y[1]-x[1])[0]?.[0];
+      const domB=Object.entries(ohB).sort((x,y)=>y[1]-x[1])[0]?.[0];
+      if(domA&&domB&&(SHENG[domA]===domB||SHENG[domB]===domA))biz+=10;
+      if(moKey&&JIJI_REL_DEEP?.hap_meaning?.[moKey])live+=10;
+      const cap=v=>Math.min(99,Math.max(20,Math.round(v)));
+      return{love:cap(love),biz:cap(biz),travel:cap(travel),live:cap(live),
+             total:Math.round((cap(love)+cap(biz)+cap(travel)+cap(live))/4)};
+    }
+    function sBar(s){const c=s>=80?'#6db87a':s>=60?'#f0c93a':'#e8917e';
+      return `<div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;background:rgba(0,0,0,0.08);border-radius:99px;height:8px;overflow:hidden;"><div style="width:${s}%;height:100%;background:${c};border-radius:99px;"></div></div><span style="font-family:'Nanum Pen Script',cursive;font-size:17px;min-width:34px;text-align:right;">${s}점</span></div>`;}
+    function gComment(s){return s>=90?'환상의 궁합! 🎉':s>=80?'잘 맞는 사이 🦫':s>=70?'대체로 잘 맞아요':s>=60?'노력하면 좋아져요':s>=50?'서로 맞춰가는 중':'에너지 방향이 달라요';}
+
+    pairs.forEach(([a,b])=>{
+      const ai=persons.indexOf(a),bi=persons.indexOf(b);
+      const g=calcGunghap(a,b);
+      pages.push({
+        chapter:'🔍 비교', title:`${a.name} ↔ ${b.name} 궁합`, emoji:'💕',
+        html:`
+          <div class="pg-eyebrow">상황별 궁합 점수</div>
+          <h1 class="pg-title">${CAPI_COLORS[ai]} ${esc(a.name)} ↔ ${CAPI_COLORS[bi]} ${esc(b.name)}</h1>
+          <div class="pg-body">
+            <div class="mood-card leaf" style="margin-bottom:14px;text-align:center;">
+              <p style="margin:0;font-size:13px;color:var(--ink-soft);">종합 궁합</p>
+              <p style="margin:4px 0 0;font-size:42px;font-family:'Nanum Pen Script',cursive;color:var(--moss-deep);">${g.total}점</p>
+              <p style="margin:4px 0 0;font-size:15px;font-weight:700;">${gComment(g.total)}</p>
             </div>
-          `).join('')}
-        </div>
-      `
+            <div class="mood-card cream" style="margin-bottom:8px;">
+              <p style="margin:0 0 6px;font-weight:700;">👫 연애·부부 궁합</p>${sBar(g.love)}
+              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">일간합·일지합·도화살 기준</p>
+            </div>
+            <div class="mood-card cream" style="margin-bottom:8px;">
+              <p style="margin:0 0 6px;font-weight:700;">💼 비즈니스·직장 궁합</p>${sBar(g.biz)}
+              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">삼합·오행 상생·천간 관계 기준</p>
+            </div>
+            <div class="mood-card cream" style="margin-bottom:8px;">
+              <p style="margin:0 0 6px;font-weight:700;">✈️ 여행 궁합</p>${sBar(g.travel)}
+              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">역마살 공유·삼합 기준</p>
+            </div>
+            <div class="mood-card cream">
+              <p style="margin:0 0 6px;font-weight:700;">🏠 동거·가족 궁합</p>${sBar(g.live)}
+              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">일지합·월지합·일지충 기준</p>
+            </div>
+          </div>
+        `
+      });
     });
   }
 
@@ -4680,6 +4834,130 @@ function buildComparePages(persons) {
     `
   });
 
+  /* ===== 6. 올해 운 순위 ===== */
+  const ranked = persons.map((p, i) => {
+    const cw = p.data.yeonwoon?.find(y=>y.year===year) || p.data.yeonwoon?.[0];
+    const sub = cw ? scoreForSubFortune(p.data, cw) : null;
+    const total = sub ? Math.round((sub.love+sub.money+sub.study+sub.rel+sub.work+sub.health)/6) : 50;
+    return { p, i, total, sub };
+  }).sort((a,b) => b.total - a.total);
+
+  pages.push({
+    chapter:'🔍 비교', title:`${year}년 운 순위`, emoji:'🏆',
+    html:`
+      <div class="pg-eyebrow">${year}년</div>
+      <h1 class="pg-title">🏆 올해 운 순위</h1>
+      <div class="pg-body">
+        <div class="mood-card cream" style="margin-bottom:12px;">
+          <p style="margin:0;font-size:13px;">6대 영역(애정·재물·학업·관계·업무·건강) 평균으로 계산했어요.</p>
+        </div>
+        ${ranked.map((r, rank) => {
+          const medals = ['🥇','🥈','🥉'];
+          const medal = medals[rank] || `${rank+1}위`;
+          return `<div class="mood-card ${['leaf','peach','cream'][Math.min(rank,2)]}" style="margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="font-size:22px;">${medal}</span>
+              <strong>${CAPI_COLORS[r.i]} ${esc(r.p.name)}</strong>
+              <span style="margin-left:auto;font-family:'Nanum Pen Script',cursive;font-size:20px;">${r.total}점</span>
+            </div>
+            <div style="background:rgba(0,0,0,0.08);border-radius:99px;height:8px;overflow:hidden;">
+              <div style="width:${r.total}%;height:100%;background:var(--leaf-3);border-radius:99px;"></div>
+            </div>
+            ${r.sub ? `<p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">💕${r.sub.love} 💰${r.sub.money} 🎓${r.sub.study} 🤝${r.sub.rel} 💼${r.sub.work} 🧘${r.sub.health}</p>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    `
+  });
+
+  /* ===== 7. 월별 점수 비교 (SVG 꺾은선) ===== */
+  const mColors = ['#e8917e','#9b8ec4','#6db87a','#5ba8e0','#f0c93a','#e07070','#ff9ac1','#c8a882','#7ec8d8','#555'];
+  const mLabels = ['1','2','3','4','5','6','7','8','9','10','11','12'];
+  const W=300, H=120, pL=16, pR=8, pT=10, pB=24;
+  const plotW = W-pL-pR, plotH = H-pT-pB;
+  const xPos = i => pL + (i/(11)) * plotW;
+  const yPos = v => pT + plotH - ((v-40)/(100-40)) * plotH;
+
+  const monthScores = persons.map(p =>
+    Array.from({length:12}, (_,i) => monthScore(p.data, i+1)?.score || 55)
+  );
+
+  const lines = persons.map((p, pi) => {
+    const pts = monthScores[pi].map((v, i) => `${xPos(i).toFixed(1)},${yPos(v).toFixed(1)}`).join(' ');
+    return `<polyline points="${pts}" fill="none" stroke="${mColors[pi]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>`;
+  }).join('');
+
+  const dots = persons.map((p, pi) =>
+    monthScores[pi].map((v, i) =>
+      `<circle cx="${xPos(i).toFixed(1)}" cy="${yPos(v).toFixed(1)}" r="3" fill="${mColors[pi]}"/>`
+    ).join('')
+  ).join('');
+
+  const xLabels = mLabels.map((l, i) =>
+    `<text x="${xPos(i).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#b0897a">${l}</text>`
+  ).join('');
+
+  const legend = persons.map((p, i) =>
+    `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;font-size:12px;">
+      <span style="display:inline-block;width:16px;height:3px;background:${mColors[i]};border-radius:2px;"></span>${esc(p.name)}
+    </span>`
+  ).join('');
+
+  pages.push({
+    chapter:'🔍 비교', title:'월별 운 흐름 비교', emoji:'📈',
+    html:`
+      <div class="pg-eyebrow">${year}년 1~12월</div>
+      <h1 class="pg-title">📈 월별 운 흐름</h1>
+      <div class="pg-body">
+        <div style="margin-bottom:8px;line-height:2;">${legend}</div>
+        <div style="background:#fff;border-radius:14px;padding:10px;border:1.5px solid var(--petal);overflow:hidden;">
+          <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;">
+            <line x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+plotH}" stroke="#f0d5b8" stroke-width="1"/>
+            <line x1="${pL}" y1="${pT+plotH}" x2="${pL+plotW}" y2="${pT+plotH}" stroke="#f0d5b8" stroke-width="1"/>
+            ${[60,75,90].map(v=>`<line x1="${pL}" y1="${yPos(v).toFixed(1)}" x2="${pL+plotW}" y2="${yPos(v).toFixed(1)}" stroke="#fde8df" stroke-width="1" stroke-dasharray="3,3"/>`).join('')}
+            ${lines}${dots}${xLabels}
+          </svg>
+        </div>
+        <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft);text-align:center;">가로: 월(1~12월) · 세로: 운세 점수</p>
+      </div>
+    `
+  });
+
+  /* ===== 8. 대운 타임라인 비교 ===== */
+  pages.push({
+    chapter:'🔍 비교', title:'대운 타임라인 비교', emoji:'🕰️',
+    html:`
+      <div class="pg-eyebrow">10년 단위 인생 흐름</div>
+      <h1 class="pg-title">🕰️ 대운 타임라인</h1>
+      <div class="pg-body">
+        <div class="mood-card cream" style="margin-bottom:12px;">
+          <p style="margin:0;font-size:13px;">각자의 10년 대운 흐름이에요. 현재 대운에 🦫 표시돼요.</p>
+        </div>
+        ${persons.map((p, i) => {
+          const now = new Date().getFullYear();
+          const dws = p.data.daewoon || [];
+          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:10px;">
+            <p style="margin:0 0 8px;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)}</p>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;">
+              ${dws.map(dw => {
+                const isCurrent = dw.age && p.data.birthYear &&
+                  (now >= p.data.birthYear + dw.age) &&
+                  (now < p.data.birthYear + dw.age + 10);
+                return `<div style="padding:4px 8px;border-radius:8px;font-size:11px;text-align:center;
+                  background:${isCurrent?'var(--leaf-3)':'rgba(255,255,255,0.7)'};
+                  color:${isCurrent?'#fff':'var(--ink)'};
+                  border:1px solid ${isCurrent?'var(--moss)':'var(--petal)'};
+                  font-weight:${isCurrent?'700':'400'};">
+                  ${isCurrent?'🦫 ':''}${dw.age}세~<br>${dw.gan||''}${dw.ji||''}<br><span style="opacity:0.75;">${dw.sipsin||''}</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    `
+  });
+
   return pages;
 }
 
@@ -4689,7 +4967,6 @@ function multiShowStory(persons, comparePages) {
   const tabBar = document.getElementById('person-tab-bar');
   const tabsEl = document.getElementById('person-tabs');
 
-  // 탭 생성
   tabBar.style.display = 'block';
   const tabs = [
     ...persons.map((p, i) => ({ label: `${CAPI_COLORS[i]} ${p.name}`, idx: i, compare: false })),
@@ -4705,19 +4982,18 @@ function multiShowStory(persons, comparePages) {
     tabsEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     if (idx === -1) {
-      renderStoryPages(comparePages);
+      renderStoryPages(comparePages, null, 2026);
     } else {
-      renderStoryPages(persons[idx].pages);
+      renderStoryPages(persons[idx].pages, persons[idx].data, persons[idx].year);
     }
   });
 
-  // 첫 번째 사람 카드 렌더
-  renderStoryPages(persons[0].pages);
+  renderStoryPages(persons[0].pages, persons[0].data, persons[0].year);
   storyEl.classList.add('is-open');
 }
 
 /* 페이지 배열로 스토리 렌더 */
-function renderStoryPages(pages) {
+function renderStoryPages(pages, data, year) {
   ALL_PAGES = pages;
   CURRENT = 0;
 
@@ -4744,7 +5020,8 @@ function renderStoryPages(pages) {
   tocList.innerHTML = tocHtml;
 
   goToPage(0);
-  bindMonthCards(null, 2026);
+  // data가 있으면 월별 탭 바인딩, 없으면 (비교탭) 스킵
+  if (data) bindMonthCards(data, year || 2026);
 }
 
 if (document.readyState === 'loading') {
@@ -4752,6 +5029,25 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+// URL ?d= 파라미터로 공유 링크 자동 로드
+(function checkSharedLink() {
+  try {
+    const params = new URLSearchParams(location.search);
+    const encoded = params.get('d');
+    if (!encoded) return;
+    const payload = JSON.parse(decodeURIComponent(atob(encoded)));
+    if (!payload.raw) return;
+    // 개인 사주 화면으로 이동 후 데이터 채우기
+    document.getElementById('screen-main').style.display = 'none';
+    document.getElementById('screen-input').style.display = '';
+    document.getElementById('in-raw').value = payload.raw;
+    if (payload.name) document.getElementById('in-name').value = payload.name;
+    if (payload.gender) document.getElementById('in-gender').value = payload.gender;
+    if (payload.year) document.getElementById('in-year').value = payload.year;
+    setTimeout(() => { document.getElementById('btn-analyze').click(); }, 300);
+  } catch(e) { /* 링크 오류는 무시 */ }
+})();
 
 </script>
 </body>

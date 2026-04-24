@@ -4498,289 +4498,109 @@ function multiRun() {
 function buildComparePages(persons) {
   const pages = [];
   const year = persons[0].year;
+  const ohE = { 목:'🌳', 화:'🔥', 토:'🪨', 금:'⚔️', 수:'💧' };
+  const cardCls = ['leaf','peach','dew','cream','berry'];
+  const mColors = ['#e8917e','#9b8ec4','#6db87a','#5ba8e0','#f0c93a','#e07070','#ff9ac1','#c8a882','#7ec8d8','#555'];
 
-  // 1. 오행 비교
-  const ohengEmoji = { 목:'🌳', 화:'🔥', 토:'🪨', 금:'⚔️', 수:'💧' };
+  /* ── 공통 유틸 ── */
+  function sBar(s, color) {
+    const c = color || (s>=80?'#6db87a':s>=60?'#f0c93a':'#e8917e');
+    return `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;">
+      <div style="flex:1;background:rgba(0,0,0,0.08);border-radius:99px;height:8px;overflow:hidden;">
+        <div style="width:${s}%;height:100%;background:${c};border-radius:99px;"></div>
+      </div>
+      <span style="font-family:'Nanum Pen Script',cursive;font-size:17px;min-width:34px;text-align:right;">${s}점</span>
+    </div>`;
+  }
+  function calcGunghap(a, b) {
+    let love=50, biz=50, travel=50, live=50;
+    const ganA=a.data.ilgan, ganB=b.data.ilgan;
+    const jiA=a.data.pillars?.day?.ji, jiB=b.data.pillars?.day?.ji;
+    const moA=a.data.pillars?.month?.ji, moB=b.data.pillars?.month?.ji;
+    const ohA=a.data.oheng||{}, ohB=b.data.oheng||{};
+    const jiKey=[jiA,jiB].filter(Boolean).sort().join('-');
+    const moKey=[moA,moB].filter(Boolean).sort().join('-');
+    const ganHapKeys=Object.keys(GAN_HAP||{});
+    const hasGanHap=ganHapKeys.some(k=>k.includes(ganA)&&k.includes(ganB));
+    if(hasGanHap){love+=20;live+=15;biz+=5;}
+    if(GAN_CHUNG?.[ganA]===ganB||GAN_CHUNG?.[ganB]===ganA){love-=10;biz+=5;travel-=5;}
+    if(jiKey&&JIJI_REL_DEEP?.hap_meaning?.[jiKey]){love+=15;live+=15;}
+    if(jiKey&&JIJI_REL_DEEP?.chung_meaning?.[jiKey]){love-=15;travel-=10;live-=15;}
+    const SAM=[['亥','卯','未'],['寅','午','戌'],['巳','酉','丑'],['申','子','辰']];
+    SAM.forEach(g=>{if(g.includes(jiA)&&g.includes(jiB)){biz+=15;travel+=10;}});
+    const hasSin=(p,s)=>(p.data.sinsal||[]).includes(s);
+    if(hasSin(a,'역마살')&&hasSin(b,'역마살'))travel+=20;
+    else if(hasSin(a,'역마살')||hasSin(b,'역마살'))travel+=8;
+    if((hasSin(a,'도화살')||hasSin(a,'연살'))&&(hasSin(b,'도화살')||hasSin(b,'연살')))love+=10;
+    const SHENG={목:'화',화:'토',토:'금',금:'수',수:'목'};
+    const domA=Object.entries(ohA).sort((x,y)=>y[1]-x[1])[0]?.[0];
+    const domB=Object.entries(ohB).sort((x,y)=>y[1]-x[1])[0]?.[0];
+    if(domA&&domB&&(SHENG[domA]===domB||SHENG[domB]===domA))biz+=10;
+    if(moKey&&JIJI_REL_DEEP?.hap_meaning?.[moKey])live+=10;
+    const cap=v=>Math.min(99,Math.max(20,Math.round(v)));
+    return{love:cap(love),biz:cap(biz),travel:cap(travel),live:cap(live),
+           total:Math.round((cap(love)+cap(biz)+cap(travel)+cap(live))/4)};
+  }
+  function gComment(s){return s>=90?'환상의 궁합! 🎉':s>=80?'잘 맞는 사이 🦫':s>=70?'대체로 잘 맞아요':s>=60?'노력하면 좋아져요':s>=50?'서로 맞춰가는 중':'에너지 방향이 달라요';}
+
+  /* ─────────────────────────────────────────
+   *  기(起) — 이 사람들은 누구?
+   * ───────────────────────────────────────── */
+
+  // 1. 오행 분포 비교
   pages.push({
     chapter:'🔍 비교', title:'오행 분포 비교', emoji:'🌈',
     html:`
-      <div class="pg-eyebrow">함께 보는</div>
-      <h1 class="pg-title">오행 분포 비교</h1>
-      <div class="pg-body">
-        ${persons.map((p, i) => {
-          const oh = p.data.oheng || {};
-          const bars = ['목','화','토','금','수'].map(e => {
-            const v = oh[e] || 0;
-            return `<span style="margin-right:4px;">${ohengEmoji[e]}${v}</span>`;
-          }).join('');
-          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:8px;">
-            <p style="margin:0;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)} <small style="font-weight:400;color:var(--ink-soft);">(${p.data.ilgan} · ${p.data.singang||''})</small></p>
-            <p style="margin:6px 0 0;font-size:14px;">${bars}</p>
-          </div>`;
-        }).join('')}
-      </div>
-    `
-  });
-
-  // 2. 올해 운 비교
-  pages.push({
-    chapter:'🔍 비교', title:`${year}년 운세 비교`, emoji:'📊',
-    html:`
-      <div class="pg-eyebrow">${year}년</div>
-      <h1 class="pg-title">올해 운세 비교</h1>
-      <div class="pg-body">
-        ${persons.map((p, i) => {
-          const cw = p.data.yeonwoon?.find(y=>y.year===year) || p.data.yeonwoon?.[0];
-          const sub = cw ? scoreForSubFortune(p.data, cw) : null;
-          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:8px;">
-            <p style="margin:0;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)}</p>
-            <p style="margin:4px 0 0;font-size:13px;">
-              ${cw ? `${cw.gan}${cw.ji} · ${cw.sipsin} · ${cw.unseong}` : '세운 정보 없음'}
-              ${sub ? ` &nbsp;|&nbsp; 💕${sub.love} 💰${sub.money} 🎓${sub.study}` : ''}
-            </p>
-          </div>`;
-        }).join('')}
-      </div>
-    `
-  });
-
-  // 3. 상황별 궁합 점수 (페어별 카드, 2명 이상)
-  if (persons.length >= 2) {
-    const pairs = [];
-    for (let a = 0; a < persons.length; a++)
-      for (let b = a+1; b < persons.length; b++)
-        pairs.push([persons[a], persons[b]]);
-
-    function calcGunghap(a, b) {
-      let love=50, biz=50, travel=50, live=50;
-      const ganA=a.data.ilgan, ganB=b.data.ilgan;
-      const jiA=a.data.pillars?.day?.ji, jiB=b.data.pillars?.day?.ji;
-      const moA=a.data.pillars?.month?.ji, moB=b.data.pillars?.month?.ji;
-      const ohA=a.data.oheng||{}, ohB=b.data.oheng||{};
-      const jiKey=[jiA,jiB].filter(Boolean).sort().join('-');
-      const moKey=[moA,moB].filter(Boolean).sort().join('-');
-      const ganHapKeys=Object.keys(GAN_HAP||{});
-      const hasGanHap=ganHapKeys.some(k=>k.includes(ganA)&&k.includes(ganB));
-      if(hasGanHap){love+=20;live+=15;biz+=5;}
-      if(GAN_CHUNG?.[ganA]===ganB||GAN_CHUNG?.[ganB]===ganA){love-=10;biz+=5;travel-=5;}
-      if(jiKey&&JIJI_REL_DEEP?.hap_meaning?.[jiKey]){love+=15;live+=15;}
-      if(jiKey&&JIJI_REL_DEEP?.chung_meaning?.[jiKey]){love-=15;travel-=10;live-=15;}
-      const SAM=[['亥','卯','未'],['寅','午','戌'],['巳','酉','丑'],['申','子','辰']];
-      SAM.forEach(g=>{if(g.includes(jiA)&&g.includes(jiB)){biz+=15;travel+=10;}});
-      const hasSin=(p,s)=>(p.data.sinsal||[]).includes(s);
-      if(hasSin(a,'역마살')&&hasSin(b,'역마살'))travel+=20;
-      else if(hasSin(a,'역마살')||hasSin(b,'역마살'))travel+=8;
-      if((hasSin(a,'도화살')||hasSin(a,'연살'))&&(hasSin(b,'도화살')||hasSin(b,'연살')))love+=10;
-      const SHENG={목:'화',화:'토',토:'금',금:'수',수:'목'};
-      const domA=Object.entries(ohA).sort((x,y)=>y[1]-x[1])[0]?.[0];
-      const domB=Object.entries(ohB).sort((x,y)=>y[1]-x[1])[0]?.[0];
-      if(domA&&domB&&(SHENG[domA]===domB||SHENG[domB]===domA))biz+=10;
-      if(moKey&&JIJI_REL_DEEP?.hap_meaning?.[moKey])live+=10;
-      const cap=v=>Math.min(99,Math.max(20,Math.round(v)));
-      return{love:cap(love),biz:cap(biz),travel:cap(travel),live:cap(live),
-             total:Math.round((cap(love)+cap(biz)+cap(travel)+cap(live))/4)};
-    }
-    function sBar(s){const c=s>=80?'#6db87a':s>=60?'#f0c93a':'#e8917e';
-      return `<div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;background:rgba(0,0,0,0.08);border-radius:99px;height:8px;overflow:hidden;"><div style="width:${s}%;height:100%;background:${c};border-radius:99px;"></div></div><span style="font-family:'Nanum Pen Script',cursive;font-size:17px;min-width:34px;text-align:right;">${s}점</span></div>`;}
-    function gComment(s){return s>=90?'환상의 궁합! 🎉':s>=80?'잘 맞는 사이 🦫':s>=70?'대체로 잘 맞아요':s>=60?'노력하면 좋아져요':s>=50?'서로 맞춰가는 중':'에너지 방향이 달라요';}
-
-    pairs.forEach(([a,b])=>{
-      const ai=persons.indexOf(a),bi=persons.indexOf(b);
-      const g=calcGunghap(a,b);
-      pages.push({
-        chapter:'🔍 비교', title:`${a.name} ↔ ${b.name} 궁합`, emoji:'💕',
-        html:`
-          <div class="pg-eyebrow">상황별 궁합 점수</div>
-          <h1 class="pg-title">${CAPI_COLORS[ai]} ${esc(a.name)} ↔ ${CAPI_COLORS[bi]} ${esc(b.name)}</h1>
-          <div class="pg-body">
-            <div class="mood-card leaf" style="margin-bottom:14px;text-align:center;">
-              <p style="margin:0;font-size:13px;color:var(--ink-soft);">종합 궁합</p>
-              <p style="margin:4px 0 0;font-size:42px;font-family:'Nanum Pen Script',cursive;color:var(--moss-deep);">${g.total}점</p>
-              <p style="margin:4px 0 0;font-size:15px;font-weight:700;">${gComment(g.total)}</p>
-            </div>
-            <div class="mood-card cream" style="margin-bottom:8px;">
-              <p style="margin:0 0 6px;font-weight:700;">👫 연애·부부 궁합</p>${sBar(g.love)}
-              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">일간합·일지합·도화살 기준</p>
-            </div>
-            <div class="mood-card cream" style="margin-bottom:8px;">
-              <p style="margin:0 0 6px;font-weight:700;">💼 비즈니스·직장 궁합</p>${sBar(g.biz)}
-              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">삼합·오행 상생·천간 관계 기준</p>
-            </div>
-            <div class="mood-card cream" style="margin-bottom:8px;">
-              <p style="margin:0 0 6px;font-weight:700;">✈️ 여행 궁합</p>${sBar(g.travel)}
-              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">역마살 공유·삼합 기준</p>
-            </div>
-            <div class="mood-card cream">
-              <p style="margin:0 0 6px;font-weight:700;">🏠 동거·가족 궁합</p>${sBar(g.live)}
-              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">일지합·월지합·일지충 기준</p>
-            </div>
-          </div>
-        `
-      });
-    });
-  }
-
-  // 4. 월별 운 비교 (이번 달 기준)
-  const thisMonth = new Date().getMonth() + 1;
-  pages.push({
-    chapter:'🔍 비교', title:`${thisMonth}월 이달의 운`, emoji:'📅',
-    html:`
-      <div class="pg-eyebrow">이번 달</div>
-      <h1 class="pg-title">${thisMonth}월 운 비교</h1>
-      <div class="pg-body">
-        ${persons.map((p, i) => {
-          const wl = p.data.wolun?.[thisMonth];
-          const sc = wl ? monthScore(p.data, thisMonth) : null;
-          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:8px;">
-            <p style="margin:0;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)} ${sc ? `<span style="float:right;font-size:18px;font-family:'Nanum Pen Script';">${sc.score}점</span>` : ''}</p>
-            <p style="margin:4px 0 0;font-size:13px;">${wl ? `${wl.gan}${wl.ji} · ${wl.sipsin} · ${wl.unseong}` : '월운 정보 없음'}</p>
-          </div>`;
-        }).join('')}
-        <p class="hand" style="text-align:center;margin-top:12px;font-size:16px;color:var(--moss);">점수 높은 분이 이달 최고운! 🦫</p>
-      </div>
-    `
-  });
-
-  // 5. 신살 비교 (공통 신살 찾기)
-  const allSinsal = persons.flatMap(p => p.data.sinsal || []);
-  const sinsalCount = {};
-  allSinsal.forEach(s => { sinsalCount[s] = (sinsalCount[s]||0)+1; });
-  const commonSinsal = Object.entries(sinsalCount).filter(([,c]) => c > 1).sort((a,b) => b[1]-a[1]);
-
-  pages.push({
-    chapter:'🔍 비교', title:'공통 신살', emoji:'⭐',
-    html:`
-      <div class="pg-eyebrow">우리 모두가 가진</div>
-      <h1 class="pg-title">공통 신살</h1>
-      <div class="pg-body">
-        ${commonSinsal.length > 0 ? `
-          <div class="mood-card leaf" style="margin-bottom:12px;">
-            <p style="margin:0;font-size:13px;">여러 명이 공통으로 가진 별이에요. 함께 있을 때 이 기운이 증폭돼요!</p>
-          </div>
-          ${commonSinsal.map(([s, c]) => {
-            const d = SINSAL_DEEP[s];
-            const who = persons.filter(p => (p.data.sinsal||[]).includes(s)).map((p,_,arr) => `${CAPI_COLORS[persons.indexOf(p)]} ${esc(p.name)}`).join(', ');
-            return `<div class="mood-card cream" style="margin-bottom:8px;">
-              <p style="margin:0;font-weight:700;">${d?.emoji||'⭐'} ${esc(s)} <span style="font-size:12px;opacity:0.7;">(${c}명)</span></p>
-              <p style="margin:3px 0;font-size:12px;color:var(--ink-soft);">${who}</p>
-              ${d ? `<p style="margin:4px 0 0;font-size:13px;">${esc(d.note)}</p>` : ''}
-            </div>`;
-          }).join('')}
-        ` : `<div class="mood-card cream"><p>공통으로 가진 신살이 없어요. 각자 개성 만점! 🦫</p></div>`}
-      </div>
-    `
-  });
-
-  /* ===== 6. 올해 운 순위 ===== */
-  const ranked = persons.map((p, i) => {
-    const cw = p.data.yeonwoon?.find(y=>y.year===year) || p.data.yeonwoon?.[0];
-    const sub = cw ? scoreForSubFortune(p.data, cw) : null;
-    const total = sub ? Math.round((sub.love+sub.money+sub.study+sub.rel+sub.work+sub.health)/6) : 50;
-    return { p, i, total, sub };
-  }).sort((a,b) => b.total - a.total);
-
-  pages.push({
-    chapter:'🔍 비교', title:`${year}년 운 순위`, emoji:'🏆',
-    html:`
-      <div class="pg-eyebrow">${year}년</div>
-      <h1 class="pg-title">🏆 올해 운 순위</h1>
+      <div class="pg-eyebrow">기 — 이 사람들은 누구?</div>
+      <h1 class="pg-title">🌈 오행 분포 비교</h1>
       <div class="pg-body">
         <div class="mood-card cream" style="margin-bottom:12px;">
-          <p style="margin:0;font-size:13px;">6대 영역(애정·재물·학업·관계·업무·건강) 평균으로 계산했어요.</p>
+          <p style="margin:0;font-size:13px;">각자의 오행 에너지예요. 서로 어떻게 다른지 한눈에 보여요.</p>
         </div>
-        ${ranked.map((r, rank) => {
-          const medals = ['🥇','🥈','🥉'];
-          const medal = medals[rank] || `${rank+1}위`;
-          return `<div class="mood-card ${['leaf','peach','cream'][Math.min(rank,2)]}" style="margin-bottom:8px;">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-              <span style="font-size:22px;">${medal}</span>
-              <strong>${CAPI_COLORS[r.i]} ${esc(r.p.name)}</strong>
-              <span style="margin-left:auto;font-family:'Nanum Pen Script',cursive;font-size:20px;">${r.total}점</span>
-            </div>
-            <div style="background:rgba(0,0,0,0.08);border-radius:99px;height:8px;overflow:hidden;">
-              <div style="width:${r.total}%;height:100%;background:var(--leaf-3);border-radius:99px;"></div>
-            </div>
-            ${r.sub ? `<p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">💕${r.sub.love} 💰${r.sub.money} 🎓${r.sub.study} 🤝${r.sub.rel} 💼${r.sub.work} 🧘${r.sub.health}</p>` : ''}
+        ${persons.map((p, i) => {
+          const oh = p.data.oheng || {};
+          const total = Object.values(oh).reduce((a,b)=>a+b,0)||1;
+          const bars = ['목','화','토','금','수'].map(e => {
+            const v = oh[e] || 0;
+            const pct = Math.round(v/total*100);
+            return `<div style="margin:4px 0;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px;">
+                <span>${ohE[e]} ${e}</span><span>${v}</span>
+              </div>
+              <div style="background:rgba(0,0,0,0.08);border-radius:99px;height:6px;overflow:hidden;">
+                <div style="width:${pct}%;height:100%;background:${['#6db87a','#e8917e','#c8a882','#9b8ec4','#5ba8e0'][['목','화','토','금','수'].indexOf(e)]};border-radius:99px;"></div>
+              </div>
+            </div>`;
+          }).join('');
+          return `<div class="mood-card ${cardCls[i%5]}" style="margin-bottom:10px;">
+            <p style="margin:0 0 6px;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)} <small style="font-weight:400;color:var(--ink-soft);">${p.data.ilgan} · ${p.data.singang||''}</small></p>
+            ${bars}
           </div>`;
         }).join('')}
       </div>
     `
   });
 
-  /* ===== 7. 월별 점수 비교 (SVG 꺾은선) ===== */
-  const mColors = ['#e8917e','#9b8ec4','#6db87a','#5ba8e0','#f0c93a','#e07070','#ff9ac1','#c8a882','#7ec8d8','#555'];
-  const mLabels = ['1','2','3','4','5','6','7','8','9','10','11','12'];
-  const W=300, H=120, pL=16, pR=8, pT=10, pB=24;
-  const plotW = W-pL-pR, plotH = H-pT-pB;
-  const xPos = i => pL + (i/(11)) * plotW;
-  const yPos = v => pT + plotH - ((v-40)/(100-40)) * plotH;
-
-  const monthScores = persons.map(p =>
-    Array.from({length:12}, (_,i) => monthScore(p.data, i+1)?.score || 55)
-  );
-
-  const lines = persons.map((p, pi) => {
-    const pts = monthScores[pi].map((v, i) => `${xPos(i).toFixed(1)},${yPos(v).toFixed(1)}`).join(' ');
-    return `<polyline points="${pts}" fill="none" stroke="${mColors[pi]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>`;
-  }).join('');
-
-  const dots = persons.map((p, pi) =>
-    monthScores[pi].map((v, i) =>
-      `<circle cx="${xPos(i).toFixed(1)}" cy="${yPos(v).toFixed(1)}" r="3" fill="${mColors[pi]}"/>`
-    ).join('')
-  ).join('');
-
-  const xLabels = mLabels.map((l, i) =>
-    `<text x="${xPos(i).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#b0897a">${l}</text>`
-  ).join('');
-
-  const legend = persons.map((p, i) =>
-    `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;font-size:12px;">
-      <span style="display:inline-block;width:16px;height:3px;background:${mColors[i]};border-radius:2px;"></span>${esc(p.name)}
-    </span>`
-  ).join('');
-
+  // 2. 대운 타임라인
   pages.push({
-    chapter:'🔍 비교', title:'월별 운 흐름 비교', emoji:'📈',
+    chapter:'🔍 비교', title:'대운 타임라인', emoji:'🕰️',
     html:`
-      <div class="pg-eyebrow">${year}년 1~12월</div>
-      <h1 class="pg-title">📈 월별 운 흐름</h1>
-      <div class="pg-body">
-        <div style="margin-bottom:8px;line-height:2;">${legend}</div>
-        <div style="background:#fff;border-radius:14px;padding:10px;border:1.5px solid var(--petal);overflow:hidden;">
-          <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;">
-            <line x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+plotH}" stroke="#f0d5b8" stroke-width="1"/>
-            <line x1="${pL}" y1="${pT+plotH}" x2="${pL+plotW}" y2="${pT+plotH}" stroke="#f0d5b8" stroke-width="1"/>
-            ${[60,75,90].map(v=>`<line x1="${pL}" y1="${yPos(v).toFixed(1)}" x2="${pL+plotW}" y2="${yPos(v).toFixed(1)}" stroke="#fde8df" stroke-width="1" stroke-dasharray="3,3"/>`).join('')}
-            ${lines}${dots}${xLabels}
-          </svg>
-        </div>
-        <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft);text-align:center;">가로: 월(1~12월) · 세로: 운세 점수</p>
-      </div>
-    `
-  });
-
-  /* ===== 8. 대운 타임라인 비교 ===== */
-  pages.push({
-    chapter:'🔍 비교', title:'대운 타임라인 비교', emoji:'🕰️',
-    html:`
-      <div class="pg-eyebrow">10년 단위 인생 흐름</div>
+      <div class="pg-eyebrow">기 — 각자 어떤 시절인가</div>
       <h1 class="pg-title">🕰️ 대운 타임라인</h1>
       <div class="pg-body">
         <div class="mood-card cream" style="margin-bottom:12px;">
-          <p style="margin:0;font-size:13px;">각자의 10년 대운 흐름이에요. 현재 대운에 🦫 표시돼요.</p>
+          <p style="margin:0;font-size:13px;">10년 단위 인생 흐름이에요. 🦫 표시가 현재 대운이에요.</p>
         </div>
         ${persons.map((p, i) => {
           const now = new Date().getFullYear();
           const dws = p.data.daewoon || [];
-          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:10px;">
+          return `<div class="mood-card ${cardCls[i%5]}" style="margin-bottom:10px;">
             <p style="margin:0 0 8px;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)}</p>
             <div style="display:flex;flex-wrap:wrap;gap:4px;">
               ${dws.map(dw => {
                 const isCurrent = dw.age && p.data.birthYear &&
-                  (now >= p.data.birthYear + dw.age) &&
-                  (now < p.data.birthYear + dw.age + 10);
-                return `<div style="padding:4px 8px;border-radius:8px;font-size:11px;text-align:center;
+                  now >= p.data.birthYear + dw.age && now < p.data.birthYear + dw.age + 10;
+                return `<div style="padding:4px 7px;border-radius:8px;font-size:10px;text-align:center;
                   background:${isCurrent?'var(--leaf-3)':'rgba(255,255,255,0.7)'};
                   color:${isCurrent?'#fff':'var(--ink)'};
                   border:1px solid ${isCurrent?'var(--moss)':'var(--petal)'};
@@ -4795,8 +4615,369 @@ function buildComparePages(persons) {
     `
   });
 
+  /* ─────────────────────────────────────────
+   *  승(承) — 서로 어떻게 맞나?
+   * ───────────────────────────────────────── */
+
+  if (persons.length >= 2) {
+    const pairs = [];
+    for (let a=0;a<persons.length;a++)
+      for (let b=a+1;b<persons.length;b++)
+        pairs.push([persons[a],persons[b]]);
+
+    pairs.forEach(([a,b]) => {
+      const ai=persons.indexOf(a), bi=persons.indexOf(b);
+      const g=calcGunghap(a,b);
+
+      // 3. 페어별 궁합 점수
+      pages.push({
+        chapter:'🔍 비교', title:`${a.name} ↔ ${b.name} 궁합`, emoji:'💕',
+        html:`
+          <div class="pg-eyebrow">승 — 서로 어떻게 맞나?</div>
+          <h1 class="pg-title">${CAPI_COLORS[ai]} ${esc(a.name)} ↔ ${CAPI_COLORS[bi]} ${esc(b.name)}</h1>
+          <div class="pg-body">
+            <div class="mood-card leaf" style="margin-bottom:12px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:var(--ink-soft);">종합 궁합</p>
+              <p style="margin:4px 0;font-size:42px;font-family:'Nanum Pen Script',cursive;color:var(--moss-deep);">${g.total}점</p>
+              <p style="margin:0;font-size:15px;font-weight:700;">${gComment(g.total)}</p>
+            </div>
+            <div class="mood-card cream" style="margin-bottom:6px;"><p style="margin:0 0 4px;font-weight:700;">👫 연애·부부</p>${sBar(g.love)}<p style="margin:4px 0 0;font-size:11px;color:var(--ink-soft);">일간합·일지합·도화살 기준</p></div>
+            <div class="mood-card cream" style="margin-bottom:6px;"><p style="margin:0 0 4px;font-weight:700;">💼 비즈니스·직장</p>${sBar(g.biz)}<p style="margin:4px 0 0;font-size:11px;color:var(--ink-soft);">삼합·오행 상생 기준</p></div>
+            <div class="mood-card cream" style="margin-bottom:6px;"><p style="margin:0 0 4px;font-weight:700;">✈️ 여행</p>${sBar(g.travel)}<p style="margin:4px 0 0;font-size:11px;color:var(--ink-soft);">역마살 공유·삼합 기준</p></div>
+            <div class="mood-card cream"><p style="margin:0 0 4px;font-weight:700;">🏠 동거·가족</p>${sBar(g.live)}<p style="margin:4px 0 0;font-size:11px;color:var(--ink-soft);">일지합·월지합 기준</p></div>
+          </div>
+        `
+      });
+
+      // 4. 관계 유형 분석 (궁합 바로 밑)
+      const ganA=a.data.ilgan, ganB=b.data.ilgan;
+      const jiA=a.data.pillars?.day?.ji, jiB=b.data.pillars?.day?.ji;
+      const jiKey=[jiA,jiB].filter(Boolean).sort().join('-');
+      const hasGanHap=Object.keys(GAN_HAP||{}).some(k=>k.includes(ganA)&&k.includes(ganB));
+      const hasGanChung=GAN_CHUNG?.[ganA]===ganB||GAN_CHUNG?.[ganB]===ganA;
+      const hasJiHap=jiKey&&JIJI_REL_DEEP?.hap_meaning?.[jiKey];
+      const hasJiChung=jiKey&&JIJI_REL_DEEP?.chung_meaning?.[jiKey];
+      const ohA=a.data.oheng||{}, ohB=b.data.oheng||{};
+      const SHENG={목:'화',화:'토',토:'금',금:'수',수:'목'};
+      const domA=Object.entries(ohA).sort((x,y)=>y[1]-x[1])[0]?.[0];
+      const domB=Object.entries(ohB).sort((x,y)=>y[1]-x[1])[0]?.[0];
+      const isSheng=domA&&domB&&(SHENG[domA]===domB||SHENG[domB]===domA);
+
+      // 관계 유형 판정
+      let relType, relEmoji, relDesc, relAdvice;
+      if (hasGanHap && hasJiHap) {
+        relType='천생연분형'; relEmoji='💞';
+        relDesc='천간도 지지도 합이 맞아 만나는 것 자체가 운명인 관계예요. 연인이든 친구든 처음부터 끌림이 강하고 오래가요.';
+        relAdvice='이 관계는 억지로 유지하지 않아도 자연스럽게 이어져요. 다만 너무 의존하지 않도록 각자의 공간도 지켜주세요.';
+      } else if (hasGanHap) {
+        relType='끌림·매력형'; relEmoji='✨';
+        relDesc='천간이 합이라 처음 만날 때부터 묘하게 끌리는 관계예요. 감정적으로 통하는 부분이 많아요.';
+        relAdvice='감정적 교류는 좋지만, 실제 생활 패턴은 다를 수 있어요. 서로의 차이를 즐기는 자세가 필요해요.';
+      } else if (hasJiHap) {
+        relType='생활 밀착형'; relEmoji='🏠';
+        relDesc='일지가 합이라 같이 살거나 매일 만나면 오히려 더 편한 관계예요. 감정보단 생활에서 맞는 스타일이에요.';
+        relAdvice='함께 뭔가를 만들어가는 것(여행·공동작업·동거)에서 빛나는 관계예요. 적극적으로 같이 하는 것을 늘려보세요.';
+      } else if (hasGanChung && hasJiChung) {
+        relType='강렬한 자극형'; relEmoji='⚡';
+        relDesc='천간도 지지도 충이라 만나면 에너지가 강하게 충돌해요. 사랑과 싸움이 함께 오는 관계예요.';
+        relAdvice='이 관계는 서로를 자극해서 성장시키는 힘이 있어요. 다만 감정적으로 과격해지지 않도록 주의하세요.';
+      } else if (hasGanChung) {
+        relType='자극·성장형'; relEmoji='🌱';
+        relDesc='천간이 충이라 의견 충돌이 있지만 그게 오히려 서로를 자극해서 성장시키는 관계예요.';
+        relAdvice='비즈니스 파트너나 라이벌 관계로는 최고예요. 감정적 관계라면 논쟁을 건설적으로 이끌어가는 훈련이 필요해요.';
+      } else if (isSheng) {
+        relType='상생·협력형'; relEmoji='🤝';
+        relDesc='오행이 서로를 키워주는 관계예요. 한 명이 에너지를 주면 다른 한 명이 받아서 꽃을 피우는 스타일이에요.';
+        relAdvice='팀으로 일하거나 함께 프로젝트를 할 때 시너지가 폭발해요. 서로의 강점이 다른 부분을 보완해줘요.';
+      } else {
+        relType='독립·균형형'; relEmoji='⚖️';
+        relDesc='크게 합도 충도 없어서 서로에게 간섭이 적은 편안한 관계예요. 각자의 페이스를 존중해요.';
+        relAdvice='적당한 거리감이 오히려 관계를 오래가게 해요. 억지로 친해지려 하지 말고 자연스럽게 교류하세요.';
+      }
+
+      // 갈등 포인트
+      const conflicts = [];
+      if (hasGanChung) conflicts.push(`천간충 (${ganA}↔${ganB}) — 사고방식·가치관이 부딪히기 쉬워요`);
+      if (hasJiChung) conflicts.push(`일지충 (${jiA||'?'}↔${jiB||'?'}) — 생활 패턴·감정 표현 방식이 달라요`);
+      const hasSinA=(s)=>(a.data.sinsal||[]).includes(s);
+      const hasSinB=(s)=>(b.data.sinsal||[]).includes(s);
+      if (hasSinA('역마살')&&!hasSinB('역마살')) conflicts.push(`${a.name}만 역마살 — ${a.name}이 자꾸 이동·변화를 원해 ${b.name}이 버거울 수 있어요`);
+      if (!hasSinA('역마살')&&hasSinB('역마살')) conflicts.push(`${b.name}만 역마살 — ${b.name}이 자꾸 이동·변화를 원해 ${a.name}이 버거울 수 있어요`);
+      const domSame = domA && domB && domA === domB;
+      if (domSame) conflicts.push(`두 사람 모두 ${domA} 기운이 강함 — 비슷한 스타일이라 경쟁심이 생길 수 있어요`);
+      if (conflicts.length === 0) conflicts.push('뚜렷한 갈등 포인트가 없어요. 관계가 순탄한 편이에요 🦫');
+
+      pages.push({
+        chapter:'🔍 비교', title:`${a.name} ↔ ${b.name} 관계 분석`, emoji:relEmoji,
+        html:`
+          <div class="pg-eyebrow">승 — 관계 유형</div>
+          <h1 class="pg-title">${relEmoji} ${relType}</h1>
+          <div class="pg-body">
+            <div class="mood-card leaf" style="margin-bottom:10px;">
+              <p style="margin:0 0 4px;font-size:12px;color:var(--ink-soft);">${CAPI_COLORS[ai]} ${esc(a.name)} ↔ ${CAPI_COLORS[bi]} ${esc(b.name)}</p>
+              <p style="margin:0;">${relDesc}</p>
+            </div>
+            <div class="mood-card peach" style="margin-bottom:10px;">
+              <p style="margin:0 0 4px;font-weight:700;">💡 관계 조언</p>
+              <p style="margin:0;">${relAdvice}</p>
+            </div>
+            <div class="mood-card cream">
+              <p style="margin:0 0 6px;font-weight:700;">⚠️ 갈등 포인트</p>
+              ${conflicts.map(c=>`<p style="margin:3px 0;font-size:13px;">• ${c}</p>`).join('')}
+            </div>
+          </div>
+        `
+      });
+    });
+  }
+
+  /* ─────────────────────────────────────────
+   *  전(轉) — 올해는 어때?
+   * ───────────────────────────────────────── */
+
+  // 5. 올해 운세 비교
+  pages.push({
+    chapter:'🔍 비교', title:`${year}년 운세 비교`, emoji:'📊',
+    html:`
+      <div class="pg-eyebrow">전 — 올해는 어때?</div>
+      <h1 class="pg-title">📊 ${year}년 운세 비교</h1>
+      <div class="pg-body">
+        ${persons.map((p, i) => {
+          const cw = p.data.yeonwoon?.find(y=>y.year===year)||p.data.yeonwoon?.[0];
+          const sub = cw ? scoreForSubFortune(p.data, cw) : null;
+          return `<div class="mood-card ${cardCls[i%5]}" style="margin-bottom:8px;">
+            <p style="margin:0;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)}</p>
+            <p style="margin:4px 0;font-size:13px;">${cw?`${cw.gan}${cw.ji} · ${cw.sipsin} · ${cw.unseong}`:'세운 정보 없음'}</p>
+            ${sub?`<p style="margin:2px 0;font-size:12px;color:var(--ink-soft);">💕${sub.love} 💰${sub.money} 🎓${sub.study} 🤝${sub.rel} 💼${sub.work} 🧘${sub.health}</p>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+    `
+  });
+
+  // 6. 올해 운 순위 + 영역별 최강자
+  const ranked = persons.map((p, i) => {
+    const cw = p.data.yeonwoon?.find(y=>y.year===year)||p.data.yeonwoon?.[0];
+    const sub = cw ? scoreForSubFortune(p.data, cw) : null;
+    const total = sub ? Math.round((sub.love+sub.money+sub.study+sub.rel+sub.work+sub.health)/6) : 50;
+    return { p, i, total, sub };
+  }).sort((a,b)=>b.total-a.total);
+
+  const domains = [
+    {key:'love',emoji:'💕',name:'연애운'},
+    {key:'money',emoji:'💰',name:'재물운'},
+    {key:'work',emoji:'💼',name:'커리어운'},
+    {key:'health',emoji:'🧘',name:'건강운'},
+  ];
+  const mvps = domains.map(d => {
+    const winner = [...persons].map((p,i)=>({p,i,score:ranked.find(r=>r.i===i)?.sub?.[d.key]||0}))
+      .sort((a,b)=>b.score-a.score)[0];
+    return {d, winner};
+  });
+
+  pages.push({
+    chapter:'🔍 비교', title:`${year}년 운 순위`, emoji:'🏆',
+    html:`
+      <div class="pg-eyebrow">전 — 올해 누가 제일 잘 나가?</div>
+      <h1 class="pg-title">🏆 ${year}년 운 순위</h1>
+      <div class="pg-body">
+        ${ranked.map((r,rank)=>{
+          const medals=['🥇','🥈','🥉'];
+          return `<div class="mood-card ${['leaf','peach','cream'][Math.min(rank,2)]}" style="margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:20px;">${medals[rank]||`${rank+1}위`}</span>
+              <strong>${CAPI_COLORS[r.i]} ${esc(r.p.name)}</strong>
+              <span style="margin-left:auto;font-family:'Nanum Pen Script',cursive;font-size:19px;">${r.total}점</span>
+            </div>
+            <div style="background:rgba(0,0,0,0.08);border-radius:99px;height:7px;overflow:hidden;">
+              <div style="width:${r.total}%;height:100%;background:var(--leaf-3);border-radius:99px;"></div>
+            </div>
+          </div>`;
+        }).join('')}
+        <div class="mood-card cream" style="margin-top:12px;">
+          <p style="margin:0 0 6px;font-weight:700;">🎖️ 영역별 최강자</p>
+          ${mvps.map(({d,winner})=>`<p style="margin:3px 0;font-size:13px;">${d.emoji} ${d.name}: <strong>${CAPI_COLORS[winner.i]} ${esc(winner.p.name)}</strong> (${winner.score}점)</p>`).join('')}
+        </div>
+      </div>
+    `
+  });
+
+  // 7. 이달의 운
+  const thisMonth = new Date().getMonth()+1;
+  const monthScoresAll = persons.map(p => monthScore(p.data, thisMonth)?.score||50);
+  const bestIdx = monthScoresAll.indexOf(Math.max(...monthScoresAll));
+  pages.push({
+    chapter:'🔍 비교', title:`${thisMonth}월 이달의 운`, emoji:'📅',
+    html:`
+      <div class="pg-eyebrow">전 — 이번 달</div>
+      <h1 class="pg-title">📅 ${thisMonth}월 운 비교</h1>
+      <div class="pg-body">
+        ${persons.map((p,i)=>{
+          const wl=p.data.wolun?.[thisMonth];
+          const sc=monthScoresAll[i];
+          return `<div class="mood-card ${cardCls[i%5]}" style="margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>${CAPI_COLORS[i]} <strong>${esc(p.name)}</strong></span>
+              ${i===bestIdx?'<span style="font-size:11px;background:var(--leaf-3);color:#fff;padding:2px 8px;border-radius:99px;">이달 최고운 ✨</span>':''}
+              <span style="margin-left:auto;font-family:'Nanum Pen Script',cursive;font-size:19px;">${sc}점</span>
+            </div>
+            <p style="margin:4px 0 0;font-size:12px;color:var(--ink-soft);">${wl?`${wl.gan}${wl.ji} · ${wl.sipsin} · ${wl.unseong}`:'월운 정보 없음'}</p>
+          </div>`;
+        }).join('')}
+      </div>
+    `
+  });
+
+  // 8. 월별 꺾은선
+  const W=300,H=110,pL=16,pR=8,pT=10,pB=22;
+  const plotW=W-pL-pR,plotH=H-pT-pB;
+  const xP=i=>pL+(i/11)*plotW, yP=v=>pT+plotH-((v-40)/(100-40))*plotH;
+  const mScores=persons.map(p=>Array.from({length:12},(_,i)=>monthScore(p.data,i+1)?.score||55));
+  const lines=persons.map((p,pi)=>{
+    const pts=mScores[pi].map((v,i)=>`${xP(i).toFixed(1)},${yP(v).toFixed(1)}`).join(' ');
+    return `<polyline points="${pts}" fill="none" stroke="${mColors[pi]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>`;
+  }).join('');
+  const dots=persons.map((p,pi)=>mScores[pi].map((v,i)=>`<circle cx="${xP(i).toFixed(1)}" cy="${yP(v).toFixed(1)}" r="3" fill="${mColors[pi]}"/>`).join('')).join('');
+  const xLbls=['1','2','3','4','5','6','7','8','9','10','11','12'].map((l,i)=>`<text x="${xP(i).toFixed(1)}" y="${H-3}" text-anchor="middle" font-size="9" fill="#b0897a">${l}</text>`).join('');
+  const legend=persons.map((p,i)=>`<span style="display:inline-flex;align-items:center;gap:3px;margin-right:8px;font-size:11px;"><span style="display:inline-block;width:14px;height:3px;background:${mColors[i]};border-radius:2px;"></span>${esc(p.name)}</span>`).join('');
+
+  pages.push({
+    chapter:'🔍 비교', title:'월별 운 흐름', emoji:'📈',
+    html:`
+      <div class="pg-eyebrow">전 — 1월~12월 흐름</div>
+      <h1 class="pg-title">📈 월별 운 흐름</h1>
+      <div class="pg-body">
+        <div style="margin-bottom:8px;line-height:2;">${legend}</div>
+        <div style="background:#fff;border-radius:14px;padding:10px;border:1.5px solid var(--petal);">
+          <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;">
+            <line x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+plotH}" stroke="#f0d5b8" stroke-width="1"/>
+            <line x1="${pL}" y1="${pT+plotH}" x2="${pL+plotW}" y2="${pT+plotH}" stroke="#f0d5b8" stroke-width="1"/>
+            ${[60,75,90].map(v=>`<line x1="${pL}" y1="${yP(v).toFixed(1)}" x2="${pL+plotW}" y2="${yP(v).toFixed(1)}" stroke="#fde8df" stroke-width="1" stroke-dasharray="3,3"/>`).join('')}
+            ${lines}${dots}${xLbls}
+          </svg>
+        </div>
+        <p style="margin:8px 0 0;font-size:12px;color:var(--ink-soft);text-align:center;">가로: 월(1~12) · 세로: 운세 점수 (40~100)</p>
+      </div>
+    `
+  });
+
+  /* ─────────────────────────────────────────
+   *  결(結) — 함께라면?
+   * ───────────────────────────────────────── */
+
+  // 9. 공통 신살
+  const allSinsal=persons.flatMap(p=>p.data.sinsal||[]);
+  const sinsalCount={};
+  allSinsal.forEach(s=>{sinsalCount[s]=(sinsalCount[s]||0)+1;});
+  const commonSinsal=Object.entries(sinsalCount).filter(([,c])=>c>1).sort((a,b)=>b[1]-a[1]);
+
+  pages.push({
+    chapter:'🔍 비교', title:'공통 신살', emoji:'⭐',
+    html:`
+      <div class="pg-eyebrow">결 — 함께라면?</div>
+      <h1 class="pg-title">⭐ 공통 신살</h1>
+      <div class="pg-body">
+        ${commonSinsal.length>0?`
+          <div class="mood-card leaf" style="margin-bottom:10px;">
+            <p style="margin:0;font-size:13px;">여러 명이 공통으로 가진 별이에요. 함께 있을 때 이 기운이 증폭돼요!</p>
+          </div>
+          ${commonSinsal.map(([s,c])=>{
+            const d=SINSAL_DEEP[s];
+            const who=persons.filter(p=>(p.data.sinsal||[]).includes(s)).map(p=>`${CAPI_COLORS[persons.indexOf(p)]} ${esc(p.name)}`).join(', ');
+            return `<div class="mood-card cream" style="margin-bottom:8px;">
+              <p style="margin:0;font-weight:700;">${d?.emoji||'⭐'} ${esc(s)} <span style="font-size:11px;opacity:0.7;">(${c}명)</span></p>
+              <p style="margin:2px 0;font-size:11px;color:var(--ink-soft);">${who}</p>
+              ${d?`<p style="margin:4px 0 0;font-size:12px;">${esc(d.note)}</p>`:''}
+            </div>`;
+          }).join('')}
+        `:`<div class="mood-card cream"><p>공통 신살이 없어요. 각자 개성 만점! 🦫</p></div>`}
+      </div>
+    `
+  });
+
+  // 10. 오행 합산 팀 균형
+  const teamOheng = {목:0,화:0,토:0,금:0,수:0};
+  persons.forEach(p=>Object.entries(p.data.oheng||{}).forEach(([k,v])=>{if(teamOheng[k]!==undefined)teamOheng[k]+=v;}));
+  const minEl = Object.entries(teamOheng).sort((a,b)=>a[1]-b[1])[0];
+  const maxEl = Object.entries(teamOheng).sort((a,b)=>b[1]-a[1])[0];
+  const lackAdvice = {목:'창의·기획·유연성이 부족할 수 있어요. 식물 기르기, 독서, 새 아이디어 탐색이 도움돼요.',화:'열정·에너지·감성이 부족할 수 있어요. 신나는 활동이나 함께 새로운 도전을 해보세요.',토:'안정감·신뢰·계획성이 부족할 수 있어요. 규칙적인 루틴과 장기 계획 세우기를 추천해요.',금:'결단력·실행력·추진력이 부족할 수 있어요. 목표를 명확히 하고 행동으로 옮기는 연습이 필요해요.',수:'지혜·직관·유연성이 부족할 수 있어요. 여행·독서·새로운 사람 만나기가 도움돼요.'};
+
+  pages.push({
+    chapter:'🔍 비교', title:'팀 오행 균형', emoji:'⚗️',
+    html:`
+      <div class="pg-eyebrow">결 — 이 팀의 에너지</div>
+      <h1 class="pg-title">⚗️ 팀 오행 균형</h1>
+      <div class="pg-body">
+        <div class="mood-card cream" style="margin-bottom:12px;">
+          <p style="margin:0;font-size:13px;">${persons.length}명의 오행을 합산한 팀 전체의 에너지 균형이에요.</p>
+        </div>
+        ${Object.entries(teamOheng).map(([e,v])=>{
+          const total=Object.values(teamOheng).reduce((a,b)=>a+b,0)||1;
+          const pct=Math.round(v/total*100);
+          const eColors={목:'#6db87a',화:'#e8917e',토:'#c8a882',금:'#9b8ec4',수:'#5ba8e0'};
+          return `<div style="margin:6px 0;">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;">
+              <span>${ohE[e]} ${e}</span><span>${v}</span>
+            </div>
+            <div style="background:rgba(0,0,0,0.08);border-radius:99px;height:10px;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;background:${eColors[e]};border-radius:99px;"></div>
+            </div>
+          </div>`;
+        }).join('')}
+        <div class="mood-card peach" style="margin-top:12px;">
+          <p style="margin:0 0 4px;font-weight:700;">📉 부족한 기운: ${ohE[minEl[0]]} ${minEl[0]} (${minEl[1]})</p>
+          <p style="margin:0;font-size:13px;">${lackAdvice[minEl[0]]}</p>
+        </div>
+        <div class="mood-card leaf" style="margin-top:8px;">
+          <p style="margin:0;font-size:13px;">📈 가장 강한 기운: ${ohE[maxEl[0]]} ${maxEl[0]} (${maxEl[1]}) — 이 팀의 핵심 에너지예요!</p>
+        </div>
+      </div>
+    `
+  });
+
+  // 11. 같이 좋은 달 추천
+  const combinedMonthScores = Array.from({length:12},(_,i)=>{
+    const avg = Math.round(persons.reduce((sum,p)=>(sum+(monthScore(p.data,i+1)?.score||55)),0)/persons.length);
+    return {month:i+1, avg};
+  }).sort((a,b)=>b.avg-a.avg);
+  const top3 = combinedMonthScores.slice(0,3);
+  const bot2 = combinedMonthScores.slice(-2).reverse();
+
+  pages.push({
+    chapter:'🔍 비교', title:'같이 좋은 달', emoji:'📆',
+    html:`
+      <div class="pg-eyebrow">결 — 함께 움직이기 좋은 때</div>
+      <h1 class="pg-title">📆 같이 좋은 달</h1>
+      <div class="pg-body">
+        <div class="mood-card cream" style="margin-bottom:12px;">
+          <p style="margin:0;font-size:13px;">모두의 월별 점수를 합산해서 함께 뭔가 하기 좋은 달을 뽑았어요.</p>
+        </div>
+        <div class="mood-card leaf" style="margin-bottom:10px;">
+          <p style="margin:0 0 8px;font-weight:700;">✨ 같이 움직이기 좋은 달 TOP 3</p>
+          ${top3.map((m,i)=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0;">
+            <span>${['🥇','🥈','🥉'][i]}</span>
+            <span style="font-weight:700;">${m.month}월</span>
+            ${sBar(m.avg,'#6db87a')}
+          </div>`).join('')}
+          <p style="margin:8px 0 0;font-size:12px;color:var(--ink-soft);">여행·중요 미팅·함께 하는 프로젝트 시작에 추천!</p>
+        </div>
+        <div class="mood-card peach">
+          <p style="margin:0 0 8px;font-weight:700;">⚠️ 조심하면 좋은 달</p>
+          ${bot2.map(m=>`<div style="display:flex;align-items:center;gap:8px;margin:4px 0;">
+            <span>📌</span>
+            <span style="font-weight:700;">${m.month}월</span>
+            ${sBar(m.avg,'#e8917e')}
+          </div>`).join('')}
+          <p style="margin:8px 0 0;font-size:12px;color:var(--ink-soft);">큰 결정·투자·중요한 약속은 이 달은 피하는 게 좋아요.</p>
+        </div>
+      </div>
+    `
+  });
+
   return pages;
 }
+
+
 
 /* 비교 스토리 화면 열기 */
 function multiShowStory(persons, comparePages) {

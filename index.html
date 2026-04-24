@@ -5180,57 +5180,95 @@ function init() {
           el.style.textAlign='left';
           el.style.display='block';
         });
-        // 긴 텍스트 블록은 60자로 제한
+        // 텍스트 너무 길면 축소 (2×1이라 공간 넉넉)
         tmp.querySelectorAll('p').forEach(p=>{
-          if(p.textContent.trim().length>60) p.textContent=p.textContent.trim().slice(0,60)+'…';
+          if(p.textContent.trim().length>150) p.textContent=p.textContent.trim().slice(0,150)+'…';
         });
         tmp.querySelectorAll('li').forEach(li=>{
-          if(li.textContent.length>40) li.textContent=li.textContent.slice(0,40)+'…';
+          if(li.textContent.length>100) li.textContent=li.textContent.slice(0,100)+'…';
         });
         return tmp.innerHTML;
       }
-      const chunks=[];for(let i=0;i<ALL_PAGES.length;i+=4)chunks.push(ALL_PAGES.slice(i,i+4));
-      const gridPagesHtml=chunks.map((chunk,ci)=>`<div class="grid-page">${chunk.map((p,j)=>`<div class="grid-card"><div class="grid-card-header"><span class="grid-chapter">${p.emoji||'🦫'} ${p.chapter}</span><span class="grid-num">${ci*4+j+1}</span></div><div class="grid-card-body"><div class="grid-title">${p.title}</div><div class="grid-content">${extractCardContent(p.html, p.title)}</div></div></div>`).join('')}${chunk.length<4?Array(4-chunk.length).fill('<div class="grid-card grid-card-empty"></div>').join(''):''}</div>`).join('');
+      const chunks=[];for(let i=0;i<ALL_PAGES.length;i+=2)chunks.push(ALL_PAGES.slice(i,i+2));
+      const gridPagesHtml=chunks.map((chunk,ci)=>`<div class="grid-page">${chunk.map((p,j)=>`<div class="grid-card"><div class="grid-card-header"><span class="grid-chapter">${p.emoji||'🦫'} ${p.chapter}</span><span class="grid-num">${ci*2+j+1} / ${ALL_PAGES.length}</span></div><div class="grid-card-body"><div class="grid-title">${p.title}</div><div class="grid-content">${extractCardContent(p.html, p.title)}</div></div></div>`).join('')}${chunk.length<2?'<div class="grid-card grid-card-empty"></div>':''}</div>`).join('');
       const win=window.open('','_blank');
       win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name} ${year}년 전체</title><style>
 @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Gowun Dodum',sans-serif;background:#fff8f5;color:#4a2e28;font-size:9px;line-height:1.45;}
-.cover{width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#fff5f0,#fde8df);page-break-after:always;}
-.cover-emoji{font-size:60px;margin-bottom:12px;}.cover-title{font-family:'Gowun Batang',serif;font-size:28px;color:#9e4f3f;margin-bottom:6px;}
-.cover-sub{font-family:'Nanum Pen Script',cursive;font-size:20px;color:#c4705e;margin-bottom:18px;}
-.cover-info{font-size:13px;color:#8a6058;border:1.5px dashed #ffb8a8;padding:10px 24px;border-radius:99px;}
-.grid-page{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;padding:12px;width:100%;height:100vh;page-break-after:always;page-break-inside:avoid;}
+body{font-family:'Gowun Dodum',sans-serif;background:#fff8f5;color:#4a2e28;font-size:12px;line-height:1.6;}
+
+/* 표지 */
+.cover{width:100%;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#fff5f0,#fde8df);page-break-after:always;}
+.cover-emoji{font-size:80px;margin-bottom:16px;}
+.cover-title{font-family:'Gowun Batang',serif;font-size:32px;color:#9e4f3f;margin-bottom:8px;}
+.cover-sub{font-family:'Nanum Pen Script',cursive;font-size:24px;color:#c4705e;margin-bottom:24px;}
+.cover-info{font-size:14px;color:#8a6058;border:1.5px dashed #ffb8a8;padding:12px 28px;border-radius:99px;}
+
+/* 페이지: 카드 2장 세로 배치 */
+.grid-page{display:grid;grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:14px;padding:18px;width:100%;height:100vh;page-break-after:always;page-break-inside:avoid;}
 .grid-page:last-of-type{page-break-after:auto;}
-.grid-card{background:#fff;border:1px solid #ffb8a8;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;}
-.grid-card-empty{background:rgba(255,245,240,0.4);border:1px dashed #ffd4c2;border-radius:12px;}
-.grid-card-header{background:linear-gradient(135deg,#fff5f0,#fde8df);padding:5px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ffd4c2;flex-shrink:0;}
-.grid-chapter{font-size:8px;color:#c4705e;font-weight:700;}
-.grid-num{font-family:'Nanum Pen Script',cursive;font-size:13px;color:#e8917e;}
-.grid-card-body{padding:6px 8px;overflow:hidden;flex:1;position:relative;}
-.grid-card-body::after{content:'';position:absolute;bottom:0;left:0;right:0;height:20px;background:linear-gradient(transparent,#fff);}
-.grid-title{font-family:'Gowun Batang',serif;font-size:10px;font-weight:700;color:#9e4f3f;margin-bottom:4px;border-bottom:1px dashed #ffd4c2;padding-bottom:3px;}
-.grid-content{font-size:8.5px;line-height:1.45;overflow:hidden;max-height:calc(100% - 20px);}
-.grid-content *{max-width:100%!important;font-size:8.5px!important;line-height:1.45!important;margin:1px 0!important;padding:2px 4px!important;}
-.grid-content h1,.grid-content h2,.grid-content h3,.grid-content h4{font-family:'Gowun Batang',serif!important;font-size:9.5px!important;font-weight:700!important;}
-.grid-content .mood-card{border:1px solid #ffb8a8!important;border-radius:5px!important;background:#fff5f2!important;}
-.grid-content .pg-chapter-no,.grid-content .pg-eyebrow,.grid-content h1.pg-title{display:none!important;}
-.grid-content .tags{display:flex!important;flex-wrap:wrap!important;gap:2px!important;}
-.grid-content .tag{font-size:7px!important;padding:1px 4px!important;border-radius:99px!important;background:#fde8df!important;border:1px solid #ffb8a8!important;}
-.grid-content .garden{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:2px!important;}
-.grid-content .plant{padding:2px!important;text-align:center!important;border-radius:4px!important;}
-.grid-content .plant .pic{font-size:12px!important;}.grid-content .plant .nm,.grid-content .plant .ct{font-size:7px!important;}
-.grid-content svg{max-width:100%!important;height:auto!important;}
-.grid-content .score-ball{width:52px!important;height:52px!important;font-size:8px!important;box-shadow:none!important;}
-.grid-content .score-ball .num{font-size:16px!important;line-height:1!important;}
-.grid-content .score-ball .lbl{font-size:7px!important;margin-top:1px!important;}
-.grid-content .center-stack{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;text-align:left!important;}
-.btn-p{display:block;margin:20px auto;padding:12px 36px;background:#e8917e;color:#fff;border:none;border-radius:12px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:700;}
-@media print{body{background:#fff;}.no-print{display:none!important;}.grid-page{height:100vh;padding:10px;}}
+
+/* 카드 */
+.grid-card{background:#fff;border:1.5px solid #ffb8a8;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}
+.grid-card-empty{background:rgba(255,245,240,0.3);border:1.5px dashed #ffd4c2;border-radius:16px;}
+.grid-card-header{background:linear-gradient(135deg,#fff5f0,#fde8df);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #ffd4c2;flex-shrink:0;}
+.grid-chapter{font-size:11px;color:#c4705e;font-weight:700;}
+.grid-num{font-family:'Nanum Pen Script',cursive;font-size:16px;color:#e8917e;}
+.grid-card-body{padding:12px 16px;overflow:hidden;flex:1;position:relative;}
+.grid-card-body::after{content:'';position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,#fff);}
+.grid-title{font-family:'Gowun Batang',serif;font-size:15px;font-weight:700;color:#9e4f3f;margin-bottom:8px;padding-bottom:5px;border-bottom:1px dashed #ffd4c2;}
+.grid-content{font-size:12px;line-height:1.6;}
+
+/* 내부 요소 */
+.grid-content h1,.grid-content .pg-title{font-family:'Gowun Batang',serif;font-size:15px;margin:4px 0 6px;}
+.grid-content h2,.grid-content h3,.grid-content h4{font-family:'Gowun Batang',serif;font-size:13px;margin:4px 0;}
+.grid-content .pg-eyebrow{font-size:10px;color:#c4705e;letter-spacing:0.5px;margin-bottom:2px;}
+.grid-content h1.pg-title,.grid-content .pg-chapter-no{display:none;}
+.grid-content .pg-sub{font-size:11px;color:#8a6058;margin-bottom:6px;}
+.grid-content .mood-card{border:1.5px solid #ffb8a8;border-radius:10px;padding:8px 12px;margin:6px 0;background:#fff5f2;}
+.grid-content .mood-card.leaf{background:#fff5f0;border-color:#ffb8a8;}
+.grid-content .mood-card.peach{background:#fff0ee;border-color:#ffd4c2;}
+.grid-content .mood-card.cream{background:#fde8df;border-color:#d4a090;}
+.grid-content p{margin:3px 0;}
+.grid-content strong{font-weight:700;}
+.grid-content ul,.grid-content ol{padding-left:16px;margin:4px 0;}
+.grid-content li{margin:2px 0;}
+.grid-content .tags{display:flex;flex-wrap:wrap;gap:3px;margin:5px 0;}
+.grid-content .tag{padding:2px 8px;border-radius:99px;background:#fde8df;border:1px solid #ffb8a8;font-size:11px;}
+.grid-content .hand{font-family:'Nanum Pen Script',cursive;font-size:16px;}
+.grid-content .sticky{background:#fff8c8;border-radius:5px;padding:6px 10px;display:inline-block;}
+.grid-content .center-stack{text-align:center;margin:6px 0;}
+.grid-content .pg-body{margin-top:4px;}
+.grid-content .garden{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:6px 0;}
+.grid-content .plant{padding:4px 2px;text-align:center;border-radius:8px;background:#fff;border:1px solid #ffb8a8;}
+.grid-content .plant .pic{font-size:16px;}.grid-content .plant .nm{font-size:10px;}.grid-content .plant .ct{font-size:12px;font-weight:700;}
+.grid-content .score-ball{width:70px;height:70px;border-radius:50%;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffd6cc,#e8917e);color:#fff;}
+.grid-content .score-ball .num{font-size:22px;font-weight:700;line-height:1;}
+.grid-content .score-ball .lbl{font-size:9px;}
+.grid-content svg{max-width:100%;height:auto;}
+.grid-content table{width:100%;border-collapse:collapse;font-size:11px;}
+.grid-content td,.grid-content th{border:1px solid #ffd4c2;padding:3px 6px;}
+
+/* 버튼 */
+.btn-p{display:block;margin:24px auto;padding:14px 44px;background:#e8917e;color:#fff;border:none;border-radius:14px;font-size:16px;cursor:pointer;font-family:inherit;font-weight:700;}
+
+@media print{
+  body{background:#fff;}
+  .no-print{display:none!important;}
+  .grid-page{height:100vh;padding:14px;}
+}
 </style></head><body>
-<div class="cover"><div class="cover-emoji">🦫</div><div class="cover-title">카피바라 사주카드</div><div class="cover-sub">"느긋하게, 그러나 깊이"</div><div class="cover-info">${name} · ${year}년 · 총 ${ALL_PAGES.length}장</div></div>
+<div class="cover">
+  <div class="cover-emoji">🦫</div>
+  <div class="cover-title">카피바라 사주카드</div>
+  <div class="cover-sub">"느긋하게, 그러나 깊이"</div>
+  <div class="cover-info">${name} · ${year}년 · 총 ${ALL_PAGES.length}장</div>
+</div>
 ${gridPagesHtml}
-<div style="text-align:center;padding:24px;"><button class="btn-p no-print" onclick="window.print()">🖨️ PDF로 저장하기</button><p style="margin-top:8px;font-size:11px;color:#c4705e;">인쇄 설정에서 "여백 없음" 선택 시 더 예뻐요</p></div>
+<div style="text-align:center;padding:30px;">
+  <button class="btn-p no-print" onclick="window.print()">🖨️ PDF로 저장하기</button>
+  <p style="margin-top:10px;font-size:12px;color:#c4705e;" class="no-print">인쇄 설정에서 "여백 없음" 선택 시 더 예뻐요</p>
+</div>
 </body></html>`);
       win.document.close();
     }

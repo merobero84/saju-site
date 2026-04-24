@@ -47,6 +47,58 @@
   .hand { font-family: 'Nanum Pen Script', cursive; }
   .doodle { font-family: 'Gaegu', cursive; }
 
+  /* ====== MULTI SCREEN ====== */
+  #screen-multi {
+    display: none; position: relative; z-index: 1;
+    max-width: 520px; margin: 0 auto; padding: 0 22px 80px;
+  }
+  #screen-multi.is-open { display: block; }
+
+  .multi-person-tab-btn {
+    padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 700;
+    border: 1.5px solid var(--petal); background: #fff; color: var(--ink-soft);
+    cursor: pointer; font-family: inherit; transition: all .12s;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .multi-person-tab-btn.active {
+    background: var(--leaf-3); color: #fff; border-color: var(--moss);
+  }
+  .multi-person-tab-btn .rm-btn {
+    width: 16px; height: 16px; border-radius: 50%; background: rgba(0,0,0,0.15);
+    border: none; color: inherit; font-size: 11px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; padding: 0;
+    line-height: 1;
+  }
+
+  .multi-person-panel { display: none; }
+  .multi-person-panel.active { display: block; }
+
+  /* 인물 탭 바 (스토리 뷰 상단) */
+  #person-tab-bar {
+    background: rgba(255,255,255,0.95); border-bottom: 1px solid var(--petal);
+    padding: 8px 12px; overflow-x: auto; white-space: nowrap;
+    z-index: 7; position: relative; scrollbar-width: none;
+  }
+  #person-tab-bar::-webkit-scrollbar { display: none; }
+  #person-tabs { display: flex; gap: 6px; }
+  #person-tabs button {
+    padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    border: 1.5px solid var(--petal); background: #fff; color: var(--ink-soft);
+    cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0;
+    transition: all .12s;
+  }
+  #person-tabs button.active {
+    background: var(--leaf-3); color: #fff; border-color: var(--moss);
+  }
+  #person-tabs button.compare-tab {
+    background: linear-gradient(135deg, var(--petal), var(--capi-pink));
+    color: var(--moss-deep); border-color: var(--leaf-2);
+  }
+  #person-tabs button.compare-tab.active {
+    background: linear-gradient(135deg, var(--moss), var(--moss-deep));
+    color: #fff; border-color: var(--moss-deep);
+  }
+
   /* ====== INPUT SCREEN ====== */
   #screen-input {
     position: relative; z-index: 1; max-width: 520px;
@@ -614,13 +666,50 @@
     <div id="input-error" style="display:none"></div>
   </div>
 
+  <div class="paper-card" style="text-align:center;">
+    <p style="margin:0 0 10px;font-size:14px;color:var(--ink-soft);">여러 명의 사주를 함께 보고 싶다면?</p>
+    <button class="btn btn-secondary btn-full" id="btn-go-multi">🦫 비교하기 (최대 10명)</button>
+  </div>
+
   <p class="note">※ 오락·참고용 해석이에요 🌷<br>명리학 통념을 바탕으로 한 템플릿 기반 풀이입니다.</p>
+</div>
+
+<!-- ============================================= MULTI SCREEN ============================================= -->
+<div id="screen-multi">
+  <div id="multi-input-wrap">
+    <header class="hero" style="padding:16px 0 12px;">
+      <span class="hero-emoji" style="font-size:48px;">🦫</span>
+      <h1 style="font-size:26px;">비교 사주카드</h1>
+      <p style="font-size:14px;">최대 10명의 사주를 함께 볼 수 있어요</p>
+    </header>
+
+    <div class="paper-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h2 class="card-title" style="margin:0;"><span class="emoji">👥</span>인원 입력</h2>
+        <button id="btn-multi-add" class="btn btn-secondary" style="padding:8px 16px;font-size:13px;">+ 추가</button>
+      </div>
+      <div id="multi-tabs-nav" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
+      <div id="multi-tab-contents"></div>
+      <div id="multi-error" style="display:none;margin-top:8px;"></div>
+      <button class="btn btn-primary btn-full" id="btn-multi-run" style="margin-top:16px;">🔮 비교 카드 열기</button>
+    </div>
+
+    <div style="text-align:center;padding:10px 0 40px;">
+      <button id="btn-back-single" style="background:none;border:none;color:var(--ink-soft);font-size:14px;cursor:pointer;font-family:inherit;">
+        ← 개인 사주로 돌아가기
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- ============================================= STORY SCREEN ============================================= -->
 <div id="screen-story" role="dialog" aria-modal="true">
   <div class="story-viewport">
     <div class="story-card">
+      <!-- 비교 모드 인물 탭 (비교 모드일 때만 표시) -->
+      <div id="person-tab-bar" style="display:none;">
+        <div id="person-tabs"></div>
+      </div>
       <div class="story-progress" id="progress"></div>
       <div class="story-topbar">
         <button class="icon-btn" id="btn-home" title="처음으로">🏠</button>
@@ -4262,9 +4351,23 @@ function init() {
   // 네비게이션
   document.getElementById('btn-prev').addEventListener('click', () => goToPage(CURRENT-1));
   document.getElementById('btn-next').addEventListener('click', () => goToPage(CURRENT+1));
-  document.getElementById('btn-home').addEventListener('click', () => goToPage(0));
+  document.getElementById('btn-home').addEventListener('click', () => {
+    document.getElementById('screen-story').classList.remove('is-open');
+    document.getElementById('person-tab-bar').style.display = 'none';
+    document.getElementById('screen-multi').classList.remove('is-open');
+    document.getElementById('screen-input').style.display = '';
+    multiPersons = [];
+  });
   document.getElementById('btn-close-story').addEventListener('click', () => {
     document.getElementById('screen-story').classList.remove('is-open');
+    document.getElementById('person-tab-bar').style.display = 'none';
+    // 비교 모드였으면 비교 화면으로, 아니면 메인으로
+    if (multiPersons.length > 0 && document.getElementById('screen-multi').dataset.wasOpen) {
+      document.getElementById('screen-multi').classList.add('is-open');
+    } else {
+      document.getElementById('screen-input').style.display = '';
+    }
+    multiPersons = []; // 비교 모드 초기화
   });
 
   // TOC
@@ -4288,21 +4391,360 @@ function init() {
     if (e.target === document.getElementById('modal-backdrop')) closeModal();
   });
 
+  // 비교하기 버튼
+  document.getElementById('btn-go-multi').addEventListener('click', () => {
+    document.getElementById('screen-input').style.display = 'none';
+    document.getElementById('screen-multi').classList.add('is-open');
+    if (multiPersons.length === 0) multiAddPerson();
+  });
+
+  document.getElementById('btn-back-single').addEventListener('click', () => {
+    document.getElementById('screen-multi').classList.remove('is-open');
+    document.getElementById('screen-input').style.display = '';
+  });
+
+  document.getElementById('btn-multi-add').addEventListener('click', () => {
+    if (multiPersons.length >= 10) { alert('최대 10명까지 가능해요 🦫'); return; }
+    multiAddPerson();
+  });
+
+  document.getElementById('btn-multi-run').addEventListener('click', multiRun);
+
   // 키보드
   document.addEventListener('keydown', (e) => {
     if (!document.getElementById('screen-story').classList.contains('is-open')) return;
-    if (document.getElementById('modal-backdrop').classList.contains('is-open')) {
-      if (e.key === 'Escape') closeModal();
-      return;
-    }
-    if (document.getElementById('toc-overlay').classList.contains('is-open')) {
-      if (e.key === 'Escape') document.getElementById('toc-overlay').classList.remove('is-open');
-      return;
-    }
-    if (e.key === 'ArrowRight') goToPage(CURRENT+1);
-    if (e.key === 'ArrowLeft')  goToPage(CURRENT-1);
-    if (e.key === 'Escape')     document.getElementById('screen-story').classList.remove('is-open');
+    if (document.getElementById('modal-backdrop').classList.contains('is-open')) { if (e.key==='Escape') closeModal(); return; }
+    if (document.getElementById('toc-overlay').classList.contains('is-open')) { if (e.key==='Escape') document.getElementById('toc-overlay').classList.remove('is-open'); return; }
+    if (e.key==='ArrowRight') goToPage(CURRENT+1);
+    if (e.key==='ArrowLeft')  goToPage(CURRENT-1);
+    if (e.key==='Escape')     document.getElementById('screen-story').classList.remove('is-open');
   });
+}
+
+/* ============================================================
+ *  비교 모드 — 전역 상태
+ * ============================================================ */
+let multiPersons = [];          // [{id, name, data, year, pages}]
+let multiCurrentPerson = 0;     // 현재 탭 인덱스 (-1 = 비교탭)
+let multiIdSeq = 0;
+
+const CAPI_COLORS = ['🟠','🟣','🟢','🔵','🟡','🔴','🩷','🤎','🩵','⚫'];
+const CAPI_NAMES  = ['카피1','카피2','카피3','카피4','카피5','카피6','카피7','카피8','카피9','카피10'];
+
+function multiAddPerson() {
+  const id = ++multiIdSeq;
+  const idx = multiPersons.length;
+  const defaultName = CAPI_NAMES[idx] || `사람${idx+1}`;
+  multiPersons.push({ id, name: defaultName, data: null, year: 2026, pages: [] });
+  multiRenderInputTabs();
+  multiSwitchInputTab(id);
+}
+
+function multiRemovePerson(id) {
+  if (multiPersons.length <= 1) { alert('최소 1명은 있어야 해요!'); return; }
+  multiPersons = multiPersons.filter(p => p.id !== id);
+  multiRenderInputTabs();
+  multiSwitchInputTab(multiPersons[0].id);
+}
+
+function multiRenderInputTabs() {
+  const nav = document.getElementById('multi-tabs-nav');
+  const contents = document.getElementById('multi-tab-contents');
+  nav.innerHTML = multiPersons.map((p, i) => `
+    <button class="multi-person-tab-btn" data-id="${p.id}" onclick="multiSwitchInputTab(${p.id})">
+      ${CAPI_COLORS[i]} ${esc(p.name)}
+      <span class="rm-btn" onclick="event.stopPropagation();multiRemovePerson(${p.id})">✕</span>
+    </button>
+  `).join('');
+
+  contents.innerHTML = multiPersons.map((p, i) => `
+    <div class="multi-person-panel" id="mpanel-${p.id}">
+      <div class="field-row-3" style="margin-bottom:10px;">
+        <div class="field">
+          <label>이름</label>
+          <input id="mname-${p.id}" value="${esc(p.name)}" placeholder="예: 짱구"
+            oninput="multiPersons.find(x=>x.id===${p.id}).name=this.value; document.querySelector('[data-id=&quot;${p.id}&quot;]').childNodes[0].textContent=' ${CAPI_COLORS[i]} '; multiUpdateTabLabel(${p.id})" />
+        </div>
+        <div class="field">
+          <label>성별</label>
+          <select id="mgender-${p.id}">
+            <option value="female">여성</option>
+            <option value="male">남성</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>연도</label>
+          <input id="myear-${p.id}" type="number" value="2026" min="1950" max="2100" />
+        </div>
+      </div>
+      <div class="field">
+        <label>만세력 텍스트</label>
+        <textarea id="mraw-${p.id}" style="min-height:120px;" placeholder="【만세력】 ...&#10;■ 사주 원국&#10;천간 甲 丙 甲 丙&#10;지지 子 寅 申 寅&#10;..."></textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+function multiUpdateTabLabel(id) {
+  const p = multiPersons.find(x => x.id === id);
+  if (!p) return;
+  const btn = document.querySelector(`[data-id="${id}"]`);
+  if (!btn) return;
+  const idx = multiPersons.indexOf(p);
+  btn.innerHTML = `${CAPI_COLORS[idx]} ${esc(p.name)} <span class="rm-btn" onclick="event.stopPropagation();multiRemovePerson(${id})">✕</span>`;
+}
+
+function multiSwitchInputTab(id) {
+  document.querySelectorAll('.multi-person-tab-btn').forEach(b => b.classList.toggle('active', +b.dataset.id === id));
+  document.querySelectorAll('.multi-person-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById(`mpanel-${id}`);
+  if (panel) panel.classList.add('active');
+}
+
+function multiRun() {
+  const errorEl = document.getElementById('multi-error');
+  errorEl.style.display = 'none';
+
+  const results = [];
+  for (const p of multiPersons) {
+    const raw = (document.getElementById(`mraw-${p.id}`)?.value || '').trim();
+    const name = (document.getElementById(`mname-${p.id}`)?.value || p.name).trim();
+    const gender = document.getElementById(`mgender-${p.id}`)?.value || 'female';
+    const year = parseInt(document.getElementById(`myear-${p.id}`)?.value, 10) || 2026;
+    if (!raw) {
+      errorEl.className = 'error'; errorEl.textContent = `${name}의 만세력을 입력해주세요.`; errorEl.style.display = 'block'; return;
+    }
+    try {
+      const data = parseManseryeok(raw);
+      data.name = name; data.gender = gender;
+      if (!data.ilgan) throw new Error('일간을 찾지 못했어요');
+      const pages = buildPages(data, year);
+      results.push({ id: p.id, name, data, year, pages });
+    } catch(e) {
+      errorEl.className = 'error'; errorEl.textContent = `${name} 파싱 오류: ${e.message}`; errorEl.style.display = 'block'; return;
+    }
+  }
+
+  // 비교 카드 생성
+  const comparePages = buildComparePages(results);
+
+  // 스토리 화면 열기
+  document.getElementById('screen-multi').classList.remove('is-open');
+  document.getElementById('screen-input').style.display = 'none';
+  multiShowStory(results, comparePages);
+}
+
+/* 비교 카드 생성 */
+function buildComparePages(persons) {
+  const pages = [];
+  const year = persons[0].year;
+
+  // 1. 오행 비교
+  const ohengEmoji = { 목:'🌳', 화:'🔥', 토:'🪨', 금:'⚔️', 수:'💧' };
+  pages.push({
+    chapter:'🔍 비교', title:'오행 분포 비교', emoji:'🌈',
+    html:`
+      <div class="pg-eyebrow">함께 보는</div>
+      <h1 class="pg-title">오행 분포 비교</h1>
+      <div class="pg-body">
+        ${persons.map((p, i) => {
+          const oh = p.data.oheng || {};
+          const bars = ['목','화','토','금','수'].map(e => {
+            const v = oh[e] || 0;
+            return `<span style="margin-right:4px;">${ohengEmoji[e]}${v}</span>`;
+          }).join('');
+          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:8px;">
+            <p style="margin:0;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)} <small style="font-weight:400;color:var(--ink-soft);">(${p.data.ilgan} · ${p.data.singang||''})</small></p>
+            <p style="margin:6px 0 0;font-size:14px;">${bars}</p>
+          </div>`;
+        }).join('')}
+      </div>
+    `
+  });
+
+  // 2. 올해 운 비교
+  pages.push({
+    chapter:'🔍 비교', title:`${year}년 운세 비교`, emoji:'📊',
+    html:`
+      <div class="pg-eyebrow">${year}년</div>
+      <h1 class="pg-title">올해 운세 비교</h1>
+      <div class="pg-body">
+        ${persons.map((p, i) => {
+          const cw = p.data.yeonwoon?.find(y=>y.year===year) || p.data.yeonwoon?.[0];
+          const sub = cw ? scoreForSubFortune(p.data, cw) : null;
+          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:8px;">
+            <p style="margin:0;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)}</p>
+            <p style="margin:4px 0 0;font-size:13px;">
+              ${cw ? `${cw.gan}${cw.ji} · ${cw.sipsin} · ${cw.unseong}` : '세운 정보 없음'}
+              ${sub ? ` &nbsp;|&nbsp; 💕${sub.love} 💰${sub.money} 🎓${sub.study}` : ''}
+            </p>
+          </div>`;
+        }).join('')}
+      </div>
+    `
+  });
+
+  // 3. 궁합 (2명 이상일 때 페어별 합충 체크)
+  if (persons.length >= 2) {
+    const pairs = [];
+    for (let a = 0; a < persons.length; a++) {
+      for (let b = a+1; b < persons.length; b++) {
+        pairs.push([persons[a], persons[b]]);
+      }
+    }
+    const rel = pairs.map(([a, b]) => {
+      const ganA = a.data.ilgan, ganB = b.data.ilgan;
+      const jiA = a.data.pillars?.day?.ji, jiB = b.data.pillars?.day?.ji;
+      const hapGan = GAN_HAP ? Object.entries(GAN_HAP).find(([k]) => k.includes(ganA) && k.includes(ganB)) : null;
+      const chungGan = GAN_CHUNG ? GAN_CHUNG[ganA]===ganB || GAN_CHUNG[ganB]===ganA : false;
+      const hapKey = jiA && jiB ? ([jiA,jiB].sort().join('-')) : null;
+      const jiHap = hapKey && JIJI_REL_DEEP?.hap_meaning?.[hapKey];
+      const jiChung = jiA && jiB && JIJI_REL_DEEP?.chung_meaning?.[hapKey||[jiA,jiB].sort().join('-')];
+      let rel = '중립';
+      let relEmoji = '🤝';
+      if (hapGan) { rel = `천간합 (${hapGan[1]?.name||''})` ; relEmoji = '💕'; }
+      else if (chungGan) { rel = '천간충'; relEmoji = '⚡'; }
+      if (jiHap) { rel += ` + 일지합 (${jiHap.name})`; relEmoji = relEmoji === '⚡' ? '😅' : '💕'; }
+      else if (jiChung) { rel += ` + 일지충`; relEmoji = relEmoji === '💕' ? '😅' : '⚡'; }
+      return { a, b, rel, relEmoji };
+    });
+
+    pages.push({
+      chapter:'🔍 비교', title:'일간·일지 궁합', emoji:'💕',
+      html:`
+        <div class="pg-eyebrow">합·충 분석</div>
+        <h1 class="pg-title">궁합 분석</h1>
+        <div class="pg-body">
+          <div class="mood-card cream" style="margin-bottom:12px;">
+            <p style="margin:0;font-size:13px;">일간합은 끌림, 일간충은 자극, 일지합은 배우자 궁 연결을 봐요.</p>
+          </div>
+          ${rel.map(r => `
+            <div class="mood-card ${r.relEmoji==='💕'?'leaf':r.relEmoji==='⚡'?'berry':'peach'}" style="margin-bottom:8px;">
+              <p style="margin:0;font-weight:700;">${CAPI_COLORS[persons.indexOf(r.a)]} ${esc(r.a.name)} ↔ ${CAPI_COLORS[persons.indexOf(r.b)]} ${esc(r.b.name)}</p>
+              <p style="margin:4px 0 0;font-size:14px;">${r.relEmoji} ${r.rel}</p>
+            </div>
+          `).join('')}
+        </div>
+      `
+    });
+  }
+
+  // 4. 월별 운 비교 (이번 달 기준)
+  const thisMonth = new Date().getMonth() + 1;
+  pages.push({
+    chapter:'🔍 비교', title:`${thisMonth}월 이달의 운`, emoji:'📅',
+    html:`
+      <div class="pg-eyebrow">이번 달</div>
+      <h1 class="pg-title">${thisMonth}월 운 비교</h1>
+      <div class="pg-body">
+        ${persons.map((p, i) => {
+          const wl = p.data.wolun?.[thisMonth];
+          const sc = wl ? monthScore(p.data, thisMonth) : null;
+          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:8px;">
+            <p style="margin:0;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)} ${sc ? `<span style="float:right;font-size:18px;font-family:'Nanum Pen Script';">${sc.score}점</span>` : ''}</p>
+            <p style="margin:4px 0 0;font-size:13px;">${wl ? `${wl.gan}${wl.ji} · ${wl.sipsin} · ${wl.unseong}` : '월운 정보 없음'}</p>
+          </div>`;
+        }).join('')}
+        <p class="hand" style="text-align:center;margin-top:12px;font-size:16px;color:var(--moss);">점수 높은 분이 이달 최고운! 🦫</p>
+      </div>
+    `
+  });
+
+  // 5. 신살 비교 (공통 신살 찾기)
+  const allSinsal = persons.flatMap(p => p.data.sinsal || []);
+  const sinsalCount = {};
+  allSinsal.forEach(s => { sinsalCount[s] = (sinsalCount[s]||0)+1; });
+  const commonSinsal = Object.entries(sinsalCount).filter(([,c]) => c > 1).sort((a,b) => b[1]-a[1]);
+
+  pages.push({
+    chapter:'🔍 비교', title:'공통 신살', emoji:'⭐',
+    html:`
+      <div class="pg-eyebrow">우리 모두가 가진</div>
+      <h1 class="pg-title">공통 신살</h1>
+      <div class="pg-body">
+        ${commonSinsal.length > 0 ? `
+          <div class="mood-card leaf" style="margin-bottom:12px;">
+            <p style="margin:0;font-size:13px;">여러 명이 공통으로 가진 별이에요. 함께 있을 때 이 기운이 증폭돼요!</p>
+          </div>
+          ${commonSinsal.map(([s, c]) => {
+            const d = SINSAL_DEEP[s];
+            const who = persons.filter(p => (p.data.sinsal||[]).includes(s)).map((p,_,arr) => `${CAPI_COLORS[persons.indexOf(p)]} ${esc(p.name)}`).join(', ');
+            return `<div class="mood-card cream" style="margin-bottom:8px;">
+              <p style="margin:0;font-weight:700;">${d?.emoji||'⭐'} ${esc(s)} <span style="font-size:12px;opacity:0.7;">(${c}명)</span></p>
+              <p style="margin:3px 0;font-size:12px;color:var(--ink-soft);">${who}</p>
+              ${d ? `<p style="margin:4px 0 0;font-size:13px;">${esc(d.note)}</p>` : ''}
+            </div>`;
+          }).join('')}
+        ` : `<div class="mood-card cream"><p>공통으로 가진 신살이 없어요. 각자 개성 만점! 🦫</p></div>`}
+      </div>
+    `
+  });
+
+  return pages;
+}
+
+/* 비교 스토리 화면 열기 */
+function multiShowStory(persons, comparePages) {
+  const storyEl = document.getElementById('screen-story');
+  const tabBar = document.getElementById('person-tab-bar');
+  const tabsEl = document.getElementById('person-tabs');
+
+  // 탭 생성
+  tabBar.style.display = 'block';
+  const tabs = [
+    ...persons.map((p, i) => ({ label: `${CAPI_COLORS[i]} ${p.name}`, idx: i, compare: false })),
+    { label: '🔍 비교', idx: -1, compare: true }
+  ];
+  tabsEl.innerHTML = tabs.map(t =>
+    `<button class="${t.compare?'compare-tab':''} ${t.idx===0?'active':''}" data-midx="${t.idx}">${t.label}</button>`
+  ).join('');
+  tabsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-midx]');
+    if (!btn) return;
+    const idx = parseInt(btn.dataset.midx, 10);
+    tabsEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (idx === -1) {
+      renderStoryPages(comparePages);
+    } else {
+      renderStoryPages(persons[idx].pages);
+    }
+  });
+
+  // 첫 번째 사람 카드 렌더
+  renderStoryPages(persons[0].pages);
+  storyEl.classList.add('is-open');
+}
+
+/* 페이지 배열로 스토리 렌더 */
+function renderStoryPages(pages) {
+  ALL_PAGES = pages;
+  CURRENT = 0;
+
+  const progress = document.getElementById('progress');
+  progress.innerHTML = pages.map(()=>`<div class="bar"><span class="fill"></span></div>`).join('');
+
+  const content = document.getElementById('story-content');
+  content.innerHTML = pages.map((p,i) =>
+    `<div class="story-page" data-idx="${i}">
+      ${p._label ? `<div class="pg-chapter-no">${p._label}</div>` : ''}
+      ${p.html}
+    </div>`
+  ).join('');
+
+  const tocList = document.getElementById('toc-list');
+  let tocHtml = ''; let lastChapter = null;
+  pages.forEach((p, i) => {
+    if (p.chapter !== lastChapter) {
+      tocHtml += `<div class="toc-chapter-head"><span class="toc-chapter-no">${p._chapterNo||'·'}.</span><span class="toc-chapter-name">${esc(p.chapter)}</span></div>`;
+      lastChapter = p.chapter;
+    }
+    tocHtml += `<button data-go="${i}" class="toc-sub-item"><span class="toc-sub-no">${p._label||''}</span><span class="toc-sub-title">${p.emoji||'🦫'} ${esc(p.title)}</span><span class="page-no">${i+1}</span></button>`;
+  });
+  tocList.innerHTML = tocHtml;
+
+  goToPage(0);
+  bindMonthCards(null, 2026);
 }
 
 if (document.readyState === 'loading') {

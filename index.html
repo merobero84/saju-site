@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>오늘의 사주 · 만세력 풀이</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Noto+Serif+KR:wght@400;600;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #1a1410;
+    --ink-soft: #3a2f28;
+    --paper: #f6f1e8;
+    --paper-2: #ede5d4;
+    --paper-3: #faf6ec;
+    --line: #d9cfb8;
+    --red: #b54b4b;
+    --red-dark: #7a2e2e;
+    --jade: #5a7a6a;
+    --jade-soft: #b6c9bb;
+    --sky: #6b8ea3;
+    --sky-soft: #c4d3dc;
+    --gold: #b8924a;
+    --gold-soft: #e8d9b5;
+    --plum: #7d5a7a;
+    --plum-soft: #d9c7d7;
+    --sun: #d8894a;
+    --sun-soft: #f3d7b9;
+    --moss: #8a9968;
+    --moss-soft: #d3dcc1;
+    --shadow-sm: 0 1px 2px rgba(26,20,16,0.06), 0 2px 8px rgba(26,20,16,0.04);
+    --shadow-md: 0 4px 14px rgba(26,20,16,0.08), 0 1px 4px rgba(26,20,16,0.05);
+    --shadow-lg: 0 12px 40px rgba(26,20,16,0.12), 0 4px 12px rgba(26,20,16,0.06);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans KR', 'Gowun Batang', sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(181,75,75,0.04) 0, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(107,142,163,0.05) 0, transparent 50%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' seed='1'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0.04 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+    pointer-events: none;
+    z-index: 0;
+  }
+  .serif { font-family: 'Noto Serif KR', 'Gowun Batang', serif; }
+  .display { font-family: 'Noto Serif KR', serif; font-weight: 900; letter-spacing: -0.02em; }
+  .han { font-family: 'Gowun Batang', 'Noto Serif KR', serif; }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 720px; margin: 0 auto;
+    padding: 24px 20px 120px;
+  }
+
+  /* ---------- Landing / Input ---------- */
+  .hero {
+    text-align: center;
+    padding: 40px 0 28px;
+  }
+  .hero-mark {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 6px 14px;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    font-size: 12px; font-weight: 500;
+    letter-spacing: 0.12em;
+    background: var(--paper-3);
+  }
+  .hero-mark .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+  .hero h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 900;
+    font-size: clamp(34px, 7vw, 52px);
+    line-height: 1.15;
+    margin: 18px 0 10px;
+    letter-spacing: -0.03em;
+  }
+  .hero h1 .accent { color: var(--red); }
+  .hero p {
+    color: var(--ink-soft);
+    max-width: 420px; margin: 0 auto;
+    font-size: 15px;
+  }
+
+  .card {
+    background: var(--paper-3);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+  }
+  .card + .card { margin-top: 16px; }
+  .card-title {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 900;
+    font-size: 22px;
+    margin: 0 0 16px;
+    letter-spacing: -0.02em;
+  }
+  .card-title .emoji { font-size: 24px; }
+
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: var(--ink-soft); margin-bottom: 6px;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--ink);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field input:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(26,20,16,0.08);
+  }
+  .field textarea {
+    min-height: 220px;
+    font-family: 'IBM Plex Sans KR', monospace;
+    font-size: 13px; line-height: 1.6;
+    resize: vertical;
+  }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 22px;
+    border: none; border-radius: 12px;
+    font-family: inherit; font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    transition: transform .08s, box-shadow .15s, background .15s;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary {
+    background: var(--ink); color: var(--paper);
+    box-shadow: var(--shadow-md);
+  }
+  .btn-primary:hover { background: #000; }
+  .btn-ghost {
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .btn-ghost:hover { background: var(--paper-2); }
+  .btn-full { width: 100%; }
+
+  .example-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: transparent;
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .example-btn:hover { background: var(--paper-2); color: var(--ink); }
+
+  /* ---------- Result Header ---------- */
+  .result-header {
+    text-align: center;
+    padding: 24px 0 16px;
+  }
+  .result-header .subtitle {
+    font-size: 13px; letter-spacing: 0.15em; color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+  .result-header h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 900;
+    font-size: clamp(30px, 6vw, 44px);
+    margin: 8px 0;
+    line-height: 1.2;
+  }
+  .result-header .year-badge {
+    display: inline-flex; align-items: baseline; gap: 10px;
+    margin-top: 8px;
+    padding: 6px 16px;
+    background: var(--ink); color: var(--paper);
+    border-radius: 999px;
+    font-size: 14px; font-weight: 500;
+  }
+  .result-header .year-badge .hanja { font-family: 'Noto Serif KR', serif; font-size: 16px; }
+
+  /* ---------- Table of Contents ---------- */
+  .toc {
+    background: var(--paper-3);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .toc-title {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 900; font-size: 20px;
+    margin: 0 0 16px;
+    text-align: center;
+  }
+  .toc ul { list-style: none; padding: 0; margin: 0; }
+  .toc li a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: var(--ink); text-decoration: none;
+    font-weight: 500;
+    transition: background .12s;
+  }
+  .toc li a:hover { background: var(--paper-2); }
+  .toc li.sub a { padding-left: 28px; font-size: 14px; color: var(--ink-soft); }
+  .toc .toc-emoji { font-size: 18px; width: 22px; text-align: center; }
+
+  /* ---------- Section ---------- */
+  section.block {
+    margin-top: 24px;
+    scroll-margin-top: 20px;
+  }
+  section.block h2 {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 900;
+    font-size: 26px;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  section.block h2 .emoji { font-size: 28px; }
+  section.block .section-sub {
+    color: var(--ink-soft); font-size: 14px;
+    margin: 0 0 16px;
+  }
+
+  .panel {
+    background: var(--paper-3);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: var(--shadow-sm);
+  }
+  .panel p { margin: 0 0 12px; }
+  .panel p:last-child { margin-bottom: 0; }
+
+  /* ---------- Sipul-sal Pillars ---------- */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 12px 0 18px;
+  }
+  .pillar {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 14px;
+    padding: 12px 8px;
+    text-align: center;
+    position: relative;
+  }
+  .pillar-label {
+    font-size: 11px; letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .pillar-chun, .pillar-ji {
+    display: block;
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .pillar-chun { font-size: 36px; margin: 2px 0; }
+  .pillar-ji { font-size: 28px; margin: 8px 0 2px; color: var(--ink-soft); }
+  .pillar-han { font-size: 11px; color: var(--ink-soft); margin-top: 6px; }
+  .pillar.is-day {
+    background: var(--ink); color: var(--paper);
+    border-color: var(--ink);
+  }
+  .pillar.is-day .pillar-label,
+  .pillar.is-day .pillar-ji,
+  .pillar.is-day .pillar-han { color: rgba(246,241,232,0.72); }
+
+  /* ---------- Element Distribution ---------- */
+  .elements {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 14px 0;
+  }
+  .elem {
+    background: var(--paper);
+    border-radius: 12px;
+    padding: 14px 6px;
+    text-align: center;
+    border: 1px solid var(--line);
+  }
+  .elem.moon { background: var(--moss-soft); }
+  .elem.hwa { background: var(--red); color: #fff; }
+  .elem.to { background: var(--gold-soft); }
+  .elem.geum { background: var(--paper-2); }
+  .elem.su { background: var(--sky-soft); }
+  .elem .el-name { font-family: 'Noto Serif KR', serif; font-size: 18px; font-weight: 700; }
+  .elem .el-count { font-size: 22px; font-weight: 700; margin-top: 4px; }
+
+  /* ---------- Tag chips ---------- */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--paper-2);
+    border-radius: 999px;
+    font-size: 12px; font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .tag.good { background: var(--jade-soft); color: var(--jade); }
+  .tag.warn { background: var(--sun-soft); color: var(--sun); }
+  .tag.bad { background: #f3cfcf; color: var(--red-dark); }
+
+  /* ---------- Sub-fortune grid ---------- */
+  .sub-fortunes { display: grid; gap: 12px; }
+  .sf-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .sf-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .sf-title {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 16px;
+  }
+  .sf-title .emoji { font-size: 20px; }
+  .sf-score {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 900; font-size: 20px;
+  }
+  .sf-body { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+
+  /* ---------- Months ---------- */
+  .months { display: grid; gap: 10px; }
+  .month-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: transform .12s, box-shadow .12s, border-color .12s;
+    position: relative;
+    overflow: hidden;
+  }
+  .month-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--ink);
+  }
+  .month-card::after {
+    content: "→";
+    position: absolute; right: 18px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px; color: var(--ink-soft);
+    transition: transform .15s;
+  }
+  .month-card:hover::after { transform: translate(3px, -50%); }
+  .m-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-right: 24px; }
+  .m-label {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 22px; font-weight: 700;
+  }
+  .m-score {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 28px; font-weight: 900;
+  }
+  .m-score small { font-size: 14px; color: var(--ink-soft); font-weight: 500; }
+  .m-tags { margin-top: 8px; }
+  .m-summary { margin-top: 8px; font-size: 14px; color: var(--ink-soft); }
+
+  .month-card.season-winter { background: linear-gradient(135deg, #eaf0f5 0%, var(--paper-3) 100%); }
+  .month-card.season-spring { background: linear-gradient(135deg, #ebf1de 0%, var(--paper-3) 100%); }
+  .month-card.season-summer { background: linear-gradient(135deg, #fae2cf 0%, var(--paper-3) 100%); }
+  .month-card.season-fall   { background: linear-gradient(135deg, #f2dfd0 0%, var(--paper-3) 100%); }
+
+  /* ---------- Daewoon list ---------- */
+  .daewoon-list { display: grid; gap: 8px; }
+  .dw-row {
+    display: grid;
+    grid-template-columns: 90px 60px 1fr auto;
+    gap: 12px; align-items: center;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  .dw-row.current { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .dw-row.current .dw-meta { color: rgba(246,241,232,0.7); }
+  .dw-age { font-weight: 600; }
+  .dw-gan { font-family: 'Noto Serif KR', serif; font-size: 18px; font-weight: 700; }
+  .dw-meta { font-size: 12px; color: var(--ink-soft); }
+
+  /* ---------- Star / 십이운성 ---------- */
+  .star-hero {
+    background: linear-gradient(135deg, #2c2a3e 0%, #1a1a2e 100%);
+    color: #f4e9d0;
+    padding: 28px 22px;
+    border-radius: 18px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .star-hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+      radial-gradient(1px 1px at 60% 20%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 80% 60%, #fff, transparent),
+      radial-gradient(1px 1px at 40% 80%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 70% 85%, #fff, transparent),
+      radial-gradient(1px 1px at 15% 70%, #fff, transparent);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .star-hero .star-name {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 32px; font-weight: 900;
+    margin: 8px 0 4px;
+    position: relative;
+  }
+  .star-hero .star-sub { opacity: 0.85; font-size: 14px; position: relative; }
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(26,20,16,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 50;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-backdrop.is-open { display: flex; animation: fade .2s; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--paper);
+    width: 100%; max-width: 640px;
+    max-height: 92vh;
+    border-radius: 24px 24px 0 0;
+    overflow-y: auto;
+    animation: slide .28s cubic-bezier(.2,.9,.3,1.2);
+    position: relative;
+  }
+  @media (min-width: 720px) {
+    .modal { border-radius: 24px; margin-bottom: 5vh; }
+  }
+  @keyframes slide { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-close {
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    border: none; background: var(--paper-2); color: var(--ink);
+    font-size: 18px; cursor: pointer;
+    z-index: 2;
+  }
+  .modal-body { padding: 36px 24px 32px; }
+  .modal h3 {
+    font-family: 'Noto Serif KR', serif; font-weight: 900;
+    font-size: 28px; margin: 0 0 6px;
+  }
+  .modal .modal-meta { color: var(--ink-soft); font-size: 13px; margin-bottom: 14px; }
+  .modal .modal-score-big {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 48px; font-weight: 900;
+    display: inline-block;
+    margin: 4px 0 10px;
+  }
+  .modal h4 {
+    font-family: 'Noto Serif KR', serif; font-weight: 700;
+    font-size: 16px;
+    margin: 20px 0 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .modal p { margin: 0 0 10px; font-size: 15px; line-height: 1.75; }
+  .modal ul { padding-left: 20px; margin: 0 0 10px; }
+  .modal li { margin-bottom: 6px; font-size: 14px; }
+
+  /* ---------- Nav top ---------- */
+  .topbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0 14px;
+  }
+  .topbar .btn-ghost { padding: 8px 14px; font-size: 13px; }
+
+  /* ---------- AI section ---------- */
+  .ai-card {
+    background: linear-gradient(135deg, #2c2a3e 0%, #1a1a2e 100%);
+    color: #f4e9d0;
+    border-radius: 18px;
+    padding: 22px;
+    margin-top: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ai-card h3 {
+    font-family: 'Noto Serif KR', serif; font-weight: 900;
+    font-size: 20px; margin: 0 0 8px;
+  }
+  .ai-card p { margin: 0 0 12px; opacity: 0.88; font-size: 14px; }
+  .ai-card input {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.08);
+    color: #f4e9d0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .ai-card input::placeholder { color: rgba(244,233,208,0.5); }
+  .ai-card .btn-primary { background: var(--paper); color: var(--ink); }
+  .ai-result {
+    margin-top: 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    display: none;
+  }
+  .ai-result.is-visible { display: block; }
+
+  /* ---------- Badge for good/bad ---------- */
+  .trend-box {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin-top: 8px;
+  }
+  .trend {
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+  }
+  .trend.up { background: linear-gradient(135deg, #e7f0e9 0%, var(--paper-3) 100%); }
+  .trend.down { background: linear-gradient(135deg, #f4dede 0%, var(--paper-3) 100%); }
+  .trend h4 {
+    font-family: 'Noto Serif KR', serif; font-weight: 700;
+    margin: 0 0 8px; font-size: 15px;
+  }
+  .trend p { margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+  @media (max-width: 520px) { .trend-box { grid-template-columns: 1fr; } }
+
+  /* ---------- Info row ---------- */
+  .info-row {
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 12px 16px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 14px;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .k { color: var(--ink-soft); font-weight: 500; }
+  .info-row .v { font-weight: 500; }
+
+  /* footnote */
+  .note {
+    text-align: center;
+    color: var(--ink-soft); font-size: 12px;
+    margin-top: 32px; padding: 0 20px;
+    line-height: 1.7;
+  }
+
+  /* errors */
+  .error {
+    background: #f9e0e0;
+    border: 1px solid #e6b5b5;
+    color: var(--red-dark);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  /* ohaeng color mapping for 천간/지지 inline */
+  .oh-mok { color: var(--moss); }
+  .oh-hwa { color: var(--red); }
+  .oh-to  { color: var(--gold); }
+  .oh-geum{ color: #7a7467; }
+  .oh-su  { color: var(--sky); }
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app">
+  <!-- INPUT SCREEN -->
+  <div id="screen-input">
+    <header class="hero">
+      <span class="hero-mark"><span class="dot"></span>萬歲曆 · MANSERYEOK</span>
+      <h1>올해의 <span class="accent">사주</span>를<br>한 권으로 풀어봐요</h1>
+      <p>데이사주 같은 만세력 앱의 출력을 그대로 붙여넣어 주세요. 병오년 한 해의 총운부터 월별 리포트까지 만들어드려요.</p>
+    </header>
+
+    <div class="card">
+      <h2 class="card-title"><span class="emoji">📝</span>만세력 입력</h2>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="in-name">이름 (선택)</label>
+          <input id="in-name" placeholder="예: 허혜정" />
+        </div>
+        <div class="field">
+          <label for="in-year">기준 연도</label>
+          <input id="in-year" type="number" value="2026" min="2000" max="2100" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="in-raw">만세력 텍스트</label>
+        <textarea id="in-raw" placeholder="【만세력】 ...&#10;■ 사주 원국&#10;...&#10;■ 일간: ...&#10;■ 대운: ...&#10;■ 연운: ...&#10;■ 월운 (2026년): ..."></textarea>
+        <button class="example-btn" id="btn-example">📌 예시 데이터 불러오기</button>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="btn-analyze">사주 풀이 시작하기 →</button>
+      <div id="input-error" style="display:none"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h2 class="card-title"><span class="emoji">💡</span>이런 내용을 알 수 있어요</h2>
+      <ul style="margin:0; padding-left:22px; color:var(--ink-soft); font-size:14px; line-height:1.9;">
+        <li>📚 2026년(병오년) 총운과 한 해의 흐름</li>
+        <li>🙋 타고난 사주팔자와 성정 분석</li>
+        <li>💥 올해 살풀이 · 합과 충 주의사항</li>
+        <li>💕 애정/재물/학업/대인관계/업무/건강 세부운</li>
+        <li>🌅 대운과 삼재 풀이</li>
+        <li>📘 1~12월 월별 점수와 상세 리포트</li>
+        <li>⭐ 2026년에 들어오는 십이운성</li>
+      </ul>
+    </div>
+
+    <p class="note">※ 본 서비스는 오락·참고용입니다. 해석 템플릿은 명리학의 일반적인 통념을 기반으로 작성되었습니다.</p>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="screen-result" style="display:none;">
+    <div class="topbar">
+      <button class="btn btn-ghost" id="btn-back">← 새로 시작</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" id="btn-print">🖨 인쇄</button>
+    </div>
+
+    <header class="result-header">
+      <div class="subtitle">THE YEAR OF <span id="rh-yeargan" class="han"></span></div>
+      <h1><span id="rh-name"></span>의 <span id="rh-year"></span>년</h1>
+      <div class="year-badge"><span id="rh-ilgan-ko"></span> · 일간 <span id="rh-ilgan-han" class="hanja"></span></div>
+    </header>
+
+    <nav class="toc">
+      <h3 class="toc-title">이런 내용을 알 수 있어요</h3>
+      <ul id="toc"></ul>
+    </nav>
+
+    <main id="main-content"></main>
+
+    <p class="note" id="footer-note"></p>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modal-close" aria-label="닫기">✕</button>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+ *  SAJU ENGINE — template-based interpreter
+ *  Parses the manseryeok text format and produces interpretation.
+ * ========================================================== */
+
+/* ---------------- Constants ---------------- */
+
+const GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const JI  = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+
+const GAN_INFO = {
+  '甲': { ko:'갑', oh:'목', yy:'양', desc:'큰 나무', cls:'oh-mok' },
+  '乙': { ko:'을', oh:'목', yy:'음', desc:'화초·덩굴', cls:'oh-mok' },
+  '丙': { ko:'병', oh:'화', yy:'양', desc:'태양', cls:'oh-hwa' },
+  '丁': { ko:'정', oh:'화', yy:'음', desc:'촛불·등불', cls:'oh-hwa' },
+  '戊': { ko:'무', oh:'토', yy:'양', desc:'큰 산·대지', cls:'oh-to'  },
+  '己': { ko:'기', oh:'토', yy:'음', desc:'논밭·정원', cls:'oh-to'  },
+  '庚': { ko:'경', oh:'금', yy:'양', desc:'원석·칼', cls:'oh-geum'},
+  '辛': { ko:'신', oh:'금', yy:'음', desc:'보석·장신구', cls:'oh-geum'},
+  '壬': { ko:'임', oh:'수', yy:'양', desc:'큰 물·바다', cls:'oh-su' },
+  '癸': { ko:'계', oh:'수', yy:'음', desc:'이슬·빗물', cls:'oh-su' },
+};
+
+const JI_INFO = {
+  '子':{ ko:'자', oh:'수', desc:'쥐', cls:'oh-su' },
+  '丑':{ ko:'축', oh:'토', desc:'소', cls:'oh-to' },
+  '寅':{ ko:'인', oh:'목', desc:'호랑이', cls:'oh-mok' },
+  '卯':{ ko:'묘', oh:'목', desc:'토끼', cls:'oh-mok' },
+  '辰':{ ko:'진', oh:'토', desc:'용',  cls:'oh-to' },
+  '巳':{ ko:'사', oh:'화', desc:'뱀',  cls:'oh-hwa' },
+  '午':{ ko:'오', oh:'화', desc:'말',  cls:'oh-hwa' },
+  '未':{ ko:'미', oh:'토', desc:'양',  cls:'oh-to' },
+  '申':{ ko:'신', oh:'금', desc:'원숭이', cls:'oh-geum' },
+  '酉':{ ko:'유', oh:'금', desc:'닭',  cls:'oh-geum' },
+  '戌':{ ko:'술', oh:'토', desc:'개',  cls:'oh-to' },
+  '亥':{ ko:'해', oh:'수', desc:'돼지', cls:'oh-su' },
+};
+
+const OHAENG = ['목','화','토','금','수'];
+const OHAENG_EMOJI = { '목':'🌳', '화':'🔥', '토':'⛰️', '금':'⚔️', '수':'💧' };
+const OHAENG_CLASS = { '목':'moon', '화':'hwa', '토':'to', '금':'geum', '수':'su' };
+
+/* Day stem personality notes */
+const ILGAN_TRAITS = {
+  '甲': {
+    one: '하늘을 향해 곧게 자라는 큰 나무', 
+    persona: '뚜렷한 줏대와 리더십이 있고, 원칙과 대의를 중시해요. 굽히기 싫어하는 성정이라 고집스럽게 보일 수 있지만, 그만큼 추진력과 개척 정신이 남달라요.',
+    strength: '추진력, 리더십, 성장 지향, 도덕성, 정직함',
+    caution: '융통성 부족, 꺾이지 않으려다 부러지기 쉬움, 속마음 표현 서툼'
+  },
+  '乙': {
+    one: '바람을 타고 자라는 유연한 화초',
+    persona: '겉은 부드럽고 섬세하지만 속은 질기고 끈질긴 생존력을 가진 타입이에요. 사람들과 잘 어울리고 감각이 섬세해요.',
+    strength: '유연성, 끈기, 섬세한 감각, 관계 친화력',
+    caution: '의존성, 줏대 흔들림, 결정 장애, 예민함'
+  },
+  '丙': {
+    one: '온 세상을 비추는 태양',
+    persona: '밝고 외향적이며 열정이 넘쳐요. 표현력이 좋고 드러내는 것에 거리낌이 없어 어디서든 존재감이 있어요.',
+    strength: '열정, 긍정성, 표현력, 카리스마, 공정함',
+    caution: '감정 기복, 성급함, 과시욕, 뒷심 부족'
+  },
+  '丁': {
+    one: '어둠을 밝히는 등불·촛불',
+    persona: '겉은 조용해 보이지만 속은 뜨거워요. 섬세하고 직관적이며, 깊이 파고드는 몰입력이 있어요.',
+    strength: '직관, 통찰, 몰입, 예술성, 섬세함',
+    caution: '소모적 감정, 상처 잘 받음, 극단적 판단'
+  },
+  '戊': {
+    one: '대지와 큰 산',
+    persona: '듬직하고 포용력이 크며, 위기에도 흔들리지 않는 중심이 있어요. 사람을 모으고 자리를 지키는 힘이 강해요.',
+    strength: '포용력, 안정감, 신뢰, 현실감각, 믿음직함',
+    caution: '느린 변화, 고집, 감정 표현 부족, 보수성'
+  },
+  '己': {
+    one: '곡식을 키우는 논밭',
+    persona: '실속 있고 세심하며, 주변을 정성껏 가꾸는 타입이에요. 겸손하지만 한 번 마음먹은 일은 야무지게 해내요.',
+    strength: '실속, 세심함, 꾸준함, 겸손, 배려',
+    caution: '소심함, 속으로 쌓는 스트레스, 우유부단'
+  },
+  '庚': {
+    one: '단단한 원석·칼',
+    persona: '의리 있고 결단력이 분명해요. 옳고 그름이 뚜렷하며, 한 번 정한 일은 밀어붙이는 강단이 있어요.',
+    strength: '결단력, 의리, 추진력, 정의감, 리더십',
+    caution: '냉정함, 날 선 말투, 독선, 타협 어려움'
+  },
+  '辛': {
+    one: '다듬어진 보석',
+    persona: '세련되고 감각이 뛰어나며 자존심이 강해요. 섬세하고 완벽주의 성향이 있어요.',
+    strength: '감각, 세련됨, 완벽주의, 분별력',
+    caution: '예민함, 자존심 상처, 까칠함, 편협함'
+  },
+  '壬': {
+    one: '넓게 흐르는 바다',
+    persona: '스케일이 크고 지혜로우며, 변화를 두려워하지 않는 유동성이 있어요. 낙천적이면서도 깊이가 있어요.',
+    strength: '지혜, 포용, 유동성, 도량, 낙천',
+    caution: '산만함, 끈기 부족, 쉽게 휘둘림, 약속 가벼움'
+  },
+  '癸': {
+    one: '이슬·가랑비',
+    persona: '조용하지만 직관과 감수성이 뛰어나요. 속 깊이 흐르는 힘이 있어 조직에서 핵심 역할을 맡는 경우가 많아요.',
+    strength: '직관, 감수성, 지혜, 유연성, 성실',
+    caution: '소극적, 상처 잘 받음, 의심 많음, 불안'
+  }
+};
+
+/* Sipsin meaning + heuristic polarity (+ helpful, - adverse, 0 neutral-ish, or ctx-dependent).
+   We express interpretations in both yongsin-agnostic keywords and contextual tone. */
+const SIPSIN_INFO = {
+  '비견': {
+    theme: '또래·동료·자립',
+    keywords: ['독립', '동료', '경쟁', '자존감'],
+    positive: '뜻이 맞는 사람들과 힘을 합치기 좋고, 자기 중심을 세우기 좋은 해예요.',
+    negative: '재물이 분산되거나, 경쟁 구도에서 지치고 신경전이 잦아질 수 있어요.',
+    affinity: { love:0, money:-1, study:0, rel:1, work:0, health:0 }
+  },
+  '겁재': {
+    theme: '경쟁·재물 탈재·확장',
+    keywords: ['경쟁', '파란', '모험', '재물 손실'],
+    positive: '한계를 깨고 승부를 거는 해이자, 동료·형제의 도움이 커요.',
+    negative: '재물이 새거나 사기·투자 손실, 인간관계 분쟁이 생기기 쉬워요. 보증·동업 주의.',
+    affinity: { love:-1, money:-2, study:0, rel:-1, work:0, health:-1 }
+  },
+  '식신': {
+    theme: '표현·여유·재능',
+    keywords: ['여유', '표현', '의식주', '재능'],
+    positive: '먹을 복과 여유, 표현력이 살아나는 해. 창작·미식·자녀사·연애에 길해요.',
+    negative: '게으름·향락에 빠지거나 관(일·명예)을 해쳐 조직 내 마찰이 생길 수 있어요.',
+    affinity: { love:1, money:1, study:1, rel:1, work:-1, health:1 }
+  },
+  '상관': {
+    theme: '재능·비판·이탈',
+    keywords: ['재능', '표현', '비판', '이탈'],
+    positive: '재능이 터지고 새 일을 시작하기 좋은 해. 말·글·영향력으로 성과를 낼 수 있어요.',
+    negative: '윗사람·조직과의 마찰, 관재구설, 직장·명예 손상 주의. 말조심이 필요한 해예요.',
+    affinity: { love:0, money:1, study:1, rel:-1, work:-2, health:0 }
+  },
+  '편재': {
+    theme: '큰 재물·기회·유동',
+    keywords: ['유동재', '기회', '역마', '인연'],
+    positive: '돈의 흐름이 커지고 사업·투자·이성관계의 기회가 활발해요.',
+    negative: '한 번에 크게 들어오고 크게 나가요. 무리한 확장·이성 문제가 생길 수 있어요.',
+    affinity: { love:2, money:2, study:0, rel:1, work:1, health:0 }
+  },
+  '정재': {
+    theme: '안정재·결실·배우자',
+    keywords: ['안정', '결실', '배우자', '책임'],
+    positive: '꾸준히 쌓은 노력이 결실로 맺어지는 해. 재물과 배우자 인연이 좋아요.',
+    negative: '책임이 무거워지고, 들어오는 재물이 곧 지출로 이어질 수 있어요.',
+    affinity: { love:2, money:2, study:1, rel:1, work:1, health:1 }
+  },
+  '편관': {
+    theme: '권력·압박·승부',
+    keywords: ['권위', '압박', '변화', '공격'],
+    positive: '큰 무대에 오르거나 권한·타이틀을 얻는 해. 승부의 해.',
+    negative: '과로·압박·관재·수술·사고 주의. 조직 내 견제가 심해질 수 있어요.',
+    affinity: { love:1, money:0, study:0, rel:-1, work:2, health:-2 }
+  },
+  '정관': {
+    theme: '명예·직장·질서',
+    keywords: ['명예', '직장', '결혼', '규범'],
+    positive: '승진·합격·공직·결혼 등 제도권 안에서의 성취가 빛나는 해예요.',
+    negative: '체제에 묶이는 답답함, 경직된 관계. 여성의 경우 남자 인연 주의.',
+    affinity: { love:2, money:1, study:2, rel:1, work:2, health:0 }
+  },
+  '편인': {
+    theme: '특수재능·예술·종교',
+    keywords: ['영감', '전문성', '종교', '단절'],
+    positive: '학문·예술·종교·기술 등 특수 분야에서 깊어지는 해. 자격·공부에 좋아요.',
+    negative: '식상(밥그릇)을 해쳐 현실 수입이 위축될 수 있고, 외로움·우울감이 올 수 있어요.',
+    affinity: { love:-1, money:-1, study:2, rel:-1, work:0, health:-1 }
+  },
+  '정인': {
+    theme: '학문·문서·어머니',
+    keywords: ['학문', '문서', '도움', '안정'],
+    positive: '자격·합격·문서운이 좋고, 윗사람·어른의 도움이 크고 몸과 마음이 회복되는 해.',
+    negative: '지나치게 보수적·수동적이 되어 기회를 놓치거나 의존적이 될 수 있어요.',
+    affinity: { love:1, money:0, study:2, rel:1, work:1, health:2 }
+  }
+};
+
+/* 12운성 — short note */
+const UNSEONG_INFO = {
+  '장생': { mood:'시작·탄생', note:'새로운 국면을 시작하기 좋은 해. 기운이 신선하게 솟아나요.', score:+5 },
+  '목욕': { mood:'혼란·정리', note:'다듬고 치장하는 시기. 인연·이미지 변화가 잦아 흔들릴 수 있어요.', score:-3 },
+  '관대': { mood:'성장·정장', note:'갖추고 나서는 시기. 능력을 드러내며 타이틀을 얻기 좋아요.', score:+4 },
+  '건록': { mood:'전성·자립', note:'스스로의 힘으로 서는 해. 실력과 독립심이 결실로 이어져요.', score:+7 },
+  '제왕': { mood:'절정·왕성', note:'기운이 정점에 오른 해. 크게 벌리되 과욕은 금물.', score:+8 },
+  '쇠':   { mood:'기운 꺾임', note:'정점이 지난 뒤의 조정기. 마무리와 관리에 집중하세요.', score:-2 },
+  '병':   { mood:'지침·피로', note:'기운이 약해져 몸과 마음이 지치기 쉬워요. 건강 관리 필요.', score:-5 },
+  '사':   { mood:'정지·침체', note:'활동력이 멈춘 듯한 해. 새 일보다 정리·내실이 맞아요.', score:-7 },
+  '묘':   { mood:'저장·은둔', note:'비축하고 쉬는 해. 욕심을 내려놓고 내면을 채우기 좋아요.', score:-4 },
+  '절':   { mood:'단절·변곡', note:'맥이 끊기고 변곡이 생기는 해. 환경·인연 변화가 크고 건강 주의.', score:-8 },
+  '태':   { mood:'잉태·구상', note:'새 기운이 씨앗처럼 잉태되는 해. 준비·기획에 좋아요.', score:+1 },
+  '양':   { mood:'성장·준비', note:'아직 드러나지 않았지만 안에서 자라나는 해. 꾸준함이 힘.', score:+2 }
+};
+
+/* 신살 short notes */
+const SINSAL_INFO = {
+  '역마살':{ emoji:'🐎', note:'이동·출장·이사·해외 이슈가 많아지는 별. 올해 움직임이 잦을 수 있어요.' },
+  '지살': { emoji:'🗺️', note:'새로운 터전·환경 변화의 씨앗. 역마살과 함께 움직임이 더 커져요.' },
+  '재살': { emoji:'🔒', note:'구속·억눌림의 별. 구설·시비·갈등에 말려들지 않도록 몸가짐 단정히.' },
+  '장성살':{ emoji:'🎖️', note:'권력·주도권의 별. 리더 역할을 맡지만 강압적으로 보이기 쉬워요.' },
+  '현침살':{ emoji:'📌', note:'날카로움·예리함의 별. 말·의료·기술직에 유리하나 대인관계 주의.' },
+  '관귀학관':{ emoji:'📚', note:'학문·관직의 별. 공부·시험·자격에서 귀인의 도움이 있어요.' },
+  '월덕귀인':{ emoji:'🌙', note:'부드러운 귀인의 별. 어려울 때 뜻밖의 도움이 찾아와요.' },
+  '태극귀인':{ emoji:'☯️', note:'근본을 단단히 지켜주는 귀한 별. 위기에도 중심을 잃지 않게 해줘요.' },
+  '복성귀인':{ emoji:'🍀', note:'복과 지혜의 별. 한 발 물러서도 기회가 알아서 찾아와요.' },
+  '건록': { emoji:'🍚', note:'의식주의 복. 먹고사는 걱정 덜한 해예요.' },
+  '월공': { emoji:'🌕', note:'달빛의 공허. 빛은 있으나 때로 외로움이 따라요.' },
+  '고신살':{ emoji:'🕯️', note:'남자에게 고독의 별. 인연·가족 관계에 거리감이 생길 수 있어요.' },
+  '과숙살':{ emoji:'🕯️', note:'여자에게 고독의 별. 배우자·인연에서 외로움이 따를 수 있어요.' },
+  '상문': { emoji:'⚰️', note:'문상·병문안·장례 관련 이슈. 조심스런 걸음이 필요한 해.' },
+  '조객': { emoji:'🥀', note:'슬픔·이별의 기운. 주변 애사에 마음 준비.' },
+  '급각살':{ emoji:'🦴', note:'관절·뼈 부상의 별. 운동·이동 시 낙상·골절 주의.' },
+  '낙정관살':{ emoji:'🕳️', note:'함정·구덩이의 별. 물·구덩이·사고수 주의. 경거망동 금물.' },
+  '도화살':{ emoji:'🌸', note:'이성·매력의 별. 인기와 동시에 구설이 따를 수 있어요.' },
+  '홍염살':{ emoji:'🌺', note:'끌림의 별. 로맨스 기회가 많아지지만 유혹도 늘어요.' },
+  '괴강살':{ emoji:'⚡', note:'극단의 별. 크게 성공하거나 크게 꺾일 수 있는 기운.' },
+  '백호살':{ emoji:'🐯', note:'피·사고·혈광의 별. 과격한 활동과 무리한 도전 주의.' },
+  '양인살':{ emoji:'🗡️', note:'칼·힘의 별. 강한 추진력이지만 다치기 쉬워요.' },
+  '천을귀인':{ emoji:'✨', note:'최고의 귀인성. 어려울 때 귀한 분의 도움이 큰 힘이 돼요.' }
+};
+
+/* 지지 합충형 (6합, 삼합, 충, 형, 파, 해 — abbreviated) */
+const JIJI_REL = {
+  // 육합
+  'hap6': {'子':'丑','丑':'子','寅':'亥','亥':'寅','卯':'戌','戌':'卯','辰':'酉','酉':'辰','巳':'申','申':'巳','午':'未','未':'午'},
+  // 충 (대립)
+  'chung': {'子':'午','午':'子','丑':'未','未':'丑','寅':'申','申':'寅','卯':'酉','酉':'卯','辰':'戌','戌':'辰','巳':'亥','亥':'巳'},
+  // 삼형
+  'hyeong_groups': [['寅','巳','申'],['丑','戌','未']],
+  // 상형
+  'sang_hyeong': {'子':'卯','卯':'子','辰':'辰','午':'午','酉':'酉','亥':'亥'}
+};
+
+/* Month card season for styling */
+function monthSeason(m){
+  if ([12,1,2].includes(m)) return 'winter';
+  if ([3,4,5].includes(m)) return 'spring';
+  if ([6,7,8].includes(m)) return 'summer';
+  return 'fall';
+}
+function monthIcon(m){
+  const map = {1:'❄️',2:'⛄️',3:'🌱',4:'🌸',5:'🌿',6:'☀️',7:'🍉',8:'🌊',9:'🍁',10:'🌾',11:'🍂',12:'🔔'};
+  return map[m] || '📅';
+}
+
+/* ---------------- Parser ---------------- */
+
+function parseManseryeok(raw) {
+  const data = {
+    name: '', birth: '', calendar: '',
+    pillars: { year:null, month:null, day:null, hour:null }, // each: {gan, ji}
+    ilgan: '',
+    oheng: { '목':0,'화':0,'토':0,'금':0,'수':0 },
+    singang: '', // 신강/신약 + 지수
+    yongsin: '', heesin: '', kisin: '',
+    unseong: { year:'', month:'', day:'', hour:'' },
+    jijanggan: { year:'', month:'', day:'', hour:'' },
+    sipsin_gan: { year:'', month:'', day:'일간', hour:'' },
+    sipsin_ji: { year:'', month:'', day:'', hour:'' },
+    sinsal: [],
+    jiji_rel: '',
+    daewoon: [],  // {age_from, age_to, gan, ji, sipsin, unseong}
+    yeonwoon: [], // {year, gan, ji, sipsin, unseong, current}
+    wolun: {}     // {1: {gan, ji, sipsin, unseong}, ...}
+  };
+
+  const lines = raw.split(/\r?\n/).map(l=>l.trim());
+  let mode = '';
+
+  // --- Header: 【만세력】 이름 (1984년 2월 20일, 양력)
+  const headerLine = lines.find(l => l.includes('만세력') || l.match(/\(\d{4}년.*\)/));
+  if (headerLine) {
+    const m = headerLine.match(/【?만세력】?\s*([^\(]+?)?\s*\(\s*(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일(?:\s*,\s*([^\)]+))?\)/);
+    if (m) {
+      data.name = (m[1]||'').trim();
+      data.birth = `${m[2]}년 ${m[3]}월 ${m[4]}일`;
+      data.calendar = (m[5]||'').trim();
+    }
+  }
+  // Fallback: look for "이름" or just first non-header text
+  if (!data.name) {
+    const nm = lines.find(l => l.match(/^이름[:：]/));
+    if (nm) data.name = nm.replace(/^이름[:：]\s*/,'').trim();
+  }
+
+  // --- 사주 원국 table: find the row of 천간 and 지지
+  let chunLine = lines.find(l => /^천간/.test(l));
+  let jiLine   = lines.find(l => /^지지/.test(l));
+  const extractPillars = (line) => {
+    if (!line) return [];
+    // Remove leading label "천간" or "지지"
+    let s = line.replace(/^천간|^지지/, '').trim();
+    // Extract Chinese characters (GAN for 천간, JI for 지지)
+    const matches = s.match(/[甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥]/g) || [];
+    return matches.slice(0, 4);
+  };
+  const chunChars = extractPillars(chunLine);
+  const jiChars = extractPillars(jiLine);
+  const pkeys = ['year','month','day','hour'];
+  pkeys.forEach((k,i) => {
+    if (chunChars[i] && jiChars[i]) {
+      data.pillars[k] = { gan: chunChars[i], ji: jiChars[i] };
+    }
+  });
+
+  // --- Parse labelled fields
+  const extractValue = (keyRegex) => {
+    const line = lines.find(l => keyRegex.test(l));
+    if (!line) return '';
+    return line.replace(keyRegex, '').replace(/^[:：\s]+/,'').trim();
+  };
+
+  // 일간
+  const ilganRaw = extractValue(/^■?\s*일간/);
+  const ilganMatch = ilganRaw.match(/([甲乙丙丁戊己庚辛壬癸])/);
+  if (ilganMatch) data.ilgan = ilganMatch[1];
+  else if (data.pillars.day) data.ilgan = data.pillars.day.gan;
+
+  // 오행 분포: "목4 화2 토0 금1 수1"
+  const ohRaw = extractValue(/^■?\s*오행\s*분포/);
+  const ohMatches = ohRaw.matchAll(/(목|화|토|금|수)\s*(\d+)/g);
+  for (const m of ohMatches) data.oheng[m[1]] = parseInt(m[2],10);
+
+  // If oheng not in text, compute from pillars
+  if (Object.values(data.oheng).every(v=>v===0) && data.pillars.day) {
+    for (const k of pkeys) {
+      const p = data.pillars[k]; if (!p) continue;
+      if (GAN_INFO[p.gan]) data.oheng[GAN_INFO[p.gan].oh]++;
+      if (JI_INFO[p.ji])   data.oheng[JI_INFO[p.ji].oh]++;
+    }
+  }
+
+  data.singang = extractValue(/^■?\s*신강\/?신약/);
+  data.yongsin = extractValue(/^■?\s*용신/);
+  // The yongsin line could be like "금 / 희신: 토 / 기신: 화"
+  const yongsinLine = extractValue(/^■?\s*용신/);
+  if (yongsinLine) {
+    const yMatch = yongsinLine.match(/^([^\/\s]+)/);
+    if (yMatch) data.yongsin = yMatch[1].trim();
+    const hMatch = yongsinLine.match(/희신\s*[:：]\s*([^\/\s]+)/);
+    if (hMatch) data.heesin = hMatch[1].trim();
+    const kMatch = yongsinLine.match(/기신\s*[:：]\s*([^\/\s]+)/);
+    if (kMatch) data.kisin = kMatch[1].trim();
+  }
+
+  // 12운성: "년:목욕 월:건록 일:절 시:건록"
+  const unseongLine = extractValue(/^■?\s*12운성/);
+  if (unseongLine) {
+    const parts = unseongLine.matchAll(/(년|월|일|시)\s*[:：]\s*([가-힣]+)/g);
+    const map = {'년':'year','월':'month','일':'day','시':'hour'};
+    for (const m of parts) data.unseong[map[m[1]]] = m[2];
+  }
+
+  // 지장간
+  const jjgLine = extractValue(/^■?\s*지장간/);
+  if (jjgLine) {
+    const parts = jjgLine.matchAll(/(년|월|일|시)\s*[:：]\s*([甲乙丙丁戊己庚辛壬癸])/g);
+    const map = {'년':'year','월':'month','일':'day','시':'hour'};
+    for (const m of parts) data.jijanggan[map[m[1]]] = m[2];
+  }
+
+  // 천간 십신 & 지지 십신
+  const parseSipsinRow = (regex, target) => {
+    const line = extractValue(regex);
+    if (!line) return;
+    const parts = line.matchAll(/(년|월|일|시)\s*[:：]\s*([가-힣]+)/g);
+    const map = {'년':'year','월':'month','일':'day','시':'hour'};
+    for (const m of parts) target[map[m[1]]] = m[2];
+  };
+  parseSipsinRow(/^■?\s*천간\s*십신/, data.sipsin_gan);
+  parseSipsinRow(/^■?\s*지지\s*십신/, data.sipsin_ji);
+
+  // 신살
+  const sinsalLine = extractValue(/^■?\s*신살/);
+  if (sinsalLine) {
+    data.sinsal = sinsalLine.split(/[,，、]\s*/).map(s=>s.trim()).filter(Boolean);
+  }
+
+  // 지지 관계
+  data.jiji_rel = extractValue(/^■?\s*지지\s*관계/);
+
+  // 대운/연운/월운 blocks
+  let blockMode = '';
+  for (const line of lines) {
+    if (/^■?\s*대운/.test(line)) { blockMode = 'daewoon'; continue; }
+    if (/^■?\s*연운/.test(line)) { blockMode = 'yeonwoon'; continue; }
+    if (/^■?\s*월운/.test(line)) { blockMode = 'wolun'; continue; }
+    if (/^■/.test(line)) { blockMode = ''; continue; }
+
+    if (blockMode === 'daewoon') {
+      // "5~14세: 乙丑 (겁재, 관대)"
+      const m = line.match(/(\d+)\s*~\s*(\d+)\s*세\s*[:：]\s*([甲乙丙丁戊己庚辛壬癸])([子丑寅卯辰巳午未申酉戌亥])\s*\(([^,，]+)\s*[,，]\s*([^)]+)\)/);
+      if (m) {
+        data.daewoon.push({
+          age_from: +m[1], age_to: +m[2],
+          gan: m[3], ji: m[4],
+          sipsin: m[5].trim(), unseong: m[6].trim()
+        });
+      }
+    } else if (blockMode === 'yeonwoon') {
+      // "2026: 丙午 (식신, 사) ← 올해"
+      const m = line.match(/(\d{4})\s*[:：]\s*([甲乙丙丁戊己庚辛壬癸])([子丑寅卯辰巳午未申酉戌亥])\s*\(([^,，]+)\s*[,，]\s*([^)]+)\)/);
+      if (m) {
+        data.yeonwoon.push({
+          year: +m[1], gan: m[2], ji: m[3],
+          sipsin: m[4].trim(), unseong: m[5].trim(),
+          current: /올해/.test(line)
+        });
+      }
+    } else if (blockMode === 'wolun') {
+      // "1월: 己丑 (정재, 관대)"
+      const m = line.match(/(\d{1,2})\s*월\s*[:：]\s*([甲乙丙丁戊己庚辛壬癸])([子丑寅卯辰巳午未申酉戌亥])\s*\(([^,，]+)\s*[,，]\s*([^)]+)\)/);
+      if (m) {
+        data.wolun[+m[1]] = {
+          gan: m[2], ji: m[3],
+          sipsin: m[4].trim(), unseong: m[5].trim()
+        };
+      }
+    }
+  }
+
+  return data;
+}
+
+/* ---------------- Interpretation helpers ---------------- */
+
+function ohaengOf(gan_or_ji) {
+  if (GAN_INFO[gan_or_ji]) return GAN_INFO[gan_or_ji].oh;
+  if (JI_INFO[gan_or_ji])  return JI_INFO[gan_or_ji].oh;
+  return null;
+}
+
+function monthScore(data, month) {
+  const w = data.wolun[month];
+  if (!w) return { score: 70, reasons: [] };
+  let score = 70;
+  const reasons = [];
+
+  const si = SIPSIN_INFO[w.sipsin];
+  if (si) {
+    // sipsin basic polarity: weighted by yongsin alignment
+    const ganOh = ohaengOf(w.gan);
+    if (ganOh === data.yongsin) { score += 10; reasons.push('용신 방향이라 기본 흐름이 맑아져요'); }
+    else if (ganOh === data.heesin) { score += 6; reasons.push('희신 기운이 도와주는 흐름'); }
+    else if (ganOh === data.kisin) { score -= 10; reasons.push('기신 방향이라 압이 생겨요'); }
+  }
+  const us = UNSEONG_INFO[w.unseong];
+  if (us) { score += us.score; reasons.push(`12운성 "${w.unseong}" — ${us.mood}`); }
+
+  // Sipsin inherent tilt (a mild baseline)
+  const baselineSipsin = {
+    '비견': 0, '겁재': -3, '식신': +4, '상관': -1,
+    '편재': +3, '정재': +5, '편관': -4, '정관': +4,
+    '편인': -2, '정인': +5
+  };
+  if (baselineSipsin[w.sipsin] !== undefined) score += baselineSipsin[w.sipsin];
+
+  // Clamp
+  if (score > 96) score = 96;
+  if (score < 40) score = 40;
+  return { score, reasons };
+}
+
+function monthSubTags(data, month) {
+  const w = data.wolun[month]; if (!w) return [];
+  const si = SIPSIN_INFO[w.sipsin]; if (!si) return [];
+  const aff = si.affinity;
+  const labels = { love:'애정운', money:'재물운', study:'학업운', rel:'관계운', work:'업무운', health:'건강운' };
+  const res = [];
+  for (const k in aff) {
+    if (aff[k] >= 2) res.push({ t: labels[k], cls:'good', text:`${labels[k]} 좋음` });
+    else if (aff[k] <= -2) res.push({ t: labels[k], cls:'bad', text:`${labels[k]} 주의` });
+    else if (aff[k] === 1) res.push({ t: labels[k], cls:'good', text:`${labels[k]} 무난` });
+    else if (aff[k] === -1) res.push({ t: labels[k], cls:'warn', text:`${labels[k]} 체크` });
+  }
+  // top 2
+  return res.slice(0,2);
+}
+
+function sajuGanjiRelWithYear(data, yearJi) {
+  // Check relationships between the year-ji of 세운 and original 지지
+  const pillars = ['year','month','day','hour'].map(k => data.pillars[k]?.ji).filter(Boolean);
+  const relations = [];
+  for (const p of pillars) {
+    if (JIJI_REL.chung[p] === yearJi) relations.push({type:'충', with:p});
+    if (JIJI_REL.hap6[p] === yearJi)  relations.push({type:'합', with:p});
+  }
+  // 삼형 check
+  for (const group of JIJI_REL.hyeong_groups) {
+    if (group.includes(yearJi)) {
+      for (const p of pillars) if (group.includes(p) && p !== yearJi) relations.push({type:'형', with:p});
+    }
+  }
+  return relations;
+}
+
+function scoreForSubFortune(data, currentWoon) {
+  // Current woon = the 연운 entry for target year
+  const si = SIPSIN_INFO[currentWoon.sipsin];
+  if (!si) return null;
+  const base = 70;
+  const aff = si.affinity;
+  const us = UNSEONG_INFO[currentWoon.unseong] || { score: 0 };
+  const mk = (polarity) => {
+    let s = base + polarity*6 + us.score;
+    const ganOh = ohaengOf(currentWoon.gan);
+    if (ganOh === data.yongsin) s += 4;
+    else if (ganOh === data.kisin) s -= 4;
+    if (s > 95) s = 95; if (s < 42) s = 42;
+    return Math.round(s);
+  };
+  return {
+    love:   mk(aff.love),
+    money:  mk(aff.money),
+    study:  mk(aff.study),
+    rel:    mk(aff.rel),
+    work:   mk(aff.work),
+    health: mk(aff.health),
+  };
+}
+
+/* ---------------- Rendering ---------------- */
+
+const $ = (sel) => document.querySelector(sel);
+
+function ganHtml(g){ if(!g) return ''; return `<span class="han ${GAN_INFO[g]?.cls||''}">${g}</span>`; }
+function jiHtml(j){ if(!j) return ''; return `<span class="han ${JI_INFO[j]?.cls||''}">${j}</span>`; }
+
+function renderPillars(data) {
+  const keys = ['year','month','day','hour'];
+  const labels = { year:'년주', month:'월주', day:'일주(나)', hour:'시주' };
+  let html = '<div class="pillars">';
+  for (const k of keys) {
+    const p = data.pillars[k];
+    if (!p) { html += `<div class="pillar"><div class="pillar-label">${labels[k]}</div><div style="opacity:.5">—</div></div>`; continue; }
+    const g = GAN_INFO[p.gan], j = JI_INFO[p.ji];
+    html += `
+      <div class="pillar ${k==='day'?'is-day':''}">
+        <div class="pillar-label">${labels[k]}</div>
+        <span class="pillar-chun ${g?.cls||''}">${p.gan}</span>
+        <div class="pillar-han">${g?.ko||''} · ${g?.oh||''}</div>
+        <span class="pillar-ji ${j?.cls||''}">${p.ji}</span>
+        <div class="pillar-han">${j?.ko||''} · ${j?.oh||''}</div>
+      </div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderElements(data) {
+  let html = '<div class="elements">';
+  for (const o of OHAENG) {
+    const cnt = data.oheng[o] || 0;
+    html += `<div class="elem ${OHAENG_CLASS[o]}"><div class="el-name">${OHAENG_EMOJI[o]} ${o}</div><div class="el-count">${cnt}</div></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderToc() {
+  const toc = [
+    { id:'sec-total', emoji:'📚', label:'2026년 총운' },
+    { id:'sec-flow', emoji:'🌊', label:'2026년 병오년 흐름', sub:true },
+    { id:'sec-origin', emoji:'🙋', label:'타고난 내 사주팔자' },
+    { id:'sec-peers', emoji:'😵', label:'또래에 비해 흥/망하는 운세' },
+    { id:'sec-caution', emoji:'📕', label:'2026년 주의사항' },
+    { id:'sec-sal', emoji:'💥', label:'올해의 살풀이', sub:true },
+    { id:'sec-hapchung', emoji:'❤️‍🔥', label:'올해 들어오는 합과 충', sub:true },
+    { id:'sec-detail', emoji:'📓', label:'2026년 세부운' },
+    { id:'sec-love', emoji:'💕', label:'애정운', sub:true },
+    { id:'sec-money', emoji:'💰', label:'재물운', sub:true },
+    { id:'sec-study', emoji:'🎓', label:'학업/성적운', sub:true },
+    { id:'sec-rel', emoji:'🤝', label:'대인관계운', sub:true },
+    { id:'sec-work', emoji:'💼', label:'업무운', sub:true },
+    { id:'sec-health', emoji:'🧘', label:'건강운', sub:true },
+    { id:'sec-daewoon', emoji:'🌅', label:'2026 대운 풀이' },
+    { id:'sec-samjae', emoji:'💥', label:'2026 삼재 풀이' },
+    { id:'sec-months', emoji:'📘', label:'2026년 월별 흐름' },
+    { id:'sec-star', emoji:'⭐', label:'2026년에 들어오는 십이운성' }
+  ];
+  const ul = $('#toc');
+  ul.innerHTML = toc.map(t => `
+    <li class="${t.sub?'sub':''}"><a href="#${t.id}"><span class="toc-emoji">${t.emoji}</span>${t.label}</a></li>
+  `).join('');
+}
+
+/* ---------------- Main interpret + render ---------------- */
+
+let CURRENT_DATA = null;
+
+function interpret(data, targetYear) {
+  // Find current year's yeonwoon
+  let currentWoon = data.yeonwoon.find(y => y.year === targetYear);
+  if (!currentWoon) currentWoon = data.yeonwoon.find(y => y.current);
+  if (!currentWoon) currentWoon = data.yeonwoon[0];
+  return currentWoon;
+}
+
+function renderAll(data, targetYear) {
+  // Header
+  const currentWoon = interpret(data, targetYear) || { year: targetYear, gan:'?', ji:'?', sipsin:'—', unseong:'—' };
+  const yearGanjiKo = (GAN_INFO[currentWoon.gan]?.ko || '') + (JI_INFO[currentWoon.ji]?.ko || '') + '년';
+  $('#rh-name').textContent = data.name || '당신';
+  $('#rh-year').textContent = targetYear;
+  $('#rh-yeargan').textContent = yearGanjiKo + ' · ' + currentWoon.gan + currentWoon.ji;
+  const il = GAN_INFO[data.ilgan] || {};
+  $('#rh-ilgan-ko').textContent = (il.ko||'') + (il.oh||'');
+  $('#rh-ilgan-han').textContent = data.ilgan || '—';
+
+  renderToc();
+
+  const main = $('#main-content');
+  main.innerHTML = '';
+
+  /* ====== 총운 ====== */
+  main.appendChild(sectionTotal(data, currentWoon, targetYear));
+  /* ====== 원국 ====== */
+  main.appendChild(sectionOrigin(data));
+  /* ====== 또래 비교 ====== */
+  main.appendChild(sectionPeers(data, currentWoon, targetYear));
+  /* ====== 주의사항 ====== */
+  main.appendChild(sectionCaution(data, currentWoon, targetYear));
+  /* ====== 세부운 ====== */
+  main.appendChild(sectionDetail(data, currentWoon, targetYear));
+  /* ====== 대운 ====== */
+  main.appendChild(sectionDaewoon(data, targetYear));
+  /* ====== 삼재 ====== */
+  main.appendChild(sectionSamjae(data, targetYear));
+  /* ====== 월별 ====== */
+  main.appendChild(sectionMonths(data, targetYear));
+  /* ====== 십이운성 ====== */
+  main.appendChild(sectionStar(data, currentWoon, targetYear));
+  /* ====== AI 심화 해석 (선택) ====== */
+  main.appendChild(sectionAI(data, currentWoon, targetYear));
+
+  $('#footer-note').textContent = '※ 본 풀이는 만세력 데이터를 바탕으로 한 오락·참고용 해석입니다. 실제 삶의 선택은 본인의 의지와 상황에 달려 있어요.';
+}
+
+/* helper */
+function makeSection(id, emoji, title, sub, contentHtml) {
+  const el = document.createElement('section');
+  el.className = 'block';
+  el.id = id;
+  el.innerHTML = `
+    <h2><span class="emoji">${emoji}</span>${title}</h2>
+    ${sub?`<p class="section-sub">${sub}</p>`:''}
+    ${contentHtml}
+  `;
+  return el;
+}
+
+/* ========== 총운 ========== */
+function sectionTotal(data, cw, year) {
+  const sipsin = cw.sipsin;
+  const si = SIPSIN_INFO[sipsin] || { positive:'', negative:'', theme:'' };
+  const us = UNSEONG_INFO[cw.unseong] || { mood:'', note:'', score:0 };
+  const yearOh = ohaengOf(cw.gan);
+  const ilganOh = GAN_INFO[data.ilgan]?.oh;
+
+  let bias = '중립적';
+  let biasText = '';
+  if (yearOh === data.yongsin) { bias = '좋은 해'; biasText = `용신(${data.yongsin})과 방향이 맞아 흐름이 원활해요.`; }
+  else if (yearOh === data.heesin) { bias = '괜찮은 해'; biasText = `희신(${data.heesin}) 방향이라 보조가 받쳐주는 해.`; }
+  else if (yearOh === data.kisin) { bias = '조심할 해'; biasText = `기신(${data.kisin}) 방향이라 평소보다 압이 생겨요. 무리한 확장보다 내실이 답.`; }
+  else { biasText = `용·희·기에서 한 발 비켜난 해. 준비해 둔 만큼 결과가 돌아와요.`; }
+
+  const yearKo = (GAN_INFO[cw.gan]?.ko||'') + (JI_INFO[cw.ji]?.ko||'');
+
+  const totalHtml = `
+    <div class="panel" id="sec-total-panel">
+      <p><strong class="serif">${year}년은 ${yearKo}년, ${cw.gan}${cw.ji} 해예요.</strong> 당신의 일간 <span class="han">${data.ilgan}</span>(${GAN_INFO[data.ilgan]?.ko||''}·${ilganOh})을 기준으로 볼 때 올해는 <strong>${sipsin}</strong>의 해이고, 12운성은 <strong>${cw.unseong}</strong>에 해당해요.</p>
+      <p><strong>한 줄 톤: ${bias}.</strong> ${biasText}</p>
+      <div class="tags" style="margin-top:10px;">
+        <span class="tag">${sipsin} · ${si.theme}</span>
+        <span class="tag">12운성 ${cw.unseong} · ${us.mood}</span>
+        ${us.score>=5?'<span class="tag good">기운 상승</span>':''}
+        ${us.score<=-5?'<span class="tag bad">기운 휴식기</span>':''}
+      </div>
+    </div>
+
+    <section id="sec-flow" class="block" style="margin-top:16px;">
+      <h2><span class="emoji">🌊</span>${year}년 ${yearKo}년 흐름</h2>
+      <div class="panel">
+        <p>${yearKo}년은 ${cw.gan}(${GAN_INFO[cw.gan]?.desc||''})과 ${cw.ji}(${JI_INFO[cw.ji]?.desc||''})이 만난 해예요. ${describeYearTone(cw)}</p>
+        <p><strong>좋은 흐름</strong> — ${si.positive}</p>
+        <p><strong>주의 흐름</strong> — ${si.negative}</p>
+        <p><strong>12운성 ${cw.unseong}</strong> — ${us.note}</p>
+        ${yearOh===data.kisin ? `<p style="margin-top:10px; padding:10px 12px; background:#f9efe6; border-radius:10px; font-size:14px;">💡 <strong>핵심 팁</strong>: 올해는 일을 확장하기보다 용신(${data.yongsin})·희신(${data.heesin}) 기운을 끌어오는 활동이 유리해요. ${yongsinAdvice(data)}</p>` : ''}
+      </div>
+    </section>
+  `;
+  return makeSection('sec-total','📚',year+'년 총운','', totalHtml);
+}
+
+function describeYearTone(cw) {
+  const g = cw.gan, j = cw.ji;
+  const gOh = GAN_INFO[g]?.oh, jOh = JI_INFO[j]?.oh;
+  if (gOh === jOh) return `천간과 지지가 같은 ${gOh} 기운으로 몰려 있어 한쪽으로 강하게 쏠리는 해예요. 그 기운을 잘 타면 큰 성과가, 어긋나면 부담이 커져요.`;
+  return `천간은 ${gOh}, 지지는 ${jOh}로 위아래 기운이 달라 겉과 속이 다르게 움직이는 해예요. 유연한 조율이 필요해요.`;
+}
+
+function yongsinAdvice(data) {
+  const map = {
+    '목':'동쪽·초록 계열 색·나무/책/식물을 가까이 두고, 새벽~오전 시간대를 활용하면 좋아요.',
+    '화':'남쪽·붉은 계열 색·밝고 활기찬 공간·사람이 모이는 자리를 활용하세요.',
+    '토':'중앙·황색/베이지 색·꾸준한 루틴·부동산/신뢰가 쌓이는 일이 유리해요.',
+    '금':'서쪽·흰색/골드·결단과 정리·쇠/보석/전자기기·규칙적인 훈련이 도움돼요.',
+    '수':'북쪽·검정/감색·지혜와 공부·물 가까이·밤 시간 활용이 좋아요.',
+  };
+  return map[data.yongsin] || '';
+}
+
+/* ========== 원국 ========== */
+function sectionOrigin(data) {
+  const il = ILGAN_TRAITS[data.ilgan] || {};
+  const ilInfo = GAN_INFO[data.ilgan] || {};
+  const html = `
+    ${renderPillars(data)}
+
+    <div class="panel">
+      <h3 style="margin:0 0 8px; font-family:'Noto Serif KR', serif;">일간 ${data.ilgan}(${ilInfo.ko||''}·${il.one||''})</h3>
+      <p>${il.persona||''}</p>
+      <div class="info-row"><span class="k">강점</span><span class="v">${il.strength||'—'}</span></div>
+      <div class="info-row"><span class="k">조심할 점</span><span class="v">${il.caution||'—'}</span></div>
+      <div class="info-row"><span class="k">생년월일</span><span class="v">${data.birth||'—'} ${data.calendar?'('+data.calendar+')':''}</span></div>
+      <div class="info-row"><span class="k">신강/신약</span><span class="v">${data.singang||'—'}</span></div>
+      <div class="info-row"><span class="k">용신 / 희신 / 기신</span><span class="v">${data.yongsin||'—'} / ${data.heesin||'—'} / ${data.kisin||'—'}</span></div>
+    </div>
+
+    <div class="panel" style="margin-top:12px;">
+      <h3 style="margin:0 0 8px; font-family:'Noto Serif KR', serif;">오행 분포</h3>
+      ${renderElements(data)}
+      <p style="font-size:14px; color:var(--ink-soft); margin-top:6px;">${ohengNarrative(data)}</p>
+    </div>
+
+    ${data.sinsal.length>0 ? `
+    <div class="panel" style="margin-top:12px;">
+      <h3 style="margin:0 0 8px; font-family:'Noto Serif KR', serif;">타고난 신살</h3>
+      <div style="display:grid; gap:8px;">
+        ${data.sinsal.map(s => {
+          const info = SINSAL_INFO[s] || { emoji:'✨', note:'—' };
+          return `<div style="display:grid; grid-template-columns:auto 1fr; gap:10px; padding:8px 10px; background:var(--paper); border-radius:10px; border:1px solid var(--line);">
+            <span style="font-size:20px;">${info.emoji}</span>
+            <div><strong>${s}</strong> <span style="font-size:13px; color:var(--ink-soft); display:block; margin-top:2px;">${info.note}</span></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : ''}
+  `;
+  return makeSection('sec-origin','🙋','타고난 내 사주팔자','일간과 원국에서 드러난 본연의 결', html);
+}
+
+function ohengNarrative(data) {
+  const entries = Object.entries(data.oheng).sort((a,b)=>b[1]-a[1]);
+  const max = entries[0], min = entries[entries.length-1];
+  const missing = entries.filter(([k,v])=>v===0).map(([k])=>k);
+  let txt = `${max[0]}(${max[1]}) 기운이 가장 강하고, `;
+  if (missing.length) {
+    txt += `${missing.join('·')} 기운이 비어 있어요. `;
+    txt += `비어 있는 오행은 대운·세운에서 채워질 때 인생 변곡점이 돼요.`;
+  } else {
+    txt += `${min[0]}(${min[1]}) 기운이 가장 약해요. 약한 기운을 보완하는 환경이 좋아요.`;
+  }
+  return txt;
+}
+
+/* ========== 또래 비교 ========== */
+function sectionPeers(data, cw, year) {
+  const us = UNSEONG_INFO[cw.unseong] || { score:0 };
+  const si = SIPSIN_INFO[cw.sipsin] || {};
+  const yearOh = ohaengOf(cw.gan);
+  let peerScore = 50 + us.score*2;
+  if (yearOh === data.yongsin) peerScore += 15;
+  else if (yearOh === data.heesin) peerScore += 8;
+  else if (yearOh === data.kisin) peerScore -= 15;
+
+  const baselineSipsin = { '비견':0, '겁재':-5, '식신':+8, '상관':-3, '편재':+6, '정재':+10, '편관':-8, '정관':+8, '편인':-5, '정인':+10 };
+  peerScore += baselineSipsin[cw.sipsin] || 0;
+  if (peerScore > 95) peerScore = 95;
+  if (peerScore < 15) peerScore = 15;
+
+  let label = '평균 수준', tone = 'tag';
+  if (peerScore >= 80) { label = '또래보다 크게 흥하는 해 🚀'; tone = 'tag good'; }
+  else if (peerScore >= 60) { label = '또래보다 유리한 해 😊'; tone = 'tag good'; }
+  else if (peerScore >= 40) { label = '또래와 비슷한 해'; tone = 'tag'; }
+  else if (peerScore >= 25) { label = '또래보다 다소 불리한 해 😐'; tone = 'tag warn'; }
+  else { label = '또래보다 어려운 해 ⚠️'; tone = 'tag bad'; }
+
+  const html = `
+    <div class="panel" style="text-align:center;">
+      <div style="font-size:13px; color:var(--ink-soft); letter-spacing:.08em;">또래 대비 ${year}년 운세 지수</div>
+      <div style="font-family:'Noto Serif KR',serif; font-weight:900; font-size:64px; line-height:1;">${peerScore}<small style="font-size:20px; font-weight:500; color:var(--ink-soft);">/100</small></div>
+      <span class="${tone}" style="margin-top:8px; display:inline-block;">${label}</span>
+    </div>
+    <div class="trend-box">
+      <div class="trend up">
+        <h4>😊 또래보다 흥하는 면</h4>
+        <p>${si.positive || '—'}</p>
+      </div>
+      <div class="trend down">
+        <h4>😵 또래보다 까다로운 면</h4>
+        <p>${si.negative || '—'}</p>
+      </div>
+    </div>
+  `;
+  return makeSection('sec-peers','😵','또래에 비해 흥/망하는 운세','같은 또래 대비 내 사주에 작용하는 이번 해의 상대적 흐름', html);
+}
+
+/* ========== 주의사항 ========== */
+function sectionCaution(data, cw, year) {
+  const rels = sajuGanjiRelWithYear(data, cw.ji);
+  const pillarLabel = { year:'년주', month:'월주', day:'일주(나)', hour:'시주' };
+  const pillarJiToKey = {};
+  for (const k of ['year','month','day','hour']) {
+    const p = data.pillars[k]; if (p) pillarJiToKey[p.ji] = k;
+  }
+
+  const salList = [];
+  // 역마살 if 세운이 寅申巳亥
+  if (['寅','申','巳','亥'].includes(cw.ji)) salList.push({name:'역마살', note:'올해는 이동·출장·환경 변화가 잦아져요. 장거리 움직임 시 건강 관리 필수.'});
+  if (['子','午','卯','酉'].includes(cw.ji)) salList.push({name:'도화살 성분', note:'인기·매력이 올라가는 해. 이성 문제·구설수 주의.'});
+  if (['辰','戌','丑','未'].includes(cw.ji)) salList.push({name:'화개살 성분', note:'예술·종교·학문에 끌리는 해. 자칫 고독감이 깊어질 수 있어요.'});
+
+  // Original 사주의 신살이 세운과 동주하면 자극받음
+  const activated = data.sinsal.filter(s => ['역마살','지살','재살','현침살','급각살','낙정관살','백호살','양인살'].includes(s));
+
+  const html = `
+    <div class="panel">
+      <p><strong>${year}년 주의 키워드:</strong> ${(SIPSIN_INFO[cw.sipsin]?.keywords || []).join(' · ') || '—'}</p>
+      ${data.jiji_rel ? `<p style="font-size:14px; color:var(--ink-soft);">타고난 지지 관계: ${data.jiji_rel}</p>`:''}
+    </div>
+
+    <section id="sec-sal" class="block" style="margin-top:16px;">
+      <h2><span class="emoji">💥</span>올해의 살풀이</h2>
+      <div class="panel">
+        ${salList.length ? salList.map(s=>`<p><strong>${s.name}</strong> — ${s.note}</p>`).join('') : '<p>특별히 두드러진 살은 없어요.</p>'}
+        ${activated.length ? `<p style="margin-top:10px;"><strong>원국의 살이 올해 자극받아요:</strong> ${activated.join(', ')}<br><span style="font-size:13px; color:var(--ink-soft);">타고난 살이 세운과 만나 예전보다 더 또렷이 드러나는 해예요. 과격한 활동·돌발상황에 평소보다 주의.</span></p>` : ''}
+      </div>
+    </section>
+
+    <section id="sec-hapchung" class="block" style="margin-top:16px;">
+      <h2><span class="emoji">❤️‍🔥</span>올해 들어오는 합과 충</h2>
+      <div class="panel">
+        ${rels.length ? rels.map(r => {
+          const key = pillarJiToKey[r.with] || '';
+          const pillar = pillarLabel[key] || '';
+          return `<p><strong>${r.type}</strong> · 올해 <span class="han">${cw.ji}</span>가 내 ${pillar} <span class="han">${r.with}</span>와(과) ${r.type}을/를 이뤄요. ${hapChungNote(r, pillar)}</p>`;
+        }).join('') : '<p>올해 지지와 내 원국 사이 두드러진 합·충은 없어요. 흐름에 큰 변곡보단 꾸준함이 우세한 해.</p>'}
+      </div>
+    </section>
+  `;
+  return makeSection('sec-caution','📕',year+'년 주의사항','올해 주의할 기운과 원국과의 합/충 관계', html);
+}
+
+function hapChungNote(r, pillar) {
+  if (r.type === '충') {
+    const pillarNote = {
+      '년주':'뿌리(조상·큰 환경)가 흔들려 근본 환경 변화가 생길 수 있어요.',
+      '월주':'일·환경·부모/형제 관계에 변동이 생기기 쉬워요.',
+      '일주(나)':'내 몸과 배우자 자리의 충 — 건강·부부/배우자 이슈가 커지는 해.',
+      '시주':'자녀·말년·결과물에 변화가 생기거나 새 프로젝트가 시작돼요.'
+    };
+    return '충은 깨짐이자 이동이에요. ' + (pillarNote[pillar]||'');
+  }
+  if (r.type === '합') {
+    return '합은 만남과 결합이에요. 인연·협업·계약이 맺어지기 좋은 해.';
+  }
+  if (r.type === '형') {
+    return '형은 다툼·수술·관재 같은 파열이에요. 말과 행동 조심하고 서류·계약 꼼꼼히.';
+  }
+  return '';
+}
+
+/* ========== 세부운 ========== */
+function sectionDetail(data, cw, year) {
+  const scores = scoreForSubFortune(data, cw);
+  const si = SIPSIN_INFO[cw.sipsin] || {};
+  const il = GAN_INFO[data.ilgan]?.oh;
+
+  const cats = [
+    { id:'sec-love', emoji:'💕', label:'애정운', score:scores?.love, text:narrativeLove(data,cw) },
+    { id:'sec-money',emoji:'💰', label:'재물운', score:scores?.money, text:narrativeMoney(data,cw) },
+    { id:'sec-study',emoji:'🎓', label:'학업/성적운', score:scores?.study, text:narrativeStudy(data,cw) },
+    { id:'sec-rel',  emoji:'🤝', label:'대인관계운', score:scores?.rel, text:narrativeRel(data,cw) },
+    { id:'sec-work', emoji:'💼', label:'업무운', score:scores?.work, text:narrativeWork(data,cw) },
+    { id:'sec-health',emoji:'🧘',label:'건강운', score:scores?.health, text:narrativeHealth(data,cw) },
+  ];
+
+  let html = `<div class="sub-fortunes">`;
+  for (const c of cats) {
+    html += `
+      <section class="sf-card" id="${c.id}">
+        <div class="sf-head">
+          <div class="sf-title"><span class="emoji">${c.emoji}</span>${c.label}</div>
+          <div class="sf-score">${c.score||'—'}<small style="font-size:12px; color:var(--ink-soft);">/100</small></div>
+        </div>
+        <div class="sf-body">${c.text}</div>
+      </section>`;
+  }
+  html += `</div>`;
+  return makeSection('sec-detail','📓',year+'년 세부운','여섯 개 영역에서 올해 어떻게 흘러갈지', html);
+}
+
+function narrativeLove(data, cw) {
+  const sipsin = cw.sipsin;
+  const map = {
+    '정재':'안정적인 인연이 들어오는 해. 싱글이라면 교제→결혼까지 진지하게 이어질 수 있고, 커플은 신뢰가 깊어져요.',
+    '편재':'다가오는 인연이 많고 매력이 올라가는 해. 다만 한꺼번에 흔들리기 쉬우니 선택에 신중.',
+    '정관':'든든한 인연이 찾아와요. 남성성·제도권 안의 관계가 도드라지는 해.',
+    '편관':'강렬한 끌림이나 자극적인 인연이 생길 수 있어요. 빠르게 타오르면 빠르게 식을 수 있으니 호흡 조절.',
+    '식신':'표현력이 좋아지고 사랑의 언어가 풍성해지는 해. 연애운이 살아나요.',
+    '상관':'매력과 재능이 돋보이나, 말로 인한 오해·다툼이 생길 수 있어요.',
+    '정인':'어른·선배의 소개로 만나는 인연이 길할 수 있어요. 정서적 안정이 관계의 씨앗.',
+    '편인':'사랑보다 사유가 앞서는 해. 외로움이 짙어질 수 있으니 스스로를 돌보는 시간이 필요.',
+    '비견':'친구 같은 인연, 동료 같은 사랑이 맺어지는 해. 경쟁자가 생기면 감정싸움 주의.',
+    '겁재':'삼각관계·오해·빼앗김의 위험이 있는 해. 즉흥적 감정에 휘둘리지 않도록.'
+  };
+  return map[sipsin] || '—';
+}
+function narrativeMoney(data, cw) {
+  const s = cw.sipsin;
+  const map = {
+    '정재':'꾸준한 수입·저축·결실의 해. 부동산·안정적 투자에 좋아요.',
+    '편재':'큰돈이 움직이는 해. 사업·투자·부업의 기회가 크지만 그만큼 리스크도 커요.',
+    '정관':'직장·지위를 통한 재물이 들어와요. 급여·승진이 재물운의 주된 경로.',
+    '편관':'압박 속에서 얻는 돈. 무리한 확장·레버리지는 금물.',
+    '식신':'편안하게 들어오는 재물. 일과 즐거움이 돈이 되는 해.',
+    '상관':'재능을 돈으로 바꾸는 해. 다만 구설·분쟁으로 새기도 해요.',
+    '정인':'문서·자격·부동산 관련 재물. 큰돈보다 안정재.',
+    '편인':'수입 경로가 좁아지거나 현업 이외의 영역에 관심이 가요. 생활비 관리가 중요한 해.',
+    '비견':'경쟁자가 늘어나 수익이 나뉠 수 있음. 공동사업·동업은 조심.',
+    '겁재':'재물이 새기 쉬운 해 — 보증·투자 손실·사기 주의.'
+  };
+  return map[s] || '—';
+}
+function narrativeStudy(data, cw) {
+  const s = cw.sipsin;
+  const map = {
+    '정인':'가장 좋은 학업운. 자격·시험·합격에 크게 유리해요.',
+    '편인':'특수 분야·전문학문·자격증 공부에 깊이 파고드는 해.',
+    '식신':'표현·창작·발표·에세이에 강해요. 자기 재능을 드러내는 공부가 잘 돼요.',
+    '상관':'비판적 사고와 재능은 좋으나, 한 곳에 진득이 앉아 있기가 어려워요.',
+    '정관':'제도권 시험·학위·취업시험에 유리.',
+    '편관':'압박 속 집중. 단기 벼락치기 시험에 강한 해.',
+    '비견':'친구·스터디 메이트와 함께 하는 공부가 좋아요.',
+    '겁재':'욕심만큼 결과가 따라오지 않을 수 있어요. 경쟁에 휘둘리지 말 것.',
+    '정재':'차분한 반복학습에 강한 해. 성적이 안정적으로 오름.',
+    '편재':'돌아다니며 배우는 경험 학습에 유리.'
+  };
+  return map[s] || '—';
+}
+function narrativeRel(data, cw) {
+  const s = cw.sipsin;
+  const map = {
+    '비견':'친구·동료·형제 인연이 두터워지는 해. 뜻 맞는 사람끼리 뭉쳐요.',
+    '겁재':'인연 안팎의 경쟁·다툼·분쟁이 늘어요. 보증·동업 금물.',
+    '식신':'사람들과의 만남이 즐거워지고 모임이 많은 해.',
+    '상관':'말 한 마디로 사람을 얻거나 잃는 해. 구설 주의.',
+    '편재':'다양한 사람과의 네트워킹이 확장되는 해.',
+    '정재':'믿음직한 사람들과의 관계가 더 단단해져요.',
+    '정관':'윗사람·조직과의 관계가 길해요. 결혼·공적 관계에 유리.',
+    '편관':'권위 있는 사람과의 긴장관계가 생길 수 있어요.',
+    '정인':'어른·스승·윗사람의 도움이 큰 해.',
+    '편인':'사람과 한 걸음 떨어져 홀로 있고 싶어지는 해.'
+  };
+  return map[s] || '—';
+}
+function narrativeWork(data, cw) {
+  const s = cw.sipsin;
+  const map = {
+    '정관':'승진·영전·합격·공직 등 제도권에서의 성취가 도드라져요.',
+    '편관':'큰 책임이 주어지는 해. 과로·스트레스 주의하면서 큰 무대에 올라요.',
+    '정재':'맡은 일에서 꾸준한 결실. 실적·평판이 오르는 해.',
+    '편재':'사업·영업·투자·새 시장 개척에 길한 해.',
+    '식신':'재능을 발휘하기 좋으나 관(조직)과 부딪힐 수 있어요.',
+    '상관':'창의·기획·콘텐츠는 폭발하나, 직장에서는 구설·마찰 주의.',
+    '정인':'문서·자격·보고서가 빛나는 해. 학문계·공공 분야 유리.',
+    '편인':'현업의 매너리즘. 전문기술·자격 준비에 집중.',
+    '비견':'협업·팀워크가 빛나는 해. 동료와 함께 성장.',
+    '겁재':'동업·경쟁·이직에 리스크가 큼. 성급한 결정은 금물.'
+  };
+  return map[s] || '—';
+}
+function narrativeHealth(data, cw) {
+  const us = UNSEONG_INFO[cw.unseong];
+  const sipsin = cw.sipsin;
+  let base = '';
+  if (us && us.score <= -5) base = '12운성이 기운이 약한 단계에 접어들어 체력·면역이 저하되기 쉬워요. 규칙적인 수면과 식사가 어느 해보다 중요해요. ';
+  else if (us && us.score >= 5) base = '기운이 충만한 해. 다만 넘치는 에너지를 무리하게 쓰면 금세 소진되니 완급 조절. ';
+  const risk = {
+    '편관':'과로·스트레스성 질환·수술수 주의.',
+    '상관':'말·호흡기·편도·목 관련 주의.',
+    '겁재':'예기치 않은 사고·부상·낭비 주의.',
+    '편인':'우울감·불면·소화기 주의.',
+    '편재':'음주·과로·이성 문제에 의한 체력 소모 주의.',
+    '정인':'보양의 해. 푹 쉬고 회복하기 좋음.',
+    '식신':'먹을 복·여유. 다만 체중·당뇨 관리.',
+    '정관':'규칙적 리듬이 건강의 열쇠.',
+    '정재':'안정적 관리가 결실로. 건강검진 길.',
+    '비견':'평이하게 무난하나 번아웃은 조심.'
+  }[sipsin] || '';
+  return base + risk;
+}
+
+/* ========== 대운 ========== */
+function sectionDaewoon(data, year) {
+  // We'd ideally find the current 대운 by birth-year + age; but we don't have birth year parsed as int robustly.
+  // Fallback: match by age range heuristically — if birth year parsed, compute age.
+  const birthYear = (data.birth.match(/(\d{4})/)||[])[1];
+  let currentAge = null;
+  if (birthYear) currentAge = year - parseInt(birthYear,10);
+
+  let rows = '';
+  let currentRowHtml = '';
+  for (const d of data.daewoon) {
+    const isCurrent = currentAge !== null && currentAge >= d.age_from && currentAge <= d.age_to;
+    const row = `
+      <div class="dw-row ${isCurrent?'current':''}">
+        <div class="dw-age">${d.age_from}~${d.age_to}세</div>
+        <div class="dw-gan">${d.gan}${d.ji}</div>
+        <div class="dw-meta">${d.sipsin} · ${d.unseong}</div>
+        <div style="font-size:12px; color:inherit; opacity:.6;">${isCurrent?'지금':''}</div>
+      </div>`;
+    rows += row;
+    if (isCurrent) {
+      const si = SIPSIN_INFO[d.sipsin] || {};
+      const us = UNSEONG_INFO[d.unseong] || {};
+      currentRowHtml = `
+        <div class="panel" style="margin-bottom:12px;">
+          <p><strong>지금의 대운은 ${d.gan}${d.ji} · ${d.sipsin} · ${d.unseong}입니다.</strong></p>
+          <p>${si.positive||''}</p>
+          <p style="color:var(--ink-soft); font-size:14px;">${us.note||''}</p>
+        </div>`;
+    }
+  }
+
+  const html = `
+    ${currentRowHtml}
+    <div class="daewoon-list">${rows || '<p>대운 정보가 없어요.</p>'}</div>
+  `;
+  return makeSection('sec-daewoon','🌅',year+' 대운 풀이','10년 단위로 흐르는 인생의 큰 결',html);
+}
+
+/* ========== 삼재 ========== */
+function sectionSamjae(data, year) {
+  const samjaeGroups = {
+    '申子辰': ['寅','卯','辰'],
+    '亥卯未': ['巳','午','未'],
+    '寅午戌': ['申','酉','戌'],
+    '巳酉丑': ['亥','子','丑']
+  };
+  const yearJi = data.yeonwoon.find(y=>y.year===year)?.ji || '';
+  const birthYearJi = data.pillars.year?.ji || '';
+  let groupKey = '';
+  for (const k in samjaeGroups) {
+    if (k.includes(birthYearJi)) { groupKey = k; break; }
+  }
+  let status = '해당 없음';
+  let detail = '';
+  if (groupKey && yearJi) {
+    const group = samjaeGroups[groupKey];
+    const idx = group.indexOf(yearJi);
+    if (idx === 0) { status = '들삼재 (1년차)'; detail = '삼재가 시작되는 해예요. 새로운 큰 변화보다는 기존의 것을 단단히 다지는 것이 좋아요.'; }
+    else if (idx === 1) { status = '눌삼재 (2년차)'; detail = '삼재의 한가운데. 관성에 기대되 경솔한 결정은 금물. 한 해를 차분히 보내세요.'; }
+    else if (idx === 2) { status = '날삼재 (3년차)'; detail = '삼재를 털고 나오는 해. 마무리와 정리에 집중하면 내년부터 기운이 다시 살아나요.'; }
+    else { status = '삼재 아님'; detail = `${year}년은 삼재 구간에 들어 있지 않아요. 자유롭게 펼치기 좋은 해.`; }
+  }
+  const html = `
+    <div class="panel">
+      <h3 style="margin:0 0 8px; font-family:'Noto Serif KR',serif;">${year}년 삼재: ${status}</h3>
+      <p>${detail}</p>
+      <p style="font-size:13px; color:var(--ink-soft);">※ 삼재는 12년 주기 중 3년간 따라오는 '쉬어가는 기운'이에요. 지나치게 겁낼 필요는 없지만, 무리한 확장·고위험 투자·인생의 큰 결정은 한 박자 천천히 가는 것이 좋습니다.</p>
+    </div>`;
+  return makeSection('sec-samjae','💥',year+' 삼재 풀이','', html);
+}
+
+/* ========== 월별 ========== */
+function sectionMonths(data, year) {
+  let cardsHtml = '';
+  for (let m=1; m<=12; m++) {
+    const w = data.wolun[m];
+    if (!w) {
+      cardsHtml += `<div class="month-card"><div class="m-top"><div class="m-label">${m}월</div><div class="m-score">—</div></div><div class="m-summary">월운 정보가 없어요.</div></div>`;
+      continue;
+    }
+    const s = monthScore(data, m);
+    const tags = monthSubTags(data, m);
+    cardsHtml += `
+      <div class="month-card season-${monthSeason(m)}" data-month="${m}">
+        <div class="m-top">
+          <div class="m-label">${monthIcon(m)} ${m}월</div>
+          <div class="m-score">${s.score}<small>점</small></div>
+        </div>
+        <div class="m-tags tags">
+          ${tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join('')}
+          <span class="tag">${w.sipsin}</span>
+          <span class="tag">${w.unseong}</span>
+        </div>
+        <div class="m-summary">${monthHeadline(data, m, s)}</div>
+      </div>
+    `;
+  }
+
+  const html = `
+    <div class="panel" style="margin-bottom:12px;">
+      <p>월별 카드를 탭하면 1~12월의 자세한 리포트(운세 점수 · 행운 조언 · 조심할 점)를 볼 수 있어요.</p>
+    </div>
+    <div class="months">${cardsHtml}</div>
+  `;
+  return makeSection('sec-months','📘',year+'년 월별 흐름','한 달 한 달 어떻게 흘러가는지', html);
+}
+
+function monthHeadline(data, m, s) {
+  const w = data.wolun[m];
+  if (!w) return '';
+  const si = SIPSIN_INFO[w.sipsin] || {};
+  if (s.score >= 80) return `${si.theme || ''}의 흐름이 강하게 들어와 ${m}월은 탄력이 붙는 달.`;
+  if (s.score >= 65) return `${si.theme || ''} 키워드가 도움이 되는 무난한 달.`;
+  if (s.score >= 50) return `${si.theme || ''} 기운과 피로가 섞이는 달. 페이스 조절.`;
+  return `${si.theme || ''} 기운이 부담스럽게 작용할 수 있는 달. 무리하지 않기.`;
+}
+
+/* ========== 십이운성 ========== */
+function sectionStar(data, cw, year) {
+  const us = UNSEONG_INFO[cw.unseong] || {};
+  const lifecycle = {
+    '장생':'씨앗이 땅을 뚫고 올라오는 새 별. 아직 여리지만 가능성이 가장 크다.',
+    '목욕':'씻고 다듬는 별. 형태를 바꾸며 혼란과 방황을 겪는다.',
+    '관대':'성년이 된 별. 사회로 나갈 준비를 마친다.',
+    '건록':'제 발로 선 별. 스스로의 힘으로 빛나는 시기.',
+    '제왕':'왕좌에 오른 별. 가장 빛나되 정점은 곧 기울어짐.',
+    '쇠':'정점이 지난 별. 조금씩 힘이 빠지는 휴식의 시작.',
+    '병':'병들어 가는 별. 쉬어야 할 때.',
+    '사':'죽음을 맞이한 별. 정지와 마무리.',
+    '묘':'무덤에 누운 별. 비축과 은둔의 시기.',
+    '절':'맥이 끊긴 별. 새로운 사이클로 넘어가기 직전의 공백.',
+    '태':'잉태된 별. 아직 형체 없이 씨앗만 있다.',
+    '양':'태 안에서 자라는 별. 드러나지 않지만 안에서 조용히 크는 시기.'
+  };
+  const cautions = {
+    '장생':'서두르지 말 것. 여린 기운이라 큰 무게를 지우면 상처 입어요.',
+    '목욕':'구설·변심·이미지 관리에 특히 예민해요.',
+    '관대':'자만·교만 주의. 갖춘 힘을 과시하지 않기.',
+    '건록':'독단 주의. 혼자 잘나서 외로워질 수 있어요.',
+    '제왕':'정점에서 욕심을 내면 한 번에 기운다. 겸손 유지.',
+    '쇠':'무리한 확장 금물. 마무리와 관리에 집중.',
+    '병':'건강 최우선. 모든 일을 10% 천천히.',
+    '사':'새 일을 벌이기보다 정리·반성·내실의 해.',
+    '묘':'활동보다 저장. 공부·기록·내면을 채우기.',
+    '절':'단절과 변곡. 환경·건강·인연에 큰 변화 대비.',
+    '태':'준비·기획·관계 구축. 당장의 결과를 바라지 말기.',
+    '양':'조용히 실력 쌓기. 드러나지 않는다고 초조해하지 말기.'
+  };
+  const html = `
+    <div class="star-hero">
+      <div style="font-size:12px; letter-spacing:.15em; opacity:.8;">YOUR STAR OF ${year}</div>
+      <div class="star-name">${cw.unseong}의 별 ✦</div>
+      <div class="star-sub">${us.mood || ''}</div>
+    </div>
+    <div class="panel" style="margin-top:12px;" id="sec-star-cycle">
+      <h3 style="margin:0 0 8px; font-family:'Noto Serif KR',serif;">💫 올해가 별이라면 어떤 별일까?</h3>
+      <p>${lifecycle[cw.unseong] || us.note || ''}</p>
+      <p style="font-size:14px; color:var(--ink-soft);">${us.note || ''}</p>
+    </div>
+    <div class="panel" style="margin-top:12px;">
+      <h3 style="margin:0 0 8px; font-family:'Noto Serif KR',serif;">🌟 별의 생애주기와 조심할 점</h3>
+      <p>${cautions[cw.unseong] || ''}</p>
+    </div>
+  `;
+  return makeSection('sec-star','⭐',year+'년에 들어오는 십이운성','', html);
+}
+
+/* ========== AI section ========== */
+function sectionAI(data, cw, year) {
+  const html = `
+    <div class="ai-card">
+      <h3>✨ AI 심화 해석 (선택)</h3>
+      <p>Anthropic API 키가 있으면 Claude로 훨씬 더 섬세한 개별 해석을 받을 수 있어요. 키는 브라우저에만 저장되고 서버로 전송되지 않아요.</p>
+      <input type="password" id="ai-key" placeholder="sk-ant-api03-..." />
+      <div style="display:flex; gap:8px;">
+        <select id="ai-topic" style="flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:#f4e9d0;">
+          <option value="total">올해 총운을 더 깊이</option>
+          <option value="love">애정운 상세</option>
+          <option value="money">재물운 상세</option>
+          <option value="work">업무·커리어 조언</option>
+          <option value="custom">직접 질문하기</option>
+        </select>
+        <button class="btn btn-primary" id="ai-run">해석 요청</button>
+      </div>
+      <input type="text" id="ai-custom" placeholder="직접 질문을 고르면 여기에 질문을 써주세요" style="margin-top:10px; display:none;" />
+      <div class="ai-result" id="ai-result"></div>
+    </div>
+  `;
+  const sec = document.createElement('section');
+  sec.className = 'block';
+  sec.innerHTML = html;
+  return sec;
+}
+
+/* ---------------- Modal for month detail ---------------- */
+
+function openMonthModal(month) {
+  const data = CURRENT_DATA;
+  const w = data.wolun[month];
+  if (!w) return;
+  const s = monthScore(data, month);
+  const si = SIPSIN_INFO[w.sipsin] || {};
+  const us = UNSEONG_INFO[w.unseong] || {};
+  const rels = sajuGanjiRelWithYear(data, w.ji);
+  const yearKo = (GAN_INFO[w.gan]?.ko||'') + (JI_INFO[w.ji]?.ko||'');
+
+  // Compose narrative
+  let luckyTips = [];
+  let cautionTips = [];
+
+  // By sipsin
+  if (si.positive) luckyTips.push(si.positive);
+  if (si.negative) cautionTips.push(si.negative);
+  // By unseong
+  if (us.score >= 5) luckyTips.push(`12운성 "${w.unseong}" — ${us.note}`);
+  else if (us.score <= -5) cautionTips.push(`12운성 "${w.unseong}" — ${us.note}`);
+  else luckyTips.push(`12운성 "${w.unseong}" — ${us.note}`);
+  // By rels
+  for (const r of rels) {
+    const pillarKey = Object.keys(data.pillars).find(k => data.pillars[k]?.ji === r.with);
+    const pillarName = {year:'년주', month:'월주', day:'일주(나)', hour:'시주'}[pillarKey] || '';
+    if (r.type === '합') luckyTips.push(`원국 ${pillarName} ${r.with}와 ${r.type}을 이뤄 인연·결합의 기운이 커져요.`);
+    if (r.type === '충') cautionTips.push(`원국 ${pillarName} ${r.with}와 ${r.type}. 변동·이동·충돌수 주의.`);
+    if (r.type === '형') cautionTips.push(`원국 ${pillarName} ${r.with}와 ${r.type}. 서류·계약·구설 특히 주의.`);
+  }
+
+  // Yongsin alignment
+  const ganOh = ohaengOf(w.gan);
+  if (ganOh === data.yongsin) luckyTips.push(`월의 천간 ${w.gan}(${ganOh})이 용신 방향. 이 달은 용신 활동을 적극적으로.`);
+  else if (ganOh === data.kisin) cautionTips.push(`월의 천간 ${w.gan}(${ganOh})이 기신 방향. 무리한 확장보다 방어적으로.`);
+
+  const headlineScore = s.score;
+  let scoreTone = headlineScore >= 80 ? '🌟 탄력이 붙는 달' : headlineScore >= 65 ? '😊 무난한 흐름' : headlineScore >= 50 ? '😐 페이스 조절의 달' : '⚠️ 조심스러운 달';
+
+  const tags = monthSubTags(data, month);
+
+  const body = `
+    <div class="modal-meta">${CURRENT_DATA.name || '당신'}의 ${yearKo}년 · ${GAN_INFO[w.gan]?.ko||''}${JI_INFO[w.ji]?.ko||''}월 (<span class="han">${w.gan}${w.ji}</span>)</div>
+    <h3>${monthIcon(month)} ${month}월</h3>
+    <div class="modal-score-big">${headlineScore}<small style="font-size:18px; color:var(--ink-soft); font-weight:500;">/100</small></div>
+    <div>${scoreTone}</div>
+
+    <div class="tags" style="margin-top:12px;">
+      ${tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join('')}
+      <span class="tag">${w.sipsin} · ${si.theme||''}</span>
+      <span class="tag">${w.unseong}</span>
+    </div>
+
+    <h4>💯 이 달의 흐름</h4>
+    <p>${month}월의 기둥은 <span class="han">${w.gan}${w.ji}</span> — 천간 ${w.gan}(${GAN_INFO[w.gan]?.desc||''})과 지지 ${w.ji}(${JI_INFO[w.ji]?.desc||''})이 만난 달이에요. 십신 <strong>${w.sipsin}</strong> 기운이 도드라지고, 12운성 <strong>${w.unseong}</strong> 단계라 ${us.mood} 분위기예요.</p>
+    <p>${s.reasons.map(r=>'• '+r).join('<br>')}</p>
+
+    <h4>📝 ${month}월의 행운 조언</h4>
+    <ul>${luckyTips.map(t=>`<li>${t}</li>`).join('')}</ul>
+
+    <h4>📅 ${month}월의 조심할 점</h4>
+    <ul>${cautionTips.length ? cautionTips.map(t=>`<li>${t}</li>`).join('') : '<li>특별히 두드러진 주의사항은 없어요. 평소 페이스 유지.</li>'}</ul>
+
+    <h4>🎯 이 달의 테마 키워드</h4>
+    <div class="tags">
+      ${(si.keywords||[]).map(k=>`<span class="tag">${k}</span>`).join('')}
+    </div>
+  `;
+  $('#modal-body').innerHTML = body;
+  $('#modal-backdrop').classList.add('is-open');
+}
+
+function closeModal() { $('#modal-backdrop').classList.remove('is-open'); }
+
+/* ---------------- Wire up ---------------- */
+
+const EXAMPLE_TEXT = `【만세력】 허혜정 (1984년 2월 20일, 양력)
+
+■ 사주 원국
+            년주      월주      일주      시주
+천간     甲(갑목)   丙(병화)   甲(갑목)   丙(병화)
+지지     子(자수)   寅(인목)   申(신금)   寅(인목)
+
+■ 일간: 甲 (갑목) — 큰 나무
+■ 오행 분포: 목4 화2 토0 금1 수1
+■ 신강/신약: 신강 (지수 60)
+■ 용신: 금 / 희신: 토 / 기신: 화
+
+■ 12운성: 년:목욕 월:건록 일:절 시:건록
+■ 지장간: 년:癸 월:甲 일:庚 시:甲
+■ 천간 십신: 년:비견 월:식신 일:일간 시:식신
+■ 지지 십신: 년:정인 월:비견 일:편관 시:비견
+■ 신살: 역마살, 지살, 재살, 장성살, 현침살, 관귀학관, 월덕귀인, 태극귀인, 복성귀인, 건록, 월공, 고신살, 상문, 급각살, 낙정관살
+■ 지지 관계: 년지-일지(합), 월지-일지(충), 일지-시지(충)
+
+■ 대운:
+  5~14세: 乙丑 (겁재, 관대)
+  15~24세: 甲子 (비견, 목욕)
+  25~34세: 癸亥 (정인, 장생)
+  35~44세: 壬戌 (편인, 양)
+  45~54세: 辛酉 (정관, 태)
+  55~64세: 庚申 (편관, 절)
+  65~74세: 己未 (정재, 묘)
+  75~84세: 戊午 (편재, 사)
+  85~94세: 丁巳 (상관, 병)
+  95~104세: 丙辰 (식신, 쇠)
+  105~114세: 乙卯 (겁재, 제왕)
+  115~124세: 甲寅 (비견, 건록)
+  125~134세: 癸丑 (정인, 관대)
+  135~144세: 壬子 (편인, 목욕)
+  145~154세: 辛亥 (정관, 장생)
+
+■ 연운:
+  2021: 辛丑 (정관, 관대)
+  2022: 壬寅 (편인, 건록)
+  2023: 癸卯 (정인, 제왕)
+  2024: 甲辰 (비견, 쇠)
+  2025: 乙巳 (겁재, 병)
+  2026: 丙午 (식신, 사) ← 올해
+  2027: 丁未 (상관, 묘)
+  2028: 戊申 (편재, 절)
+  2029: 己酉 (정재, 태)
+  2030: 庚戌 (편관, 양)
+  2031: 辛亥 (정관, 장생)
+
+■ 월운 (2026년):
+  1월: 己丑 (정재, 관대)
+  2월: 庚寅 (편관, 건록)
+  3월: 辛卯 (정관, 제왕)
+  4월: 壬辰 (편인, 쇠)
+  5월: 癸巳 (정인, 병)
+  6월: 甲午 (비견, 사)
+  7월: 乙未 (겁재, 묘)
+  8월: 丙申 (식신, 절)
+  9월: 丁酉 (상관, 태)
+  10월: 戊戌 (편재, 양)
+  11월: 己亥 (정재, 장생)
+  12월: 庚子 (편관, 목욕)`;
+
+function setError(msg) {
+  const el = $('#input-error');
+  el.className = 'error';
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function clearError() { const el=$('#input-error'); el.style.display='none'; }
+
+document.addEventListener('DOMContentLoaded', () => {
+  $('#btn-example').addEventListener('click', () => {
+    $('#in-raw').value = EXAMPLE_TEXT;
+    $('#in-name').value = '허혜정';
+  });
+
+  $('#btn-analyze').addEventListener('click', () => {
+    clearError();
+    const raw = $('#in-raw').value.trim();
+    if (!raw) { setError('만세력 텍스트를 붙여넣어 주세요.'); return; }
+    const year = parseInt($('#in-year').value, 10) || 2026;
+    try {
+      const data = parseManseryeok(raw);
+      if (!data.ilgan || !data.pillars.day) {
+        setError('파싱에 실패했어요. 형식이 예시와 동일한지 확인해 주세요 (천간/지지 행이 필요해요).');
+        return;
+      }
+      if (($('#in-name').value||'').trim()) data.name = $('#in-name').value.trim();
+      CURRENT_DATA = data;
+
+      renderAll(data, year);
+      $('#screen-input').style.display = 'none';
+      $('#screen-result').style.display = 'block';
+      window.scrollTo(0,0);
+
+      // Wire month cards
+      document.querySelectorAll('.month-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const m = parseInt(card.dataset.month, 10);
+          if (m) openMonthModal(m);
+        });
+      });
+
+      // Wire AI
+      const aiTopic = $('#ai-topic');
+      const aiCustom = $('#ai-custom');
+      if (aiTopic && aiCustom) {
+        aiTopic.addEventListener('change', () => {
+          aiCustom.style.display = aiTopic.value === 'custom' ? 'block' : 'none';
+        });
+      }
+      $('#ai-run')?.addEventListener('click', runAI);
+    } catch (e) {
+      console.error(e);
+      setError('오류가 발생했어요: ' + e.message);
+    }
+  });
+
+  $('#btn-back').addEventListener('click', () => {
+    $('#screen-input').style.display = 'block';
+    $('#screen-result').style.display = 'none';
+    window.scrollTo(0,0);
+  });
+
+  $('#btn-print').addEventListener('click', () => window.print());
+
+  $('#modal-close').addEventListener('click', closeModal);
+  $('#modal-backdrop').addEventListener('click', (e) => {
+    if (e.target.id === 'modal-backdrop') closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+});
+
+/* ---------------- Optional AI call ---------------- */
+
+async function runAI() {
+  const key = $('#ai-key').value.trim();
+  if (!key) { alert('API 키를 먼저 입력해 주세요.'); return; }
+  const topic = $('#ai-topic').value;
+  const custom = $('#ai-custom').value.trim();
+  const data = CURRENT_DATA;
+  const cw = data.yeonwoon.find(y=>y.current) || data.yeonwoon.find(y=>y.year===(+$('#in-year').value||2026));
+
+  const topicText = {
+    total: '올해 총운을 훨씬 더 깊이 풀어 주세요. 십신·12운성·용신 관계를 근거로 월별 요약도 곁들여 주세요.',
+    love: '올해 애정운을 상세히 풀어 주세요. 싱글/커플 시나리오를 나누어 주세요.',
+    money: '올해 재물운을 상세히 풀어 주세요. 투자·지출·부업에 대한 조언을 포함해 주세요.',
+    work: '올해 업무·커리어 조언을 상세히 해 주세요. 이직·승진·프로젝트 관점에서 짚어 주세요.',
+    custom: custom || '자유롭게 이 사주를 깊이 풀어 주세요.'
+  }[topic];
+
+  const prompt = `다음은 ${data.name||'한 사람'}의 사주 원국과 올해(세운) 정보입니다.
+
+[원국]
+- 생년월일: ${data.birth} (${data.calendar})
+- 사주: ${data.pillars.year?.gan}${data.pillars.year?.ji} / ${data.pillars.month?.gan}${data.pillars.month?.ji} / ${data.pillars.day?.gan}${data.pillars.day?.ji} / ${data.pillars.hour?.gan}${data.pillars.hour?.ji}
+- 일간: ${data.ilgan}
+- 오행 분포: ${Object.entries(data.oheng).map(([k,v])=>`${k}${v}`).join(' ')}
+- 신강/신약: ${data.singang}
+- 용신/희신/기신: ${data.yongsin} / ${data.heesin} / ${data.kisin}
+- 12운성: 년${data.unseong.year} 월${data.unseong.month} 일${data.unseong.day} 시${data.unseong.hour}
+- 신살: ${data.sinsal.join(', ')}
+- 지지 관계: ${data.jiji_rel}
+
+[올해 세운]
+- ${cw?.year}년 ${cw?.gan}${cw?.ji} (십신: ${cw?.sipsin}, 12운성: ${cw?.unseong})
+
+[월운]
+${Object.entries(data.wolun).map(([m,w])=>`${m}월: ${w.gan}${w.ji} (${w.sipsin}, ${w.unseong})`).join('\n')}
+
+질문: ${topicText}
+
+따뜻하고 친근한 반말로, 구체적인 조언을 담아 한국어로 답해 주세요.`;
+
+  const btn = $('#ai-run');
+  const result = $('#ai-result');
+  btn.disabled = true; btn.textContent = '해석 중...';
+  result.classList.remove('is-visible');
+  result.textContent = '';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 2000,
+        messages: [{ role:'user', content: prompt }]
+      })
+    });
+    const j = await res.json();
+    if (j.error) { result.textContent = '오류: ' + j.error.message; }
+    else if (j.content?.[0]?.text) { result.textContent = j.content[0].text; }
+    else { result.textContent = '응답을 받지 못했어요.'; }
+    result.classList.add('is-visible');
+  } catch (e) {
+    result.textContent = '호출 실패: ' + e.message;
+    result.classList.add('is-visible');
+  } finally {
+    btn.disabled = false; btn.textContent = '해석 요청';
+  }
+}
+</script>
+</body>
+</html>

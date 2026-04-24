@@ -3372,36 +3372,6 @@ function buildClosingPages(data, year, pages) {
     });
   }
 
-  /* AI 섹션 (접어둠) */
-  pages.push({
-    chapter:'✨ 마무리',
-    title:'AI에게 풀어달라 하기',
-    emoji:'🤖',
-    html:`
-      <div class="pg-eyebrow">더 깊이 듣고 싶다면</div>
-      <h1 class="pg-title">AI 사주 해설</h1>
-      <div class="pg-body">
-        <div class="mood-card cream">
-          <p>원하시면 아래 버튼으로 AI에게 위 사주 내용을 보내어 추가 해석을 받을 수 있어요. API 키는 저장되지 않고 브라우저 안에서만 사용돼요.</p>
-          <button id="btn-toggle-ai" class="btn btn-ghost" style="margin-top:10px;width:100%;">🤖 AI 해석 열기</button>
-        </div>
-        <div class="ai-section" id="ai-section" style="display:none;">
-          <label style="font-size:13px;color:var(--moss);">OpenAI API Key (sk-...)</label>
-          <input id="ai-key" type="password" placeholder="sk-..." />
-          <label style="font-size:13px;color:var(--moss);">모델</label>
-          <select id="ai-model">
-            <option value="gpt-4o-mini">gpt-4o-mini (권장)</option>
-            <option value="gpt-4o">gpt-4o</option>
-          </select>
-          <label style="font-size:13px;color:var(--moss);">구체적으로 묻고 싶은 것</label>
-          <textarea id="ai-ask" placeholder="예: 올해 결혼이 정말 가능할까요? 재물 흐름이 어떤가요? 이직은 어떨까요?" style="min-height:80px;"></textarea>
-          <button id="btn-ai-run">🔮 AI에게 해석 받기</button>
-          <div class="ai-result" id="ai-result"></div>
-        </div>
-      </div>
-    `
-  });
-
   /* 마지막 카드 */
   pages.push({
     chapter:'✨ 마무리',
@@ -4320,7 +4290,6 @@ function renderStory(data, year) {
 
   goToPage(0);
   bindMonthCards(data, year);
-  bindAISection(data, year);
 }
 
 function goToPage(idx) {
@@ -4412,104 +4381,487 @@ function closeModal() {
   document.getElementById('modal-backdrop').classList.remove('is-open');
 }
 
-/* AI 섹션 */
-function bindAISection(data, year) {
-  const btnToggle = document.getElementById('btn-toggle-ai');
-  if (btnToggle) {
-    btnToggle.addEventListener('click', () => {
-      const s = document.getElementById('ai-section');
-      s.style.display = s.style.display === 'none' ? 'block' : 'none';
-    });
-  }
-  const btnRun = document.getElementById('btn-ai-run');
-  if (btnRun) {
-    btnRun.addEventListener('click', async () => {
-      const key = document.getElementById('ai-key').value.trim();
-      const ask = document.getElementById('ai-ask').value.trim();
-      const resultEl = document.getElementById('ai-result');
-      if (!key.startsWith('sk-ant-')) {
-        alert('Claude API 키(sk-ant-...)를 입력해주세요.\nconsole.anthropic.com 에서 발급받을 수 있어요.');
-        return;
-      }
-
-      const cw = data.yeonwoon.find(y=>y.year===year) || data.yeonwoon.find(y=>y.current) || data.yeonwoon[0];
-      const gender = data.gender==='male'?'남성':'여성';
-      const age = data.birthYear ? year - data.birthYear : '';
-      const honoric = data.name ? `${data.name}님` : '이분';
-
-      const systemPrompt = `당신은 20년 경력의 한국 명리학 전문가입니다.
-- 따뜻하고 친근한 말투로 답하되, 명리학적 근거를 꼭 포함해요
-- 무조건적 긍정이나 공포 조장 없이 균형 잡힌 해석을 해요
-- 일간·오행·십신·용신·대운·세운을 종합적으로 엮어서 답해요
-- 구체적인 시기(월)가 있으면 명시하고, 없으면 무리하게 지어내지 말아요
-- 오락·참고용임을 명심하고, 중요한 인생 결정은 본인이 한다고 마무리해요`;
-
-      const userPrompt = `아래는 ${honoric}(${gender}, ${age}세)의 사주 정보입니다.
-
-[사주 원국]
-- 생년월일: ${data.birth || '미상'}
-- 일간: ${data.ilgan}
-- 사주팔자: ${data.pillars.year?.gan||''}${data.pillars.year?.ji||''} / ${data.pillars.month?.gan||''}${data.pillars.month?.ji||''} / ${data.pillars.day?.gan||''}${data.pillars.day?.ji||''} / ${data.pillars.hour?.gan||''}${data.pillars.hour?.ji||''}
-- 오행 분포: 목${data.oheng.목||0} 화${data.oheng.화||0} 토${data.oheng.토||0} 금${data.oheng.금||0} 수${data.oheng.수||0}
-- 신강/신약: ${data.singang||'?'}
-- 용신/희신/기신: ${data.yongsin||'?'}/${data.heesin||'?'}/${data.kisin||'?'}
-- 주요 신살: ${(data.sinsal||[]).join(', ')||'없음'}
-
-[${year}년 세운]
-- 연간지: ${cw?.gan||''}${cw?.ji||''}
-- 십신: ${cw?.sipsin||''}
-- 12운성: ${cw?.unseong||''}
-
-[질문]
-${ask || `${year}년 한 해를 어떻게 보내면 좋을지, 어느 영역을 주목하고 어느 부분을 조심해야 할지 정성껏 풀어주세요.`}`;
-
-      resultEl.classList.add('is-visible');
-      resultEl.textContent = '🔮 요정이 풀이하는 중... (10~20초 걸려요)';
-
-      try {
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': key,
-            'anthropic-version': '2023-06-01',
-            'anthropic-dangerous-direct-browser-access': 'true'
-          },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-5',
-            max_tokens: 2000,
-            system: systemPrompt,
-            messages: [{ role: 'user', content: userPrompt }]
-          })
-        });
-        const json = await res.json();
-
-        if (json.error) {
-          const msg = json.error.message || json.error.type || '알 수 없는 에러';
-          if (json.error.type === 'authentication_error') {
-            resultEl.textContent = '❌ API 키가 올바르지 않아요. console.anthropic.com에서 키를 확인해주세요.';
-          } else if (json.error.type === 'permission_error' || json.error.type === 'rate_limit_error') {
-            resultEl.textContent = '❌ 크레딧이 부족하거나 요청 한도를 초과했어요. console.anthropic.com → Billing에서 크레딧을 충전해주세요.';
-          } else {
-            resultEl.textContent = '❌ 에러: ' + msg;
-          }
-          return;
-        }
-
-        const text = json.content?.[0]?.text;
-        if (text) {
-          resultEl.textContent = text;
-        } else {
-          resultEl.textContent = '응답을 받았지만 내용이 비었어요. 다시 시도해주세요.\n\n' + JSON.stringify(json).slice(0, 300);
-        }
-      } catch(e) {
-        resultEl.textContent = '❌ 네트워크 에러: ' + e.message + '\n\n인터넷 연결을 확인하거나, 잠시 후 다시 시도해주세요.';
-      }
-    });
-  }
-}
 
 /* ============ 메인 ============ */
+let multiPersons = [];          // [{id, name, data, year, pages}]
+let multiCurrentPerson = 0;     // 현재 탭 인덱스 (-1 = 비교탭)
+let multiIdSeq = 0;
+
+const CAPI_COLORS = ['🟠','🟣','🟢','🔵','🟡','🔴','🩷','🤎','🩵','⚫'];
+const CAPI_NAMES  = ['카피1','카피2','카피3','카피4','카피5','카피6','카피7','카피8','카피9','카피10'];
+
+function multiAddPerson() {
+  const id = ++multiIdSeq;
+  const idx = multiPersons.length;
+  const defaultName = CAPI_NAMES[idx] || `사람${idx+1}`;
+  multiPersons.push({ id, name: defaultName, data: null, year: 2026, pages: [] });
+  multiRenderInputTabs();
+  multiSwitchInputTab(id);
+}
+
+function multiRemovePerson(id) {
+  if (multiPersons.length <= 1) { alert('최소 1명은 있어야 해요!'); return; }
+  multiPersons = multiPersons.filter(p => p.id !== id);
+  multiRenderInputTabs();
+  multiSwitchInputTab(multiPersons[0].id);
+}
+
+function multiRenderInputTabs() {
+  const nav = document.getElementById('multi-tabs-nav');
+  const contents = document.getElementById('multi-tab-contents');
+  nav.innerHTML = multiPersons.map((p, i) => `
+    <button class="multi-person-tab-btn" data-id="${p.id}" onclick="multiSwitchInputTab(${p.id})">
+      ${CAPI_COLORS[i]} ${esc(p.name)}
+      <span class="rm-btn" onclick="event.stopPropagation();multiRemovePerson(${p.id})">✕</span>
+    </button>
+  `).join('');
+
+  contents.innerHTML = multiPersons.map((p, i) => `
+    <div class="multi-person-panel" id="mpanel-${p.id}">
+      <div class="field-row-3" style="margin-bottom:10px;">
+        <div class="field">
+          <label>이름</label>
+          <input id="mname-${p.id}" value="${esc(p.name)}" placeholder="예: 짱구"
+            oninput="multiPersons.find(x=>x.id===${p.id}).name=this.value; document.querySelector('[data-id=&quot;${p.id}&quot;]').childNodes[0].textContent=' ${CAPI_COLORS[i]} '; multiUpdateTabLabel(${p.id})" />
+        </div>
+        <div class="field">
+          <label>성별</label>
+          <select id="mgender-${p.id}">
+            <option value="female">여성</option>
+            <option value="male">남성</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>연도</label>
+          <input id="myear-${p.id}" type="number" value="2026" min="1950" max="2100" />
+        </div>
+      </div>
+      <div class="field">
+        <label>만세력 텍스트</label>
+        <textarea id="mraw-${p.id}" style="min-height:120px;" placeholder="【만세력】 ...&#10;■ 사주 원국&#10;천간 甲 丙 甲 丙&#10;지지 子 寅 申 寅&#10;..."></textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+function multiUpdateTabLabel(id) {
+  const p = multiPersons.find(x => x.id === id);
+  if (!p) return;
+  const btn = document.querySelector(`[data-id="${id}"]`);
+  if (!btn) return;
+  const idx = multiPersons.indexOf(p);
+  btn.innerHTML = `${CAPI_COLORS[idx]} ${esc(p.name)} <span class="rm-btn" onclick="event.stopPropagation();multiRemovePerson(${id})">✕</span>`;
+}
+
+function multiSwitchInputTab(id) {
+  document.querySelectorAll('.multi-person-tab-btn').forEach(b => b.classList.toggle('active', +b.dataset.id === id));
+  document.querySelectorAll('.multi-person-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById(`mpanel-${id}`);
+  if (panel) panel.classList.add('active');
+}
+
+function multiRun() {
+  const errorEl = document.getElementById('multi-error');
+  errorEl.style.display = 'none';
+
+  const results = [];
+  for (const p of multiPersons) {
+    const raw = (document.getElementById(`mraw-${p.id}`)?.value || '').trim();
+    const name = (document.getElementById(`mname-${p.id}`)?.value || p.name).trim();
+    const gender = document.getElementById(`mgender-${p.id}`)?.value || 'female';
+    const year = parseInt(document.getElementById(`myear-${p.id}`)?.value, 10) || 2026;
+    if (!raw) {
+      errorEl.className = 'error'; errorEl.textContent = `${name}의 만세력을 입력해주세요.`; errorEl.style.display = 'block'; return;
+    }
+    try {
+      const data = parseManseryeok(raw);
+      data.name = name; data.gender = gender;
+      if (!data.ilgan) throw new Error('일간을 찾지 못했어요');
+      const pages = buildPages(data, year);
+      results.push({ id: p.id, name, data, year, pages });
+    } catch(e) {
+      errorEl.className = 'error'; errorEl.textContent = `${name} 파싱 오류: ${e.message}`; errorEl.style.display = 'block'; return;
+    }
+  }
+
+  // 비교 카드 생성
+  const comparePages = buildComparePages(results);
+
+  // 스토리 화면 열기
+  ['screen-main','screen-input','screen-multi'].forEach(s =>
+    document.getElementById(s).style.display = 'none'
+  );
+  multiShowStory(results, comparePages);
+}
+
+/* 비교 카드 생성 */
+function buildComparePages(persons) {
+  const pages = [];
+  const year = persons[0].year;
+
+  // 1. 오행 비교
+  const ohengEmoji = { 목:'🌳', 화:'🔥', 토:'🪨', 금:'⚔️', 수:'💧' };
+  pages.push({
+    chapter:'🔍 비교', title:'오행 분포 비교', emoji:'🌈',
+    html:`
+      <div class="pg-eyebrow">함께 보는</div>
+      <h1 class="pg-title">오행 분포 비교</h1>
+      <div class="pg-body">
+        ${persons.map((p, i) => {
+          const oh = p.data.oheng || {};
+          const bars = ['목','화','토','금','수'].map(e => {
+            const v = oh[e] || 0;
+            return `<span style="margin-right:4px;">${ohengEmoji[e]}${v}</span>`;
+          }).join('');
+          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:8px;">
+            <p style="margin:0;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)} <small style="font-weight:400;color:var(--ink-soft);">(${p.data.ilgan} · ${p.data.singang||''})</small></p>
+            <p style="margin:6px 0 0;font-size:14px;">${bars}</p>
+          </div>`;
+        }).join('')}
+      </div>
+    `
+  });
+
+  // 2. 올해 운 비교
+  pages.push({
+    chapter:'🔍 비교', title:`${year}년 운세 비교`, emoji:'📊',
+    html:`
+      <div class="pg-eyebrow">${year}년</div>
+      <h1 class="pg-title">올해 운세 비교</h1>
+      <div class="pg-body">
+        ${persons.map((p, i) => {
+          const cw = p.data.yeonwoon?.find(y=>y.year===year) || p.data.yeonwoon?.[0];
+          const sub = cw ? scoreForSubFortune(p.data, cw) : null;
+          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:8px;">
+            <p style="margin:0;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)}</p>
+            <p style="margin:4px 0 0;font-size:13px;">
+              ${cw ? `${cw.gan}${cw.ji} · ${cw.sipsin} · ${cw.unseong}` : '세운 정보 없음'}
+              ${sub ? ` &nbsp;|&nbsp; 💕${sub.love} 💰${sub.money} 🎓${sub.study}` : ''}
+            </p>
+          </div>`;
+        }).join('')}
+      </div>
+    `
+  });
+
+  // 3. 상황별 궁합 점수 (페어별 카드, 2명 이상)
+  if (persons.length >= 2) {
+    const pairs = [];
+    for (let a = 0; a < persons.length; a++)
+      for (let b = a+1; b < persons.length; b++)
+        pairs.push([persons[a], persons[b]]);
+
+    function calcGunghap(a, b) {
+      let love=50, biz=50, travel=50, live=50;
+      const ganA=a.data.ilgan, ganB=b.data.ilgan;
+      const jiA=a.data.pillars?.day?.ji, jiB=b.data.pillars?.day?.ji;
+      const moA=a.data.pillars?.month?.ji, moB=b.data.pillars?.month?.ji;
+      const ohA=a.data.oheng||{}, ohB=b.data.oheng||{};
+      const jiKey=[jiA,jiB].filter(Boolean).sort().join('-');
+      const moKey=[moA,moB].filter(Boolean).sort().join('-');
+      const ganHapKeys=Object.keys(GAN_HAP||{});
+      const hasGanHap=ganHapKeys.some(k=>k.includes(ganA)&&k.includes(ganB));
+      if(hasGanHap){love+=20;live+=15;biz+=5;}
+      if(GAN_CHUNG?.[ganA]===ganB||GAN_CHUNG?.[ganB]===ganA){love-=10;biz+=5;travel-=5;}
+      if(jiKey&&JIJI_REL_DEEP?.hap_meaning?.[jiKey]){love+=15;live+=15;}
+      if(jiKey&&JIJI_REL_DEEP?.chung_meaning?.[jiKey]){love-=15;travel-=10;live-=15;}
+      const SAM=[['亥','卯','未'],['寅','午','戌'],['巳','酉','丑'],['申','子','辰']];
+      SAM.forEach(g=>{if(g.includes(jiA)&&g.includes(jiB)){biz+=15;travel+=10;}});
+      const hasSin=(p,s)=>(p.data.sinsal||[]).includes(s);
+      if(hasSin(a,'역마살')&&hasSin(b,'역마살'))travel+=20;
+      else if(hasSin(a,'역마살')||hasSin(b,'역마살'))travel+=8;
+      if((hasSin(a,'도화살')||hasSin(a,'연살'))&&(hasSin(b,'도화살')||hasSin(b,'연살')))love+=10;
+      const SHENG={목:'화',화:'토',토:'금',금:'수',수:'목'};
+      const domA=Object.entries(ohA).sort((x,y)=>y[1]-x[1])[0]?.[0];
+      const domB=Object.entries(ohB).sort((x,y)=>y[1]-x[1])[0]?.[0];
+      if(domA&&domB&&(SHENG[domA]===domB||SHENG[domB]===domA))biz+=10;
+      if(moKey&&JIJI_REL_DEEP?.hap_meaning?.[moKey])live+=10;
+      const cap=v=>Math.min(99,Math.max(20,Math.round(v)));
+      return{love:cap(love),biz:cap(biz),travel:cap(travel),live:cap(live),
+             total:Math.round((cap(love)+cap(biz)+cap(travel)+cap(live))/4)};
+    }
+    function sBar(s){const c=s>=80?'#6db87a':s>=60?'#f0c93a':'#e8917e';
+      return `<div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;background:rgba(0,0,0,0.08);border-radius:99px;height:8px;overflow:hidden;"><div style="width:${s}%;height:100%;background:${c};border-radius:99px;"></div></div><span style="font-family:'Nanum Pen Script',cursive;font-size:17px;min-width:34px;text-align:right;">${s}점</span></div>`;}
+    function gComment(s){return s>=90?'환상의 궁합! 🎉':s>=80?'잘 맞는 사이 🦫':s>=70?'대체로 잘 맞아요':s>=60?'노력하면 좋아져요':s>=50?'서로 맞춰가는 중':'에너지 방향이 달라요';}
+
+    pairs.forEach(([a,b])=>{
+      const ai=persons.indexOf(a),bi=persons.indexOf(b);
+      const g=calcGunghap(a,b);
+      pages.push({
+        chapter:'🔍 비교', title:`${a.name} ↔ ${b.name} 궁합`, emoji:'💕',
+        html:`
+          <div class="pg-eyebrow">상황별 궁합 점수</div>
+          <h1 class="pg-title">${CAPI_COLORS[ai]} ${esc(a.name)} ↔ ${CAPI_COLORS[bi]} ${esc(b.name)}</h1>
+          <div class="pg-body">
+            <div class="mood-card leaf" style="margin-bottom:14px;text-align:center;">
+              <p style="margin:0;font-size:13px;color:var(--ink-soft);">종합 궁합</p>
+              <p style="margin:4px 0 0;font-size:42px;font-family:'Nanum Pen Script',cursive;color:var(--moss-deep);">${g.total}점</p>
+              <p style="margin:4px 0 0;font-size:15px;font-weight:700;">${gComment(g.total)}</p>
+            </div>
+            <div class="mood-card cream" style="margin-bottom:8px;">
+              <p style="margin:0 0 6px;font-weight:700;">👫 연애·부부 궁합</p>${sBar(g.love)}
+              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">일간합·일지합·도화살 기준</p>
+            </div>
+            <div class="mood-card cream" style="margin-bottom:8px;">
+              <p style="margin:0 0 6px;font-weight:700;">💼 비즈니스·직장 궁합</p>${sBar(g.biz)}
+              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">삼합·오행 상생·천간 관계 기준</p>
+            </div>
+            <div class="mood-card cream" style="margin-bottom:8px;">
+              <p style="margin:0 0 6px;font-weight:700;">✈️ 여행 궁합</p>${sBar(g.travel)}
+              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">역마살 공유·삼합 기준</p>
+            </div>
+            <div class="mood-card cream">
+              <p style="margin:0 0 6px;font-weight:700;">🏠 동거·가족 궁합</p>${sBar(g.live)}
+              <p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">일지합·월지합·일지충 기준</p>
+            </div>
+          </div>
+        `
+      });
+    });
+  }
+
+  // 4. 월별 운 비교 (이번 달 기준)
+  const thisMonth = new Date().getMonth() + 1;
+  pages.push({
+    chapter:'🔍 비교', title:`${thisMonth}월 이달의 운`, emoji:'📅',
+    html:`
+      <div class="pg-eyebrow">이번 달</div>
+      <h1 class="pg-title">${thisMonth}월 운 비교</h1>
+      <div class="pg-body">
+        ${persons.map((p, i) => {
+          const wl = p.data.wolun?.[thisMonth];
+          const sc = wl ? monthScore(p.data, thisMonth) : null;
+          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:8px;">
+            <p style="margin:0;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)} ${sc ? `<span style="float:right;font-size:18px;font-family:'Nanum Pen Script';">${sc.score}점</span>` : ''}</p>
+            <p style="margin:4px 0 0;font-size:13px;">${wl ? `${wl.gan}${wl.ji} · ${wl.sipsin} · ${wl.unseong}` : '월운 정보 없음'}</p>
+          </div>`;
+        }).join('')}
+        <p class="hand" style="text-align:center;margin-top:12px;font-size:16px;color:var(--moss);">점수 높은 분이 이달 최고운! 🦫</p>
+      </div>
+    `
+  });
+
+  // 5. 신살 비교 (공통 신살 찾기)
+  const allSinsal = persons.flatMap(p => p.data.sinsal || []);
+  const sinsalCount = {};
+  allSinsal.forEach(s => { sinsalCount[s] = (sinsalCount[s]||0)+1; });
+  const commonSinsal = Object.entries(sinsalCount).filter(([,c]) => c > 1).sort((a,b) => b[1]-a[1]);
+
+  pages.push({
+    chapter:'🔍 비교', title:'공통 신살', emoji:'⭐',
+    html:`
+      <div class="pg-eyebrow">우리 모두가 가진</div>
+      <h1 class="pg-title">공통 신살</h1>
+      <div class="pg-body">
+        ${commonSinsal.length > 0 ? `
+          <div class="mood-card leaf" style="margin-bottom:12px;">
+            <p style="margin:0;font-size:13px;">여러 명이 공통으로 가진 별이에요. 함께 있을 때 이 기운이 증폭돼요!</p>
+          </div>
+          ${commonSinsal.map(([s, c]) => {
+            const d = SINSAL_DEEP[s];
+            const who = persons.filter(p => (p.data.sinsal||[]).includes(s)).map((p,_,arr) => `${CAPI_COLORS[persons.indexOf(p)]} ${esc(p.name)}`).join(', ');
+            return `<div class="mood-card cream" style="margin-bottom:8px;">
+              <p style="margin:0;font-weight:700;">${d?.emoji||'⭐'} ${esc(s)} <span style="font-size:12px;opacity:0.7;">(${c}명)</span></p>
+              <p style="margin:3px 0;font-size:12px;color:var(--ink-soft);">${who}</p>
+              ${d ? `<p style="margin:4px 0 0;font-size:13px;">${esc(d.note)}</p>` : ''}
+            </div>`;
+          }).join('')}
+        ` : `<div class="mood-card cream"><p>공통으로 가진 신살이 없어요. 각자 개성 만점! 🦫</p></div>`}
+      </div>
+    `
+  });
+
+  /* ===== 6. 올해 운 순위 ===== */
+  const ranked = persons.map((p, i) => {
+    const cw = p.data.yeonwoon?.find(y=>y.year===year) || p.data.yeonwoon?.[0];
+    const sub = cw ? scoreForSubFortune(p.data, cw) : null;
+    const total = sub ? Math.round((sub.love+sub.money+sub.study+sub.rel+sub.work+sub.health)/6) : 50;
+    return { p, i, total, sub };
+  }).sort((a,b) => b.total - a.total);
+
+  pages.push({
+    chapter:'🔍 비교', title:`${year}년 운 순위`, emoji:'🏆',
+    html:`
+      <div class="pg-eyebrow">${year}년</div>
+      <h1 class="pg-title">🏆 올해 운 순위</h1>
+      <div class="pg-body">
+        <div class="mood-card cream" style="margin-bottom:12px;">
+          <p style="margin:0;font-size:13px;">6대 영역(애정·재물·학업·관계·업무·건강) 평균으로 계산했어요.</p>
+        </div>
+        ${ranked.map((r, rank) => {
+          const medals = ['🥇','🥈','🥉'];
+          const medal = medals[rank] || `${rank+1}위`;
+          return `<div class="mood-card ${['leaf','peach','cream'][Math.min(rank,2)]}" style="margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="font-size:22px;">${medal}</span>
+              <strong>${CAPI_COLORS[r.i]} ${esc(r.p.name)}</strong>
+              <span style="margin-left:auto;font-family:'Nanum Pen Script',cursive;font-size:20px;">${r.total}점</span>
+            </div>
+            <div style="background:rgba(0,0,0,0.08);border-radius:99px;height:8px;overflow:hidden;">
+              <div style="width:${r.total}%;height:100%;background:var(--leaf-3);border-radius:99px;"></div>
+            </div>
+            ${r.sub ? `<p style="margin:6px 0 0;font-size:12px;color:var(--ink-soft);">💕${r.sub.love} 💰${r.sub.money} 🎓${r.sub.study} 🤝${r.sub.rel} 💼${r.sub.work} 🧘${r.sub.health}</p>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    `
+  });
+
+  /* ===== 7. 월별 점수 비교 (SVG 꺾은선) ===== */
+  const mColors = ['#e8917e','#9b8ec4','#6db87a','#5ba8e0','#f0c93a','#e07070','#ff9ac1','#c8a882','#7ec8d8','#555'];
+  const mLabels = ['1','2','3','4','5','6','7','8','9','10','11','12'];
+  const W=300, H=120, pL=16, pR=8, pT=10, pB=24;
+  const plotW = W-pL-pR, plotH = H-pT-pB;
+  const xPos = i => pL + (i/(11)) * plotW;
+  const yPos = v => pT + plotH - ((v-40)/(100-40)) * plotH;
+
+  const monthScores = persons.map(p =>
+    Array.from({length:12}, (_,i) => monthScore(p.data, i+1)?.score || 55)
+  );
+
+  const lines = persons.map((p, pi) => {
+    const pts = monthScores[pi].map((v, i) => `${xPos(i).toFixed(1)},${yPos(v).toFixed(1)}`).join(' ');
+    return `<polyline points="${pts}" fill="none" stroke="${mColors[pi]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>`;
+  }).join('');
+
+  const dots = persons.map((p, pi) =>
+    monthScores[pi].map((v, i) =>
+      `<circle cx="${xPos(i).toFixed(1)}" cy="${yPos(v).toFixed(1)}" r="3" fill="${mColors[pi]}"/>`
+    ).join('')
+  ).join('');
+
+  const xLabels = mLabels.map((l, i) =>
+    `<text x="${xPos(i).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#b0897a">${l}</text>`
+  ).join('');
+
+  const legend = persons.map((p, i) =>
+    `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;font-size:12px;">
+      <span style="display:inline-block;width:16px;height:3px;background:${mColors[i]};border-radius:2px;"></span>${esc(p.name)}
+    </span>`
+  ).join('');
+
+  pages.push({
+    chapter:'🔍 비교', title:'월별 운 흐름 비교', emoji:'📈',
+    html:`
+      <div class="pg-eyebrow">${year}년 1~12월</div>
+      <h1 class="pg-title">📈 월별 운 흐름</h1>
+      <div class="pg-body">
+        <div style="margin-bottom:8px;line-height:2;">${legend}</div>
+        <div style="background:#fff;border-radius:14px;padding:10px;border:1.5px solid var(--petal);overflow:hidden;">
+          <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;">
+            <line x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+plotH}" stroke="#f0d5b8" stroke-width="1"/>
+            <line x1="${pL}" y1="${pT+plotH}" x2="${pL+plotW}" y2="${pT+plotH}" stroke="#f0d5b8" stroke-width="1"/>
+            ${[60,75,90].map(v=>`<line x1="${pL}" y1="${yPos(v).toFixed(1)}" x2="${pL+plotW}" y2="${yPos(v).toFixed(1)}" stroke="#fde8df" stroke-width="1" stroke-dasharray="3,3"/>`).join('')}
+            ${lines}${dots}${xLabels}
+          </svg>
+        </div>
+        <p style="margin:10px 0 0;font-size:12px;color:var(--ink-soft);text-align:center;">가로: 월(1~12월) · 세로: 운세 점수</p>
+      </div>
+    `
+  });
+
+  /* ===== 8. 대운 타임라인 비교 ===== */
+  pages.push({
+    chapter:'🔍 비교', title:'대운 타임라인 비교', emoji:'🕰️',
+    html:`
+      <div class="pg-eyebrow">10년 단위 인생 흐름</div>
+      <h1 class="pg-title">🕰️ 대운 타임라인</h1>
+      <div class="pg-body">
+        <div class="mood-card cream" style="margin-bottom:12px;">
+          <p style="margin:0;font-size:13px;">각자의 10년 대운 흐름이에요. 현재 대운에 🦫 표시돼요.</p>
+        </div>
+        ${persons.map((p, i) => {
+          const now = new Date().getFullYear();
+          const dws = p.data.daewoon || [];
+          return `<div class="mood-card ${['leaf','peach','dew','cream','leaf'][i%5]}" style="margin-bottom:10px;">
+            <p style="margin:0 0 8px;font-weight:700;">${CAPI_COLORS[i]} ${esc(p.name)}</p>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;">
+              ${dws.map(dw => {
+                const isCurrent = dw.age && p.data.birthYear &&
+                  (now >= p.data.birthYear + dw.age) &&
+                  (now < p.data.birthYear + dw.age + 10);
+                return `<div style="padding:4px 8px;border-radius:8px;font-size:11px;text-align:center;
+                  background:${isCurrent?'var(--leaf-3)':'rgba(255,255,255,0.7)'};
+                  color:${isCurrent?'#fff':'var(--ink)'};
+                  border:1px solid ${isCurrent?'var(--moss)':'var(--petal)'};
+                  font-weight:${isCurrent?'700':'400'};">
+                  ${isCurrent?'🦫 ':''}${dw.age}세~<br>${dw.gan||''}${dw.ji||''}<br><span style="opacity:0.75;">${dw.sipsin||''}</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    `
+  });
+
+  return pages;
+}
+
+/* 비교 스토리 화면 열기 */
+function multiShowStory(persons, comparePages) {
+  const storyEl = document.getElementById('screen-story');
+  const tabBar = document.getElementById('person-tab-bar');
+  const tabsEl = document.getElementById('person-tabs');
+
+  tabBar.style.display = 'block';
+  const tabs = [
+    ...persons.map((p, i) => ({ label: `${CAPI_COLORS[i]} ${p.name}`, idx: i, compare: false })),
+    { label: '🔍 비교', idx: -1, compare: true }
+  ];
+  tabsEl.innerHTML = tabs.map(t =>
+    `<button class="${t.compare?'compare-tab':''} ${t.idx===0?'active':''}" data-midx="${t.idx}">${t.label}</button>`
+  ).join('');
+  tabsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-midx]');
+    if (!btn) return;
+    const idx = parseInt(btn.dataset.midx, 10);
+    tabsEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (idx === -1) {
+      renderStoryPages(comparePages, null, 2026);
+    } else {
+      renderStoryPages(persons[idx].pages, persons[idx].data, persons[idx].year);
+    }
+  });
+
+  renderStoryPages(persons[0].pages, persons[0].data, persons[0].year);
+  storyEl.classList.add('is-open');
+}
+
+/* 페이지 배열로 스토리 렌더 */
+function renderStoryPages(pages, data, year) {
+  ALL_PAGES = pages;
+  CURRENT = 0;
+
+  const progress = document.getElementById('progress');
+  progress.innerHTML = pages.map(()=>`<div class="bar"><span class="fill"></span></div>`).join('');
+
+  const content = document.getElementById('story-content');
+  content.innerHTML = pages.map((p,i) =>
+    `<div class="story-page" data-idx="${i}">
+      ${p._label ? `<div class="pg-chapter-no">${p._label}</div>` : ''}
+      ${p.html}
+    </div>`
+  ).join('');
+
+  const tocList = document.getElementById('toc-list');
+  let tocHtml = ''; let lastChapter = null;
+  pages.forEach((p, i) => {
+    if (p.chapter !== lastChapter) {
+      tocHtml += `<div class="toc-chapter-head"><span class="toc-chapter-no">${p._chapterNo||'·'}.</span><span class="toc-chapter-name">${esc(p.chapter)}</span></div>`;
+      lastChapter = p.chapter;
+    }
+    tocHtml += `<button data-go="${i}" class="toc-sub-item"><span class="toc-sub-no">${p._label||''}</span><span class="toc-sub-title">${p.emoji||'🦫'} ${esc(p.title)}</span><span class="page-no">${i+1}</span></button>`;
+  });
+  tocList.innerHTML = tocHtml;
+
+  goToPage(0);
+  // data가 있으면 월별 탭 바인딩, 없으면 (비교탭) 스킵
+  if (data) bindMonthCards(data, year || 2026);
+}
+
+
 function showScreen(id) {
   ['screen-main','screen-input','screen-multi'].forEach(s => {
     document.getElementById(s).style.display = s === id ? 'block' : 'none';

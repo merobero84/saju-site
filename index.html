@@ -3,19 +3,22 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-<title>숲속 사주 · 만세력 카드풀이</title>
+<title>카피바라 사주카드 · 만세력 카드풀이</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --ivory: #fdfaf0; --ivory-2: #f7f1e0; --cream: #fef5dc;
-    --leaf-1: #c8dfa8; --leaf-2: #a8cc88; --leaf-3: #8ab06a;
-    --moss: #6b8e4e; --moss-deep: #4a6b35;
-    --mint: #d9ead3; --peach: #f9d6b8; --petal: #f4c2ae;
-    --berry: #d88a8a; --mushroom: #b88a5a; --acorn: #8a6a3a;
-    --ink: #3d4a2e; --ink-soft: #6a7855;
-    --dewdrop: #a9c9d8;
+    --ivory: #fff8f5; --ivory-2: #fef0ea; --cream: #fde8df;
+    --leaf-1: #ffd6cc; --leaf-2: #ffb8a8; --leaf-3: #e8917e;
+    --moss: #c4705e; --moss-deep: #9e4f3f;
+    --mint: #fce4df; --peach: #ffd4c2; --petal: #ffccc0;
+    --berry: #e8917e; --mushroom: #d4a090; --acorn: #a06858;
+    --ink: #4a2e28; --ink-soft: #8a6058;
+    --dewdrop: #f5c4b8;
+    /* 카피바라 전용 */
+    --capi-brown: #c8a882; --capi-warm: #f0d5b8; --capi-pink: #ffb8c8;
+    --capi-bg: #fff5f0;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -26,19 +29,19 @@
   }
   body {
     background:
-      radial-gradient(circle at 15% 10%, rgba(200,223,168,0.35) 0, transparent 40%),
-      radial-gradient(circle at 85% 30%, rgba(249,214,184,0.3) 0, transparent 40%),
-      radial-gradient(circle at 25% 90%, rgba(217,234,211,0.4) 0, transparent 45%),
+      radial-gradient(circle at 15% 10%, rgba(255,184,168,0.3) 0, transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(253,232,223,0.4) 0, transparent 40%),
+      radial-gradient(circle at 25% 90%, rgba(255,214,204,0.35) 0, transparent 45%),
       var(--ivory);
   }
   body::before {
     content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
     background-image:
-      radial-gradient(circle at 12% 18%, rgba(138,176,106,0.12) 1.5px, transparent 2px),
-      radial-gradient(circle at 78% 62%, rgba(184,138,90,0.12) 1px, transparent 2px),
-      radial-gradient(circle at 52% 84%, rgba(107,142,78,0.1) 2px, transparent 2.5px),
-      radial-gradient(circle at 88% 12%, rgba(216,138,138,0.1) 1px, transparent 2px),
-      radial-gradient(circle at 28% 52%, rgba(169,201,216,0.1) 1.5px, transparent 2px);
+      radial-gradient(circle at 12% 18%, rgba(232,145,126,0.1) 1.5px, transparent 2px),
+      radial-gradient(circle at 78% 62%, rgba(200,168,130,0.12) 1px, transparent 2px),
+      radial-gradient(circle at 52% 84%, rgba(255,184,200,0.1) 2px, transparent 2.5px),
+      radial-gradient(circle at 88% 12%, rgba(232,145,126,0.08) 1px, transparent 2px),
+      radial-gradient(circle at 28% 52%, rgba(245,196,184,0.1) 1.5px, transparent 2px);
   }
   .serif { font-family: 'Gowun Batang', serif; }
   .hand { font-family: 'Nanum Pen Script', cursive; }
@@ -114,29 +117,29 @@
   }
   .btn:active { transform: translateY(1px); }
   .btn-primary {
-    background: var(--leaf-3); color: #fff;
-    box-shadow: 0 3px 0 var(--moss-deep), 0 6px 14px rgba(107,142,78,0.25);
+    background: linear-gradient(135deg, var(--leaf-3) 0%, var(--moss) 100%); color: #fff;
+    box-shadow: 0 3px 0 var(--moss-deep), 0 6px 14px rgba(232,145,126,0.3);
   }
-  .btn-primary:hover { background: var(--moss); }
+  .btn-primary:hover { background: linear-gradient(135deg, var(--moss) 0%, var(--moss-deep) 100%); }
   .btn-primary:active { box-shadow: 0 1px 0 var(--moss-deep); }
   .btn-secondary {
-    background: linear-gradient(135deg, #f9d6b8 0%, #f4c2ae 100%); color: #6b4423;
-    box-shadow: 0 3px 0 #c49670, 0 6px 14px rgba(184,138,90,0.2);
+    background: linear-gradient(135deg, #ffccc0 0%, #ffb8a8 100%); color: #9e4f3f;
+    box-shadow: 0 3px 0 #e8917e, 0 6px 14px rgba(232,145,126,0.25);
     text-decoration: none;
   }
-  .btn-secondary:hover { background: linear-gradient(135deg, #f9cfa8 0%, #edb39a 100%); }
-  .btn-secondary:active { box-shadow: 0 1px 0 #c49670; }
+  .btn-secondary:hover { background: linear-gradient(135deg, #ffb8a8 0%, #ffa898 100%); }
+  .btn-secondary:active { box-shadow: 0 1px 0 #e8917e; }
   .btn-ghost {
-    background: #fff; color: var(--moss-deep); border: 1.5px solid var(--mint);
+    background: #fff; color: var(--moss-deep); border: 1.5px solid var(--petal);
   }
   .btn-ghost:hover { background: var(--mint); }
   .btn-full { width: 100%; }
 
   .guide-card {
-    background: linear-gradient(135deg, rgba(249,214,184,0.25) 0%, rgba(254,245,220,0.5) 100%);
-    border: 1.5px dashed var(--mushroom);
+    background: linear-gradient(135deg, rgba(255,204,192,0.2) 0%, rgba(255,240,235,0.5) 100%);
+    border: 1.5px dashed var(--leaf-2);
   }
-  .guide-card .card-title { color: var(--acorn); }
+  .guide-card .card-title { color: var(--moss-deep); }
 
   .example-btn {
     display: inline-block; margin-top: 10px; padding: 7px 14px;
@@ -184,7 +187,7 @@
   }
   .story-progress .bar {
     flex: 1 1 4px; min-width: 3px; height: 3px;
-    background: rgba(61,74,46,0.15); border-radius: 2px; overflow: hidden;
+    background: rgba(232,145,126,0.2); border-radius: 2px; overflow: hidden;
   }
   .story-progress .bar .fill {
     display: block; height: 100%; width: 0%;
@@ -198,15 +201,15 @@
   }
   .story-topbar .icon-btn {
     width: 38px; height: 38px; border-radius: 50%; border: none;
-    background: rgba(255,255,255,0.8); color: var(--moss-deep);
+    background: rgba(255,255,255,0.85); color: var(--moss-deep);
     font-size: 16px; cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
-    backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(232,145,126,0.2);
   }
   .story-topbar .icon-btn:hover { background: #fff; }
   .story-topbar .page-indicator {
     font-family: 'Nanum Pen Script', cursive; font-size: 20px;
-    background: rgba(255,255,255,0.85); padding: 6px 14px;
+    background: rgba(255,255,255,0.9); padding: 6px 14px;
     border-radius: 999px; color: var(--moss-deep); backdrop-filter: blur(8px);
   }
 
@@ -232,10 +235,10 @@
   }
   .story-nav .nav-prev {
     background: #fff; color: var(--moss-deep);
-    border: 1.5px solid var(--mint); flex: 0.8;
+    border: 1.5px solid var(--petal); flex: 0.8;
   }
   .story-nav .nav-next {
-    background: var(--leaf-3); color: #fff;
+    background: linear-gradient(135deg, var(--leaf-3) 0%, var(--moss) 100%); color: #fff;
     box-shadow: 0 3px 0 var(--moss-deep); flex: 1.2;
   }
   .story-nav .nav-next:active { box-shadow: 0 1px 0 var(--moss-deep); transform: translateY(2px); }
@@ -243,7 +246,7 @@
   .story-nav .nav-jump {
     width: 40px; height: 40px; padding: 0; border-radius: 50%;
     background: #fff; color: var(--moss-deep);
-    border: 1.5px solid var(--mint); flex: 0 0 auto;
+    border: 1.5px solid var(--petal); flex: 0 0 auto;
     font-size: 16px;
   }
 
@@ -349,13 +352,14 @@
   .mood-card {
     background: #fff; border-radius: 20px; padding: 20px 18px;
     margin: 14px 0; border: 1.5px solid var(--mint);
-    box-shadow: 0 3px 0 rgba(168,204,136,0.25); position: relative;
+    box-shadow: 0 3px 0 rgba(232,145,126,0.2); position: relative;
   }
-  .mood-card.leaf  { border-color: var(--leaf-2);  background: #fafff0; }
-  .mood-card.peach { border-color: var(--petal);   background: #fff8f2; }
-  .mood-card.berry { border-color: var(--berry);   background: #fff4f4; }
-  .mood-card.dew   { border-color: var(--dewdrop); background: #f4fafe; }
+  .mood-card.leaf  { border-color: var(--leaf-2);  background: #fff5f2; }
+  .mood-card.peach { border-color: var(--petal);   background: #fff0ee; }
+  .mood-card.berry { border-color: var(--berry);   background: #ffeae8; }
+  .mood-card.dew   { border-color: var(--capi-pink); background: #fff0f5; }
   .mood-card.cream { border-color: var(--mushroom); background: var(--cream); }
+  .mood-card.petal { border-color: var(--petal); background: #fff5f5; }
 
   .sticky {
     display: inline-block; padding: 14px 18px;
@@ -560,12 +564,12 @@
 <!-- ============================================= INPUT SCREEN ============================================= -->
 <div id="screen-input">
   <header class="hero">
-    <span class="sparkle">✨</span>
-    <span class="sparkle">🍀</span>
-    <span class="sparkle">🌱</span>
-    <span class="hero-emoji">🧚‍♀️</span>
-    <h1>숲속 요정이 풀어주는<br><span class="highlight">올해의 사주</span></h1>
-    <p>만세력 앱에서 복사한 내용을 붙여넣으면<br>요정이 카드로 한 장 한 장 풀어줘요 🌿</p>
+    <span class="sparkle">🌸</span>
+    <span class="sparkle">💕</span>
+    <span class="sparkle">🌿</span>
+    <span class="hero-emoji">🦫</span>
+    <h1>카피바라가 풀어주는<br><span class="highlight">올해의 사주</span></h1>
+    <p>만세력 앱에서 복사한 내용을 붙여넣으면<br>카피바라가 카드로 한 장 한 장 풀어줘요 🦫</p>
   </header>
 
   <div class="paper-card guide-card">
@@ -1930,9 +1934,9 @@ function buildPages(data, year) {
   pages.push({
     chapter:'🌿 시작',
     title:'표지',
-    emoji:'🧚‍♀️',
+    emoji:'🦫',
     html:`
-      <div class="pg-eyebrow">숲속 요정의 사주 카드</div>
+      <div class="pg-eyebrow">카피바라 사주카드</div>
       <h1 class="pg-title">${honoric}의<br>${year}년 이야기</h1>
       <div class="pg-sub">${esc(data.birth)} · ${genderKo} · 일간 ${data.ilgan}(${GAN_INFO[data.ilgan]?.ko})</div>
       <div class="center-stack" style="margin:32px 0">
@@ -1944,7 +1948,7 @@ function buildPages(data, year) {
         한 장씩 넘겨보세요.<br>
         오른쪽 아래 <strong>☰</strong>를 누르면 목차로 점프할 수 있어요.</p>
       </div>
-      <p class="hand" style="text-align:center;font-size:22px;color:var(--moss);margin-top:24px;">차분히 즐겨주세요 🍃</p>
+      <p class="hand" style="text-align:center;font-size:22px;color:var(--moss);margin-top:24px;">느긋하게 즐겨주세요 🦫</p>
     `
   });
 
@@ -3245,8 +3249,8 @@ function buildClosingPages(data, year, pages) {
           <p style="margin-top:8px;">이 카드는 오락·참고용이에요. 인생의 모든 답은 결국 ${honoric} 안에 있어요 🌸</p>
         </div>
         <div class="center-stack" style="margin-top:20px;">
-          <div style="font-size:40px;">🧚‍♀️💕🍀</div>
-          <div class="hand" style="font-size:22px;color:var(--moss);">숲속 요정 드림</div>
+          <div style="font-size:40px;">🦫💕🍀</div>
+          <div class="hand" style="font-size:22px;color:var(--moss);">카피바라 드림 🦫</div>
         </div>
       </div>
     `

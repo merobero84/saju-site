@@ -547,7 +547,7 @@
     <div class="field-row-3">
       <div class="field">
         <label for="in-name">이름 (선택)</label>
-        <input id="in-name" placeholder="예: 혜정" />
+        <input id="in-name" placeholder="예: 짱구" />
       </div>
       <div class="field">
         <label for="in-gender">성별</label>
@@ -564,28 +564,9 @@
     <div class="field">
       <label for="in-raw">만세력 텍스트</label>
       <textarea id="in-raw" placeholder="【만세력】 ...&#10;■ 사주 원국&#10;천간 甲 丙 甲 丙&#10;지지 子 寅 申 寅&#10;..."></textarea>
-      <button class="example-btn" id="btn-example">🌱 예시 데이터 불러오기</button>
     </div>
     <button class="btn btn-primary btn-full" id="btn-analyze">사주 카드 열기 🔮</button>
     <div id="input-error" style="display:none"></div>
-  </div>
-
-  <div class="paper-card">
-    <h2 class="card-title"><span class="emoji">🍃</span>이런 카드가 나와요</h2>
-    <ul class="info-list">
-      <li>📖 인사 + 그 해의 총운 카드</li>
-      <li>🌳 타고난 사주팔자 (일간·원국·오행)</li>
-      <li>🍀 또래에 비해 흥/망 비교</li>
-      <li>⚠️ 올해 주의사항 (합·충·살)</li>
-      <li>💕 <strong>애정·결혼운</strong> (인연 시기·타입·타임라인)</li>
-      <li>💰 <strong>재물운</strong> (월별 흐름·투자 타이밍)</li>
-      <li>🎓 학업·자격·시험운 / 🤝 대인관계운</li>
-      <li>💼 업무·커리어운 / 🧘 건강운</li>
-      <li>🌅 대운·삼재·타고난 신살</li>
-      <li>🌸 1~12월 월별 카드 (탭하면 상세)</li>
-      <li>⭐ 올해의 별 (십이운성)</li>
-      <li>🧚‍♀️ 총 100장 이상의 카드로 풀어드려요</li>
-    </ul>
   </div>
 
   <p class="note">※ 오락·참고용 해석이에요 🌷<br>명리학 통념을 바탕으로 한 템플릿 기반 풀이입니다.</p>
@@ -1882,8 +1863,8 @@ function buildPages(data, year) {
         <div class="hand" style="font-size:26px;color:var(--moss);">"${il?.one || '당신의 이야기'}"</div>
       </div>
       <div class="mood-card leaf">
-        <p style="margin:0">🌱 이 카드는 총 <strong>100장 이상</strong>이에요.<br>
-        좌우로 탭하거나 <strong>다음 →</strong>을 눌러 한 장씩 넘겨보세요.<br>
+        <p style="margin:0">🌱 좌우로 탭하거나 <strong>다음 →</strong>을 눌러<br>
+        한 장씩 넘겨보세요.<br>
         오른쪽 아래 <strong>☰</strong>를 누르면 목차로 점프할 수 있어요.</p>
       </div>
       <p class="hand" style="text-align:center;font-size:22px;color:var(--moss);margin-top:24px;">차분히 즐겨주세요 🍃</p>
@@ -4145,67 +4126,9 @@ ${ask || `${year}년 종합 운세를 정성껏 풀어주세요.`}`;
   }
 }
 
-/* ============ 예시 데이터 ============ */
-const EXAMPLE_TEXT = `【만세력】 허혜정 (1984년 2월 20일, 음력 1월 19일)
-■ 사주 원국
-천간 甲 丙 甲 丙
-지지 子 寅 申 寅
-■ 일간: 甲(갑)
-■ 오행 분포: 목 4, 화 2, 토 0, 금 1, 수 1
-■ 신강/신약: 신강(지수 60)
-■ 용신: 금 / 희신: 토 / 기신: 화
-■ 12운성 년:목욕 월:건록 일:절 시:건록
-■ 지장간 년:癸 월:甲 일:庚 시:甲
-■ 천간 십신 년:식신 월:비견 일:일간 시:식신
-■ 지지 십신 년:정인 월:비견 일:편관 시:비견
-■ 신살: 역마살, 지살, 재살, 장성살, 현침살, 관귀학관, 월덕귀인, 태극귀인, 복성귀인, 건록, 월공, 고신살, 상문, 급각살, 낙정관살
-■ 지지 관계: 인신충(월-일), 인인 자형(월-시)
-
-■ 대운
-5~14세: 乙丑(겁재, 관대)
-15~24세: 甲子(비견, 목욕)
-25~34세: 癸亥(정인, 장생)
-35~44세: 壬戌(편인, 양)
-45~54세: 辛酉(정관, 태)
-55~64세: 庚申(편관, 절)
-65~74세: 己未(정재, 묘)
-
-■ 연운
-2021: 辛丑(정관, 관대)
-2022: 壬寅(편인, 건록)
-2023: 癸卯(정인, 제왕)
-2024: 甲辰(비견, 쇠)
-2025: 乙巳(겁재, 병)
-2026: 丙午(식신, 사) [올해]
-2027: 丁未(상관, 묘)
-2028: 戊申(편재, 절)
-2029: 己酉(정재, 태)
-2030: 庚戌(편관, 양)
-2031: 辛亥(정관, 장생)
-
-■ 월운
-1월: 己丑(정재, 관대)
-2월: 庚寅(편관, 건록)
-3월: 辛卯(정관, 제왕)
-4월: 壬辰(편인, 쇠)
-5월: 癸巳(정인, 병)
-6월: 甲午(비견, 사)
-7월: 乙未(겁재, 묘)
-8월: 丙申(식신, 절)
-9월: 丁酉(상관, 태)
-10월: 戊戌(편재, 양)
-11월: 己亥(정재, 장생)
-12월: 庚子(편관, 목욕)`;
 
 /* ============ 메인 ============ */
 function init() {
-  document.getElementById('btn-example').addEventListener('click', () => {
-    document.getElementById('in-raw').value = EXAMPLE_TEXT;
-    document.getElementById('in-name').value = '혜정';
-    document.getElementById('in-gender').value = 'female';
-    document.getElementById('in-year').value = 2026;
-  });
-
   document.getElementById('btn-analyze').addEventListener('click', () => {
     const raw = document.getElementById('in-raw').value.trim();
     const errorEl = document.getElementById('input-error');

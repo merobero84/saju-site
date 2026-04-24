@@ -217,13 +217,6 @@
   }
   .story-content::-webkit-scrollbar { width: 0; }
 
-  .story-tap-zone {
-    position: absolute; top: 70px; bottom: 80px;
-    width: 28%; z-index: 3; cursor: pointer;
-  }
-  .story-tap-zone.left  { left: 0; }
-  .story-tap-zone.right { right: 0; }
-
   .story-nav {
     position: absolute; bottom: 0; left: 0; right: 0;
     padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0));
@@ -651,8 +644,6 @@
         <div class="page-indicator" id="indicator">1 / 1</div>
         <button class="icon-btn" id="btn-close-story" title="닫기">✕</button>
       </div>
-      <div class="story-tap-zone left" id="tap-prev"></div>
-      <div class="story-tap-zone right" id="tap-next"></div>
       <div class="story-content" id="story-content"></div>
       <div class="story-nav">
         <button class="nav-prev" id="btn-prev">← 이전</button>
@@ -1970,8 +1961,8 @@ function buildPages(data, year) {
         <div class="hand" style="font-size:26px;color:var(--moss);">"${il?.one || '당신의 이야기'}"</div>
       </div>
       <div class="mood-card leaf">
-        <p style="margin:0">🌱 이 카드는 총 <strong>100장 이상</strong>이에요.<br>
-        좌우로 탭하거나 <strong>다음 →</strong>을 눌러 한 장씩 넘겨보세요.<br>
+        <p style="margin:0">🌱 아래 <strong>다음 →</strong> 버튼을 눌러
+        한 장씩 넘겨보세요.<br>
         오른쪽 아래 <strong>☰</strong>를 누르면 목차로 점프할 수 있어요.</p>
       </div>
       <p class="hand" style="text-align:center;font-size:22px;color:var(--moss);margin-top:24px;">차분히 즐겨주세요 🍃</p>
@@ -3184,11 +3175,12 @@ function buildMonthPages(data, year, pages) {
     `
   });
 
-  // 추가로 월별 요약 3개 (상반기·중반기·하반기)
+  // 추가로 월별 요약 4개 (분기별)
   const halves = [
-    { title:'상반기(1~4월)', months:[1,2,3,4] },
-    { title:'중반기(5~8월)', months:[5,6,7,8] },
-    { title:'하반기(9~12월)', months:[9,10,11,12] }
+    { title:'1분기(1~3월)', months:[1,2,3] },
+    { title:'2분기(4~6월)', months:[4,5,6] },
+    { title:'3분기(7~9월)', months:[7,8,9] },
+    { title:'4분기(10~12월)', months:[10,11,12] }
   ];
   halves.forEach(h => {
     const scores = h.months.map(m => ({ m, info: monthScore(data, m), w: data.wolun[m] })).filter(x => x.w);
@@ -3774,7 +3766,7 @@ function buildHealthDepth(data, year, pages) {
       <div class="pg-body">
         <div class="mood-card leaf">
           <p><strong>🩺 정기검진 권장 시기</strong></p>
-          <p style="margin-top:6px;">${cauts.length > 0 ? `${cauts[0].month}월 즈음 건강검진을 받으면 한 해가 편안해요.` : '상반기 한 번, 하반기 한 번 일반 검진 추천.'}</p>
+          <p style="margin-top:6px;">${cauts.length > 0 ? `${cauts[0].month}월 즈음 건강검진을 받으면 한 해가 편안해요.` : '상반기·하반기 나눠서 1년에 두 번 일반 검진 추천.'}</p>
         </div>
         <div class="mood-card cream">
           <p><strong>🧘 올해 권장 습관</strong></p>
@@ -4369,8 +4361,6 @@ function init() {
   // 네비게이션
   document.getElementById('btn-prev').addEventListener('click', () => goToPage(CURRENT-1));
   document.getElementById('btn-next').addEventListener('click', () => goToPage(CURRENT+1));
-  document.getElementById('tap-prev').addEventListener('click', () => goToPage(CURRENT-1));
-  document.getElementById('tap-next').addEventListener('click', () => goToPage(CURRENT+1));
   document.getElementById('btn-home').addEventListener('click', () => goToPage(0));
   document.getElementById('btn-close-story').addEventListener('click', () => {
     document.getElementById('screen-story').classList.remove('is-open');

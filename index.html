@@ -5163,24 +5163,101 @@ function init() {
       function extractCardContent(html, title){
         const tmp=document.createElement('div');
         tmp.innerHTML=html||'';
-        // 불필요한 요소 제거
         tmp.querySelectorAll('.pg-chapter-no,script,style,.story-tap-zone,.pg-eyebrow,h1.pg-title').forEach(el=>el.remove());
-        // score-ball은 작게 표시 (숫자만 남기기)
+
+        // ── 사주팔자 카드 → 4기둥 표로 변환 ──
+        const pillarsEl = tmp.querySelector('.pillars');
+        if (pillarsEl) {
+          const cols = pillarsEl.querySelectorAll('.pillar');
+          let tableHtml = '<table style="width:100%;border-collapse:collapse;margin:8px 0;text-align:center;">';
+          // 헤더: 년주/월주/일주/시주
+          tableHtml += '<tr>';
+          cols.forEach(col => {
+            const lbl = col.querySelector('.pillar-label');
+            const isDay = col.classList.contains('is-day');
+            tableHtml += `<th style="border:1.5px solid #ffb8a8;padding:5px;background:${isDay?'#ffd4c2':'#fff5f0'};font-size:12px;font-weight:700;color:#9e4f3f;">${lbl?lbl.textContent:''}</th>`;
+          });
+          tableHtml += '</tr>';
+          // 천간
+          tableHtml += '<tr>';
+          cols.forEach(col => {
+            const chun = col.querySelector('.pillar-chun');
+            const isDay = col.classList.contains('is-day');
+            tableHtml += `<td style="border:1.5px solid #ffb8a8;padding:8px 4px;background:${isDay?'#fff0ee':'#fff'};font-size:22px;font-weight:700;font-family:'Gowun Batang',serif;color:#4a2e28;">${chun?chun.textContent:''}</td>`;
+          });
+          tableHtml += '</tr>';
+          // 지지
+          tableHtml += '<tr>';
+          cols.forEach(col => {
+            const ji = col.querySelector('.pillar-ji');
+            const isDay = col.classList.contains('is-day');
+            tableHtml += `<td style="border:1.5px solid #ffb8a8;padding:8px 4px;background:${isDay?'#fff0ee':'#fff'};font-size:22px;font-weight:700;font-family:'Gowun Batang',serif;color:#4a2e28;">${ji?ji.textContent:''}</td>`;
+          });
+          tableHtml += '</tr>';
+          // 한글
+          tableHtml += '<tr>';
+          cols.forEach(col => {
+            const han = col.querySelector('.pillar-han');
+            tableHtml += `<td style="border:1.5px solid #ffb8a8;padding:4px;background:#fff8f5;font-size:11px;color:#8a6058;">${han?han.textContent:''}</td>`;
+          });
+          tableHtml += '</tr></table>';
+          pillarsEl.outerHTML = tableHtml;
+        }
+
+        // ── 월별 카드 → 12달 가로 표로 변환 ──
+        const miniMonths = tmp.querySelectorAll('.mini-month');
+        if (miniMonths.length > 0) {
+          let tableHtml = '<table style="width:100%;border-collapse:collapse;margin:8px 0;text-align:center;font-size:11px;">';
+          tableHtml += '<tr>';
+          miniMonths.forEach(mm => {
+            const label = mm.querySelector('.mm-label');
+            tableHtml += `<th style="border:1px solid #ffb8a8;padding:4px 2px;background:#fff5f0;color:#c4705e;font-size:10px;">${label?label.textContent:''}</th>`;
+          });
+          tableHtml += '</tr><tr>';
+          miniMonths.forEach(mm => {
+            const emoji = mm.querySelector('.mm-emoji');
+            tableHtml += `<td style="border:1px solid #ffb8a8;padding:3px 1px;font-size:14px;">${emoji?emoji.textContent:''}</td>`;
+          });
+          tableHtml += '</tr><tr>';
+          miniMonths.forEach(mm => {
+            const score = mm.querySelector('.mm-score');
+            const scoreText = score ? score.textContent.replace('/100','').trim() : '';
+            const num = parseInt(scoreText);
+            const bg = num>=80?'#e8f5e9':num>=65?'#fff8e1':'#fce4ec';
+            tableHtml += `<td style="border:1px solid #ffb8a8;padding:4px 2px;background:${bg};font-weight:700;font-size:12px;color:#4a2e28;">${scoreText}</td>`;
+          });
+          tableHtml += '</tr><tr>';
+          miniMonths.forEach(mm => {
+            const sipsin = mm.querySelector('.mm-sipsin');
+            tableHtml += `<td style="border:1px solid #ffb8a8;padding:3px 1px;font-size:9px;color:#8a6058;">${sipsin?sipsin.textContent:''}</td>`;
+          });
+          tableHtml += '</tr></table>';
+          // 기존 그리드 교체
+          const grid = tmp.querySelector('.month-grid, [class*="month"]');
+          if (grid) grid.innerHTML = tableHtml;
+          else {
+            miniMonths[0].parentNode.innerHTML = tableHtml;
+          }
+        }
+
+        // score-ball → 텍스트
         tmp.querySelectorAll('.score-ball').forEach(ball=>{
           const num=ball.querySelector('.num');
           if(num){
             const span=document.createElement('strong');
-            span.style.cssText='font-size:18px;color:#9e4f3f;';
+            span.style.cssText='font-size:20px;color:#9e4f3f;font-family:Gowun Batang,serif;';
             span.textContent=num.textContent+'점';
             ball.parentNode.replaceChild(span,ball);
           }
         });
-        // center-stack 해제 (격자에서 중앙정렬이 공간 낭비)
+
+        // center-stack 해제
         tmp.querySelectorAll('.center-stack').forEach(el=>{
           el.style.textAlign='left';
           el.style.display='block';
         });
-        // 텍스트 너무 길면 축소 (2×1이라 공간 넉넉)
+
+        // 텍스트 제한 (2×1이라 공간 넉넉)
         tmp.querySelectorAll('p').forEach(p=>{
           if(p.textContent.trim().length>150) p.textContent=p.textContent.trim().slice(0,150)+'…';
         });

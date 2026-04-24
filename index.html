@@ -52,6 +52,8 @@
     position: relative; z-index: 1;
     max-width: 520px; margin: 0 auto; padding: 0 22px 80px;
   }
+  /* 초기엔 모두 숨김 — JS init()에서 showScreen()으로 제어 */
+  #screen-input, #screen-multi { display: none; }
   .main-mode-btn {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 8px; padding: 24px 12px;
@@ -4508,7 +4510,18 @@ ${ask || `${year}년 한 해를 어떻게 보내면 좋을지, 어느 영역을 
 }
 
 /* ============ 메인 ============ */
+function showScreen(id) {
+  ['screen-main','screen-input','screen-multi'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? 'block' : 'none';
+  });
+  window.scrollTo(0, 0);
+}
+
 function init() {
+  // 초기화: 메인 화면만 표시
+  showScreen('screen-main');
+
+  // 개인 사주 분석
   document.getElementById('btn-analyze').addEventListener('click', () => {
     const raw = document.getElementById('in-raw').value.trim();
     const errorEl = document.getElementById('input-error');
@@ -4516,7 +4529,6 @@ function init() {
     if (!raw) { errorEl.className='error'; errorEl.textContent='만세력 내용을 붙여넣어 주세요.'; errorEl.style.display='block'; return; }
     try {
       const data = parseManseryeok(raw);
-      // 이름은 만세력에서 자동 파싱
       data.gender = document.getElementById('in-gender').value;
       data.loveStatus = document.getElementById('in-lovestatus').value;
       const year = parseInt(document.getElementById('in-year').value, 10) || 2026;
@@ -4524,19 +4536,27 @@ function init() {
         errorEl.className='error'; errorEl.textContent='일간 또는 사주 원국을 찾지 못했어요. 예시 형식을 참고해주세요.'; errorEl.style.display='block'; return;
       }
       renderStory(data, year);
+      ['screen-main','screen-input','screen-multi'].forEach(s => document.getElementById(s).style.display = 'none');
       document.getElementById('screen-story').classList.add('is-open');
     } catch(e) {
       errorEl.className='error'; errorEl.textContent='파싱 중 문제가 발생했어요: '+e.message; errorEl.style.display='block';
     }
   });
 
-  // 네비게이션
-  document.getElementById('btn-prev').addEventListener('click', () => goToPage(CURRENT-1));
-  document.getElementById('btn-next').addEventListener('click', () => goToPage(CURRENT+1));
-  document.getElementById('btn-home').addEventListener('click', () => goToPage(0));
-  document.getElementById('btn-close-story').addEventListener('click', () => {
-    document.getElementById('screen-story').classList.remove('is-open');
+  // 화면 전환
+  document.getElementById('btn-go-single').addEventListener('click', () => showScreen('screen-input'));
+  document.getElementById('btn-go-multi-main').addEventListener('click', () => {
+    showScreen('screen-multi');
+    if (multiPersons.length === 0) multiAddPerson();
   });
+  document.getElementById('btn-back-main').addEventListener('click', () => showScreen('screen-main'));
+  document.getElementById('btn-back-main-multi').addEventListener('click', () => { multiPersons=[]; showScreen('screen-main'); });
+  document.getElementById('btn-back-single').addEventListener('click', () => { multiPersons=[]; showScreen('screen-main'); });
+  document.getElementById('btn-multi-add').addEventListener('click', () => {
+    if (multiPersons.length >= 10) { alert('최대 10명까지 가능해요 🦫'); return; }
+    multiAddPerson();
+  });
+  document.getElementById('btn-multi-run').addEventListener('click', multiRun);
 
   // TOC
   document.getElementById('btn-toc').addEventListener('click', () => {
@@ -4557,6 +4577,40 @@ function init() {
   document.getElementById('modal-close').addEventListener('click', closeModal);
   document.getElementById('modal-backdrop').addEventListener('click', (e) => {
     if (e.target === document.getElementById('modal-backdrop')) closeModal();
+  });
+
+  // 📋 만세력 텍스트 복사
+  document.getElementById('btn-share').addEventListener('click', () => {
+    const raw = document.getElementById('in-raw').value.trim();
+    if (!raw) { alert('복사할 만세력 데이터가 없어요.'); return; }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(raw)
+        .then(() => alert('📋 만세력 텍스트가 복사됐어요!\n친구에게 카톡/문자로 보내면\n그 분도 붙여넣고 바로 볼 수 있어요 🦫'))
+        .catch(() => { const ta=document.createElement('textarea');ta.value=raw;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('📋 복사됐어요!'); });
+    } else { prompt('아래 텍스트를 복사해 공유하세요:', raw); }
+  });
+
+  // 💾 PDF 저장
+  document.getElementById('btn-pdf').addEventListener('click', () => {
+    const name = (document.getElementById('in-name')?.value||'').trim() || '사주';
+    const year = document.getElementById('in-year').value || new Date().getFullYear();
+    const choice = confirm('📄 저장 방식을 선택해주세요\n\n확인 → 현재 카드 한 장만\n취소 → 전체 카드 PDF (인쇄)');
+    const commonStyle = `@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap');*{box-sizing:border-box;}body{margin:0;padding:0;font-family:'Gowun Dodum',sans-serif;background:#fff8f5;color:#4a2e28;font-size:15px;line-height:1.65;}h1{font-family:'Gowun Batang',serif;font-size:20px;margin:8px 0;}h2,h3,h4{font-family:'Gowun Batang',serif;margin:8px 0;}.hand{font-family:'Nanum Pen Script',cursive;}.mood-card{border:1.5px solid #ffb8a8;border-radius:12px;padding:12px 14px;margin:8px 0;background:#fff5f2;}.mood-card.leaf{border-color:#ffb8a8;background:#fff5f0;}.mood-card.peach{border-color:#ffd4c2;background:#fff0ee;}.mood-card.cream{border-color:#d4a090;background:#fde8df;}.tag{display:inline-block;padding:3px 10px;border-radius:99px;background:#fde8df;border:1px solid #ffb8a8;font-size:12px;margin:2px;}.pg-eyebrow{font-size:12px;color:#c4705e;margin-bottom:4px;}.pg-title{font-family:'Gowun Batang',serif;font-size:22px;margin:6px 0 12px;}.pg-body{margin-top:12px;}.tags{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;}.sticky{background:#fff8c8;border-radius:6px;padding:10px 14px;display:inline-block;}.center-stack{text-align:center;}@media print{.no-print{display:none!important;}body{background:#fff;}}`;
+    if (choice) {
+      const page = document.querySelector('.story-page.is-active');
+      if (!page) { alert('표시된 카드가 없어요.'); return; }
+      const win = window.open('', '_blank');
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name} ${year}년</title><style>${commonStyle}.wrap{max-width:420px;margin:0 auto;padding:20px;}.hd{text-align:center;padding:16px 0;border-bottom:2px dashed #ffb8a8;margin-bottom:20px;}.btn-p{display:block;margin:24px auto 0;padding:12px 30px;background:#e8917e;color:#fff;border:none;border-radius:14px;font-size:15px;cursor:pointer;font-family:inherit;}</style></head><body><div class="wrap"><div class="hd"><p style="font-size:22px;margin:0;">🦫</p><h2 style="margin:4px 0;">카피바라 사주카드</h2><p style="margin:4px 0;color:#c4705e;">${name} · ${year}년</p></div>${page.innerHTML}<button class="btn-p no-print" onclick="window.print()">🖨️ PDF로 저장하기</button></div></body></html>`);
+      win.document.close();
+    } else {
+      if (!ALL_PAGES||ALL_PAGES.length===0){alert('카드가 없어요.');return;}
+      function extractCardContent(html){const tmp=document.createElement('div');tmp.innerHTML=html||'';tmp.querySelectorAll('.pg-chapter-no,script,style').forEach(el=>el.remove());return tmp.innerHTML;}
+      const chunks=[];for(let i=0;i<ALL_PAGES.length;i+=4)chunks.push(ALL_PAGES.slice(i,i+4));
+      const gridPagesHtml=chunks.map((chunk,ci)=>`<div class="grid-page">${chunk.map((p,j)=>`<div class="grid-card"><div class="grid-card-header"><span class="grid-chapter">${p.emoji||'🦫'} ${p.chapter}</span><span class="grid-num">${ci*4+j+1}</span></div><div class="grid-card-body"><div class="grid-title">${p.title}</div><div class="grid-content">${extractCardContent(p.html)}</div></div></div>`).join('')}${chunk.length<4?Array(4-chunk.length).fill('<div class="grid-card grid-card-empty"></div>').join(''):''}</div>`).join('');
+      const win=window.open('','_blank');
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name} ${year}년 전체</title><style>@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap');*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Gowun Dodum',sans-serif;background:#fff8f5;color:#4a2e28;font-size:11px;line-height:1.5;}.cover{width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#fff5f0,#fde8df);page-break-after:always;}.cover-emoji{font-size:80px;margin-bottom:16px;}.cover-title{font-family:'Gowun Batang',serif;font-size:36px;color:#9e4f3f;margin-bottom:8px;}.cover-sub{font-family:'Nanum Pen Script',cursive;font-size:24px;color:#c4705e;margin-bottom:24px;}.cover-info{font-size:15px;color:#8a6058;border:1.5px dashed #ffb8a8;padding:12px 28px;border-radius:99px;}.grid-page{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px;padding:16px;width:100%;height:100vh;page-break-after:always;page-break-inside:avoid;}.grid-page:last-of-type{page-break-after:auto;}.grid-card{background:#fff;border:1.5px solid #ffb8a8;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}.grid-card-empty{background:rgba(255,245,240,0.4);border:1.5px dashed #ffd4c2;border-radius:16px;}.grid-card-header{background:linear-gradient(135deg,#fff5f0,#fde8df);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ffd4c2;flex-shrink:0;}.grid-chapter{font-size:10px;color:#c4705e;font-weight:700;}.grid-num{font-family:'Nanum Pen Script',cursive;font-size:16px;color:#e8917e;}.grid-card-body{padding:10px 12px;overflow:hidden;flex:1;position:relative;}.grid-card-body::after{content:'';position:absolute;bottom:0;left:0;right:0;height:32px;background:linear-gradient(transparent,#fff);}.grid-title{font-family:'Gowun Batang',serif;font-size:13px;font-weight:700;color:#9e4f3f;margin-bottom:6px;}.grid-content{font-size:10px;line-height:1.55;}.grid-content h1{font-size:13px;font-family:'Gowun Batang',serif;margin:4px 0;}.grid-content .mood-card{border:1px solid #ffb8a8;border-radius:8px;padding:6px 8px;margin:4px 0;background:#fff5f2;}.grid-content p{margin:2px 0;}.grid-content .pg-chapter-no{display:none;}.btn-p{display:block;margin:20px auto;padding:14px 40px;background:#e8917e;color:#fff;border:none;border-radius:14px;font-size:16px;cursor:pointer;font-family:inherit;font-weight:700;}@media print{body{background:#fff;}.no-print{display:none!important;}.grid-page{height:100vh;padding:12px;}}</style></head><body><div class="cover"><div class="cover-emoji">🦫</div><div class="cover-title">카피바라 사주카드</div><div class="cover-sub">"느긋하게, 그러나 깊이"</div><div class="cover-info">${name} · ${year}년 · 총 ${ALL_PAGES.length}장</div></div>${gridPagesHtml}<div style="text-align:center;padding:30px;"><button class="btn-p no-print" onclick="window.print()">🖨️ PDF로 저장하기</button></div></body></html>`);
+      win.document.close();
+    }
   });
 
   // 키보드
